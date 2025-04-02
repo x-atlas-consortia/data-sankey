@@ -1,0 +1,28 @@
+.c-sankey {
+    min-height: 100vh
+}
+
+.c-sankey__node rect {
+    stroke: #000;
+    fill-opacity: .9
+}
+
+.c-sankey__node rect:hover {
+    fill-opacity: 1
+}
+
+.c-sankey__link {
+    fill: none;
+    stroke: #000;
+    stroke-opacity: .2
+}
+
+.c-sankey__link:hover {
+    stroke-opacity: .4
+}
+
+xac-sankey, consortium-sankey, react-consortium-sankey {
+    width: 100%;
+    display: block;
+    height: 100%;
+}
