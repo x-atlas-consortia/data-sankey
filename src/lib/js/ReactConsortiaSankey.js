@@ -2,7 +2,7 @@ import * as d3 from 'd3'
 import { sankey as d3sankey, sankeyLinkHorizontal } from 'd3-sankey'
 import XACSankey from "./XACSankey.js";
 
-class ReactConsortiumSankey extends XACSankey {
+class ReactConsortiaSankey extends XACSankey {
     constructor() {
         super();
         this.d3 = {
@@ -11,6 +11,6 @@ class ReactConsortiumSankey extends XACSankey {
     }
 }
 
-customElements.define('react-consortium-sankey', ReactConsortiumSankey)
+customElements.define('react-consortia-sankey', ReactConsortiaSankey)
 
-export default ReactConsortiumSankey
+export default ReactConsortiaSankey

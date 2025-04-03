@@ -2,7 +2,7 @@ import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm"
 import { sankey as d3sankey, sankeyLinkHorizontal } from 'https://cdn.jsdelivr.net/npm/d3-sankey@0.12.3/+esm'
 import XACSankey from "./XACSankey.js";
 
-class ConsortiumSankey extends XACSankey {
+class ConsortiaSankey extends XACSankey {
     constructor() {
         super();
         this.d3 = {
@@ -11,6 +11,6 @@ class ConsortiumSankey extends XACSankey {
     }
 }
 
-customElements.define('consortium-sankey', ConsortiumSankey)
+customElements.define('consortia-sankey', ConsortiaSankey)
 
-export default ConsortiumSankey
+export default ConsortiaSankey

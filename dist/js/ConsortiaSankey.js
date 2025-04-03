@@ -14,11 +14,11 @@ function _setPrototypeOf(t, e) { return _setPrototypeOf = Object.setPrototypeOf 
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
 import { sankey as d3sankey, sankeyLinkHorizontal } from 'https://cdn.jsdelivr.net/npm/d3-sankey@0.12.3/+esm';
 import XACSankey from "./XACSankey.js";
-var ConsortiumSankey = /*#__PURE__*/function (_XACSankey) {
-  function ConsortiumSankey() {
+var ConsortiaSankey = /*#__PURE__*/function (_XACSankey) {
+  function ConsortiaSankey() {
     var _this;
-    _classCallCheck(this, ConsortiumSankey);
-    _this = _callSuper(this, ConsortiumSankey);
+    _classCallCheck(this, ConsortiaSankey);
+    _this = _callSuper(this, ConsortiaSankey);
     _this.d3 = {
       d3: d3,
       d3sankey: d3sankey,
@@ -26,8 +26,8 @@ var ConsortiumSankey = /*#__PURE__*/function (_XACSankey) {
     };
     return _this;
   }
-  _inherits(ConsortiumSankey, _XACSankey);
-  return _createClass(ConsortiumSankey);
+  _inherits(ConsortiaSankey, _XACSankey);
+  return _createClass(ConsortiaSankey);
 }(XACSankey);
-customElements.define('consortium-sankey', ConsortiumSankey);
-export default ConsortiumSankey;
+customElements.define('consortia-sankey', ConsortiaSankey);
+export default ConsortiaSankey;

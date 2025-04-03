@@ -14,11 +14,11 @@ function _setPrototypeOf(t, e) { return _setPrototypeOf = Object.setPrototypeOf 
 import * as d3 from 'd3';
 import { sankey as d3sankey, sankeyLinkHorizontal } from 'd3-sankey';
 import XACSankey from "./XACSankey.js";
-var ReactConsortiumSankey = /*#__PURE__*/function (_XACSankey) {
-  function ReactConsortiumSankey() {
+var ReactConsortiaSankey = /*#__PURE__*/function (_XACSankey) {
+  function ReactConsortiaSankey() {
     var _this;
-    _classCallCheck(this, ReactConsortiumSankey);
-    _this = _callSuper(this, ReactConsortiumSankey);
+    _classCallCheck(this, ReactConsortiaSankey);
+    _this = _callSuper(this, ReactConsortiaSankey);
     _this.d3 = {
       d3: d3,
       d3sankey: d3sankey,
@@ -26,8 +26,8 @@ var ReactConsortiumSankey = /*#__PURE__*/function (_XACSankey) {
     };
     return _this;
   }
-  _inherits(ReactConsortiumSankey, _XACSankey);
-  return _createClass(ReactConsortiumSankey);
+  _inherits(ReactConsortiaSankey, _XACSankey);
+  return _createClass(ReactConsortiaSankey);
 }(XACSankey);
-customElements.define('react-consortium-sankey', ReactConsortiumSankey);
-export default ReactConsortiumSankey;
+customElements.define('react-consortia-sankey', ReactConsortiaSankey);
+export default ReactConsortiaSankey;

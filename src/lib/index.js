@@ -1,4 +1,4 @@
 import XACSankey from './js/XACSankey'
-import ReactConsortiumSankey from "./js/ReactConsortiumSankey";
+import ReactConsortiaSankey from "./js/ReactConsortiaSankey";
 
-export {XACSankey, ReactConsortiumSankey}
+export {XACSankey, ReactConsortiaSankey}
