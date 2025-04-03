@@ -26,11 +26,25 @@ function _isNativeReflectConstruct() { try { var t = !Boolean.prototype.valueOf.
 function _isNativeFunction(t) { try { return -1 !== Function.toString.call(t).indexOf("[native code]"); } catch (n) { return "function" == typeof t; } }
 function _setPrototypeOf(t, e) { return _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function (t, e) { return t.__proto__ = e, t; }, _setPrototypeOf(t, e); }
 function _getPrototypeOf(t) { return _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function (t) { return t.__proto__ || Object.getPrototypeOf(t); }, _getPrototypeOf(t); }
+function _classPrivateFieldInitSpec(e, t, a) { _checkPrivateRedeclaration(e, t), t.set(e, a); }
+function _checkPrivateRedeclaration(e, t) { if (t.has(e)) throw new TypeError("Cannot initialize the same private elements twice on an object"); }
+function _classPrivateFieldGet(s, a) { return s.get(_assertClassBrand(s, a)); }
+function _classPrivateFieldSet(s, a, r) { return s.set(_assertClassBrand(s, a), r), r; }
+function _assertClassBrand(e, t, n) { if ("function" == typeof e ? e === t : e.has(t)) return arguments.length < 3 ? t : n; throw new TypeError("Private element is not present on this object"); }
+var _shadow = /*#__PURE__*/new WeakMap();
 var XACSankey = /*#__PURE__*/function (_HTMLElement) {
   function XACSankey() {
     var _this;
     _classCallCheck(this, XACSankey);
     _this = _callSuper(this, XACSankey);
+    _classPrivateFieldInitSpec(_this, _shadow, void 0);
+    _this.handleOptions();
+    if (_this.ops.useShadow) {
+      _classPrivateFieldSet(_shadow, _this, _this.attachShadow({
+        mode: "open"
+      }));
+      _this.applyStyles();
+    }
     _this.filters = {};
     _this.dataCallback = null;
     _this.api = {
@@ -51,6 +65,28 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
   }
   _inherits(XACSankey, _HTMLElement);
   return _createClass(XACSankey, [{
+    key: "applyStyles",
+    value: function applyStyles() {
+      var s = document.createElement('link');
+      s.type = 'text/css';
+      s.rel = 'stylesheet';
+      s.href = this.ops.styleSheetPath;
+      _classPrivateFieldGet(_shadow, this).appendChild(s);
+    }
+  }, {
+    key: "handleOptions",
+    value: function handleOptions() {
+      this.ops = this.getAttribute('options');
+      if (this.ops) {
+        try {
+          this.ops = JSON.parse(atob(this.ops));
+          this.setOptions(this.ops);
+        } catch (e) {
+          console.error('XACSankey', e);
+        }
+      }
+    }
+  }, {
     key: "getHeaders",
     value: function getHeaders() {
       var h = {
@@ -69,6 +105,8 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
       this.filters = ops.filters || this.filters;
       this.api = ops.api || this.api;
       this.dataCallback = ops.dataCallback || this.dataCallback;
+      this.validFilterMap = ops.validFilterMap || this.validFilterMap;
+      this.d3 = ops.d3 || this.d3;
       this.useEffect();
     }
 
@@ -229,7 +267,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
       var color = d3.scaleOrdinal(d3.schemeCategory10);
 
       // Layout the svg element
-      var container = d3.select(this);
+      var container = this.ops.useShadow ? d3.select(_classPrivateFieldGet(_shadow, this)) : d3.select(_classPrivateFieldGet(_shadow, this));
       var svg = container.append('svg').attr('width', width).attr('height', height).attr('transform', "translate(".concat(margin.left, ",").concat(margin.top, ")"));
 
       // Set up the Sankey generator
@@ -319,14 +357,48 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
      * @param newValue
      */
     function attributeChangedCallback(property, oldValue, newValue) {
+      this.log("XACSankey.attributeChangedCallback: ".concat(property, " ").concat(newValue));
       if (oldValue === newValue) return;
-      this.innerHTML = '';
+      if (this.ops.useShadow) {
+        var _classPrivateFieldGet2;
+        (_classPrivateFieldGet2 = _classPrivateFieldGet(_shadow, this).querySelector('svg')) === null || _classPrivateFieldGet2 === void 0 || _classPrivateFieldGet2.remove();
+      } else {
+        this.innerHTML = '';
+      }
       this.buildGraph();
+    }
+  }, {
+    key: "log",
+    value: function log(msg) {
+      var fn = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'log';
+      XACSankey.log(msg, {
+        fn: fn
+      });
     }
   }], [{
     key: "observedAttributes",
     get: function get() {
       return ['data', 'loading', 'options'];
+    }
+  }, {
+    key: "isLocal",
+    value: function isLocal() {
+      return location.host.indexOf('localhost') !== -1 || location.host.indexOf('.dev') !== -1;
+    }
+  }, {
+    key: "log",
+    value: function log(msg, ops) {
+      ops = ops || {};
+      var _ops = ops,
+        fn = _ops.fn,
+        color = _ops.color,
+        data = _ops.data;
+      fn = fn || 'log';
+      color = color || '#bada55';
+      data = data || '';
+      if (XACSankey.isLocal()) {
+        console[fn]("%c ".concat(msg), "background: #222; color: ".concat(color), data);
+      }
     }
   }]);
 }(/*#__PURE__*/_wrapNativeSuper(HTMLElement));

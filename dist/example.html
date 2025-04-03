@@ -6,7 +6,15 @@
 </head>
 <body>
 <div class="c-sankey">
-    <consortia-sankey />
+    <consortia-sankey id="js-sankey" />
 </div>
+<script>
+    const el = document.getElementById('js-sankey')
+    const ops = {
+        useShadow: true,
+        styleSheetPath: './xac-sankey.css'
+    }
+    el.setAttribute('options', btoa(JSON.stringify(ops)))
+</script>
 </body>
 </html>

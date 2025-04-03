@@ -1,7 +1,13 @@
 class XACSankey extends HTMLElement {
+    #shadow;
 
     constructor() {
         super();
+        this.handleOptions()
+        if (this.ops.useShadow) {
+            this.#shadow = this.attachShadow({ mode: "open" })
+            this.applyStyles()
+        }
         this.filters = {}
         this.dataCallback = null
         this.api = {
@@ -10,7 +16,7 @@ class XACSankey extends HTMLElement {
         }
         this.containerDimensions = {}
         this.graphData = null
-        this.loading= false
+        this.loading = false
         this.validFilterMap = {
             group_name: 'dataset_group_name',
             dataset_type: 'dataset_dataset_type',
@@ -18,6 +24,26 @@ class XACSankey extends HTMLElement {
             status: 'dataset_status'
         }
         this.fetchData()
+    }
+
+    applyStyles() {
+        let s = document.createElement('link')
+        s.type = 'text/css';
+        s.rel = 'stylesheet';
+        s.href = this.ops.styleSheetPath
+        this.#shadow.appendChild(s)
+    }
+
+    handleOptions() {
+        this.ops = this.getAttribute('options')
+        if (this.ops) {
+            try {
+                this.ops = JSON.parse(atob(this.ops))
+                this.setOptions(this.ops)
+            } catch (e) {
+                console.error('XACSankey', e)
+            }
+        }
     }
 
     getHeaders() {
@@ -36,6 +62,8 @@ class XACSankey extends HTMLElement {
         this.filters = ops.filters || this.filters
         this.api = ops.api || this.api
         this.dataCallback = ops.dataCallback || this.dataCallback
+        this.validFilterMap = ops.validFilterMap || this.validFilterMap
+        this.d3 = ops.d3 || this.d3
         this.useEffect()
     }
 
@@ -146,7 +174,7 @@ class XACSankey extends HTMLElement {
         const color = d3.scaleOrdinal(d3.schemeCategory10)
 
         // Layout the svg element
-        const container = d3.select(this)
+        const container = this.ops.useShadow ? d3.select(this.#shadow) : d3.select(this.#shadow)
         const svg = container.append('svg').attr('width', width).attr('height', height).attr('transform', `translate(${margin.left},${margin.top})`)
 
         // Set up the Sankey generator
@@ -250,9 +278,34 @@ class XACSankey extends HTMLElement {
      * @param newValue
      */
     attributeChangedCallback(property, oldValue, newValue) {
+        this.log(`XACSankey.attributeChangedCallback: ${property} ${newValue}`)
         if (oldValue === newValue) return;
-        this.innerHTML = ''
+
+        if (this.ops.useShadow) {
+            this.#shadow.querySelector('svg')?.remove()
+        } else {
+            this.innerHTML = ''
+        }
         this.buildGraph()
+    }
+
+    static isLocal() {
+        return (location.host.indexOf('localhost') !== -1) || (location.host.indexOf('.dev') !== -1)
+    }
+
+    static log(msg, ops) {
+        ops = ops || {}
+        let {fn, color, data} = ops
+        fn = fn || 'log'
+        color = color || '#bada55'
+        data = data || ''
+        if (XACSankey.isLocal()) {
+            console[fn](`%c ${msg}`, `background: #222; color: ${color}`, data)
+        }
+    }
+
+    log(msg, fn = 'log') {
+        XACSankey.log(msg, {fn})
     }
 }
 
