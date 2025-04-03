@@ -34,17 +34,14 @@ function _assertClassBrand(e, t, n) { if ("function" == typeof e ? e === t : e.h
 var _shadow = /*#__PURE__*/new WeakMap();
 var XACSankey = /*#__PURE__*/function (_HTMLElement) {
   function XACSankey() {
+    var _this$ops;
     var _this;
     _classCallCheck(this, XACSankey);
     _this = _callSuper(this, XACSankey);
     _classPrivateFieldInitSpec(_this, _shadow, void 0);
-    _this.handleOptions();
-    if (_this.ops.useShadow) {
-      _classPrivateFieldSet(_shadow, _this, _this.attachShadow({
-        mode: "open"
-      }));
-      _this.applyStyles();
-    }
+    _this.classes = {
+      style: 'xac-style'
+    };
     _this.filters = {};
     _this.dataCallback = null;
     _this.api = {
@@ -60,6 +57,13 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
       organ: 'organ_type',
       status: 'dataset_status'
     };
+    _this.handleOptions();
+    if ((_this$ops = _this.ops) !== null && _this$ops !== void 0 && _this$ops.useShadow) {
+      _classPrivateFieldSet(_shadow, _this, _this.attachShadow({
+        mode: "open"
+      }));
+      _this.applyStyles();
+    }
     _this.fetchData();
     return _this;
   }
@@ -67,10 +71,15 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
   return _createClass(XACSankey, [{
     key: "applyStyles",
     value: function applyStyles() {
+      if (!this.styleSheetPath) {
+        console.warn('XACSankey.applyStyles No stylesheet provided.');
+        return;
+      }
       var s = document.createElement('link');
+      s.className = this.classes.style;
       s.type = 'text/css';
       s.rel = 'stylesheet';
-      s.href = this.ops.styleSheetPath;
+      s.href = this.styleSheetPath;
       _classPrivateFieldGet(_shadow, this).appendChild(s);
     }
   }, {
@@ -84,6 +93,8 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
         } catch (e) {
           console.error('XACSankey', e);
         }
+      } else {
+        this.ops = {};
       }
     }
   }, {
@@ -95,7 +106,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
         }
       };
       if (this.api.token) {
-        h.Authorization = "Bearer ".concat(this.api.token);
+        h.headers.Authorization = "Bearer ".concat(this.api.token);
       }
       return h;
     }
@@ -107,6 +118,12 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
       this.dataCallback = ops.dataCallback || this.dataCallback;
       this.validFilterMap = ops.validFilterMap || this.validFilterMap;
       this.d3 = ops.d3 || this.d3;
+      if (ops.styleSheetPath) {
+        var _classPrivateFieldGet2;
+        this.styleSheetPath = ops.styleSheetPath;
+        (_classPrivateFieldGet2 = _classPrivateFieldGet(_shadow, this)) === null || _classPrivateFieldGet2 === void 0 || (_classPrivateFieldGet2 = _classPrivateFieldGet2.querySelector(".".concat(this.classes.style))) === null || _classPrivateFieldGet2 === void 0 || _classPrivateFieldGet2.remove();
+        this.applyStyles();
+      }
       this.useEffect();
     }
 
@@ -149,11 +166,6 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
               return res.json();
             case 5:
               data = _context.sent;
-              // TODO:
-              // const data = res.data.map((row) => {
-              //     return {...row, organ_type: getHierarchy(row.organ_type)}
-              // })
-
               if (this.dataCallback) {
                 data = data.map(this.dataCallback);
               }
@@ -225,7 +237,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
               });
               this.loading = false;
               this.graphData = newGraph;
-              this.useEffect();
+              this.useEffect('fetch');
             case 16:
             case "end":
               return _context.stop();
@@ -339,7 +351,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
     key: "onWindowResize",
     value: function onWindowResize() {
       this.handleWindowResize();
-      this.useEffect();
+      this.useEffect('options');
     }
   }, {
     key: "connectedCallback",
@@ -348,24 +360,39 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
       window.addEventListener('resize', this.onWindowResize.bind(this));
     }
   }, {
-    key: "attributeChangedCallback",
-    value:
+    key: "clearCanvas",
+    value: function clearCanvas() {
+      if (this.ops.useShadow) {
+        var l = _classPrivateFieldGet(_shadow, this).querySelectorAll('svg');
+        l.forEach(function (el) {
+          el.remove();
+        });
+      } else {
+        this.innerHTML = '';
+      }
+    }
+
     /**
      *
      * @param property
      * @param oldValue
      * @param newValue
      */
-    function attributeChangedCallback(property, oldValue, newValue) {
+  }, {
+    key: "attributeChangedCallback",
+    value: function attributeChangedCallback(property, oldValue, newValue) {
+      var _this3 = this;
       this.log("XACSankey.attributeChangedCallback: ".concat(property, " ").concat(newValue));
       if (oldValue === newValue) return;
-      if (this.ops.useShadow) {
-        var _classPrivateFieldGet2;
-        (_classPrivateFieldGet2 = _classPrivateFieldGet(_shadow, this).querySelector('svg')) === null || _classPrivateFieldGet2 === void 0 || _classPrivateFieldGet2.remove();
+      if (property === 'data') {
+        this.fetchData().then(function () {
+          _this3.clearCanvas();
+          _this3.buildGraph();
+        }.bind(this));
       } else {
-        this.innerHTML = '';
+        this.clearCanvas();
+        this.buildGraph();
       }
-      this.buildGraph();
     }
   }, {
     key: "log",
@@ -378,7 +405,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
   }], [{
     key: "observedAttributes",
     get: function get() {
-      return ['data', 'loading', 'options'];
+      return ['data', 'fetch', 'options'];
     }
   }, {
     key: "isLocal",

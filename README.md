@@ -45,11 +45,19 @@ const ops = {
         token: 'groups token here'
     }
 }
-<react-consortia-sankey options={btoa(JSON.stringify(ops))} />
+<react-consortia-sankey id='js-sankey' options={btoa(JSON.stringify(ops))} />
 ```
 
 #### Via the setOptions method
 ```
-const el = document.q
+const el = document.getElementById('js-sankey')
+el.setOptions({
+    api: {
+        url: 'https://entity.api.sennetconsortium.org/datasets/sankey_data'
+        token: 'groups token here'
+    },
+    filters,
+    
+})
 
 ```

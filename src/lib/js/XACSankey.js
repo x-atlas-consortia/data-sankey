@@ -3,10 +3,8 @@ class XACSankey extends HTMLElement {
 
     constructor() {
         super();
-        this.handleOptions()
-        if (this.ops.useShadow) {
-            this.#shadow = this.attachShadow({ mode: "open" })
-            this.applyStyles()
+        this.classes = {
+            style: 'xac-style'
         }
         this.filters = {}
         this.dataCallback = null
@@ -23,14 +21,24 @@ class XACSankey extends HTMLElement {
             organ: 'organ_type',
             status: 'dataset_status'
         }
+        this.handleOptions()
+        if (this.ops?.useShadow) {
+            this.#shadow = this.attachShadow({ mode: "open" })
+            this.applyStyles()
+        }
         this.fetchData()
     }
 
     applyStyles() {
+        if (!this.styleSheetPath) {
+            console.warn('XACSankey.applyStyles No stylesheet provided.')
+            return
+        }
         let s = document.createElement('link')
+        s.className = this.classes.style
         s.type = 'text/css';
         s.rel = 'stylesheet';
-        s.href = this.ops.styleSheetPath
+        s.href = this.styleSheetPath
         this.#shadow.appendChild(s)
     }
 
@@ -43,6 +51,8 @@ class XACSankey extends HTMLElement {
             } catch (e) {
                 console.error('XACSankey', e)
             }
+        } else {
+            this.ops = {}
         }
     }
 
@@ -53,7 +63,7 @@ class XACSankey extends HTMLElement {
             }
         }
         if (this.api.token) {
-            h.Authorization = `Bearer ${this.api.token}`
+            h.headers.Authorization = `Bearer ${this.api.token}`
         }
         return h
     }
@@ -64,6 +74,11 @@ class XACSankey extends HTMLElement {
         this.dataCallback = ops.dataCallback || this.dataCallback
         this.validFilterMap = ops.validFilterMap || this.validFilterMap
         this.d3 = ops.d3 || this.d3
+        if (ops.styleSheetPath) {
+            this.styleSheetPath = ops.styleSheetPath
+            this.#shadow?.querySelector(`.${this.classes.style}`)?.remove()
+            this.applyStyles()
+        }
         this.useEffect()
     }
 
@@ -90,11 +105,6 @@ class XACSankey extends HTMLElement {
         // call the sankey endpoint
         const res = await fetch(this.api.url, this.getHeaders())
         let data = await res.json()
-
-        // TODO:
-        // const data = res.data.map((row) => {
-        //     return {...row, organ_type: getHierarchy(row.organ_type)}
-        // })
 
         if (this.dataCallback) {
             data = data.map(this.dataCallback)
@@ -150,7 +160,7 @@ class XACSankey extends HTMLElement {
 
         this.loading = false;
         this.graphData = newGraph;
-        this.useEffect()
+        this.useEffect('fetch')
     }
 
     handleWindowResize(){
@@ -259,7 +269,7 @@ class XACSankey extends HTMLElement {
 
     onWindowResize() {
         this.handleWindowResize()
-        this.useEffect()
+        this.useEffect('options')
     }
 
     connectedCallback() {
@@ -268,7 +278,18 @@ class XACSankey extends HTMLElement {
     }
 
     static get observedAttributes() {
-        return ['data', 'loading', 'options']
+        return ['data', 'fetch', 'options']
+    }
+
+    clearCanvas() {
+        if (this.ops.useShadow) {
+            const l = this.#shadow.querySelectorAll('svg')
+            l.forEach((el)=> {
+                el.remove()
+            })
+        } else {
+            this.innerHTML = ''
+        }
     }
 
     /**
@@ -281,12 +302,17 @@ class XACSankey extends HTMLElement {
         this.log(`XACSankey.attributeChangedCallback: ${property} ${newValue}`)
         if (oldValue === newValue) return;
 
-        if (this.ops.useShadow) {
-            this.#shadow.querySelector('svg')?.remove()
+
+        if (property === 'data') {
+            this.fetchData().then((()=> {
+                this.clearCanvas()
+                this.buildGraph()
+            }).bind(this))
         } else {
-            this.innerHTML = ''
+            this.clearCanvas()
+            this.buildGraph()
         }
-        this.buildGraph()
+
     }
 
     static isLocal() {
