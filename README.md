@@ -25,7 +25,7 @@ function Sankey() {
 <head>
     <title>DS</title>
     <script type="module" src="./js/ConsortiaSankey.js"></script>
-    <link rel="stylesheet" href="./xac-sankey.css" data-n-p="">
+    <link rel="stylesheet" href="./xac-sankey.css" />
 </head>
 <body>
 <div class="c-sankey">
