@@ -40,7 +40,8 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
     _this = _callSuper(this, XACSankey);
     _classPrivateFieldInitSpec(_this, _shadow, void 0);
     _this.classes = {
-      style: 'xac-style'
+      style: 'xac-style',
+      loader: 'xac-loader'
     };
     _this.filters = {};
     _this.dataCallback = null;
@@ -50,12 +51,16 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
     };
     _this.containerDimensions = {};
     _this.graphData = null;
-    _this.loading = false;
+    _this.isLoading = true;
     _this.validFilterMap = {
       group_name: 'dataset_group_name',
       dataset_type: 'dataset_dataset_type',
       organ: 'organ_type',
       status: 'dataset_status'
+    };
+    _this.loading = {
+      html: '<div class="c-sankey__loader"></div>',
+      callback: null
     };
     _this.handleOptions();
     if ((_this$ops = _this.ops) !== null && _this$ops !== void 0 && _this$ops.useShadow) {
@@ -71,6 +76,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
   return _createClass(XACSankey, [{
     key: "applyStyles",
     value: function applyStyles() {
+      var _classPrivateFieldGet2;
       if (!this.styleSheetPath) {
         console.warn('XACSankey.applyStyles No stylesheet provided.');
         return;
@@ -80,7 +86,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
       s.type = 'text/css';
       s.rel = 'stylesheet';
       s.href = this.styleSheetPath;
-      _classPrivateFieldGet(_shadow, this).appendChild(s);
+      (_classPrivateFieldGet2 = _classPrivateFieldGet(_shadow, this)) === null || _classPrivateFieldGet2 === void 0 || _classPrivateFieldGet2.appendChild(s);
     }
   }, {
     key: "handleOptions",
@@ -115,13 +121,14 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
     value: function setOptions(ops) {
       this.filters = ops.filters || this.filters;
       this.api = ops.api || this.api;
+      this.loading = ops.loading || this.loading;
       this.dataCallback = ops.dataCallback || this.dataCallback;
       this.validFilterMap = ops.validFilterMap || this.validFilterMap;
       this.d3 = ops.d3 || this.d3;
       if (ops.styleSheetPath) {
-        var _classPrivateFieldGet2;
+        var _classPrivateFieldGet3;
         this.styleSheetPath = ops.styleSheetPath;
-        (_classPrivateFieldGet2 = _classPrivateFieldGet(_shadow, this)) === null || _classPrivateFieldGet2 === void 0 || (_classPrivateFieldGet2 = _classPrivateFieldGet2.querySelector(".".concat(this.classes.style))) === null || _classPrivateFieldGet2 === void 0 || _classPrivateFieldGet2.remove();
+        (_classPrivateFieldGet3 = _classPrivateFieldGet(_shadow, this)) === null || _classPrivateFieldGet3 === void 0 || (_classPrivateFieldGet3 = _classPrivateFieldGet3.querySelector(".".concat(this.classes.style))) === null || _classPrivateFieldGet3 === void 0 || _classPrivateFieldGet3.remove();
         this.applyStyles();
       }
       this.useEffect();
@@ -235,7 +242,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
                   }
                 });
               });
-              this.loading = false;
+              this.isLoading = false;
               this.graphData = newGraph;
               this.useEffect('fetch');
             case 16:
@@ -371,6 +378,24 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
         this.innerHTML = '';
       }
     }
+  }, {
+    key: "handleLoader",
+    value: function handleLoader() {
+      var ctx = this.ops.useShadow ? _classPrivateFieldGet(_shadow, this) : this;
+      ctx.querySelectorAll(".".concat(this.classes.loader)).forEach(function (el) {
+        el.remove();
+      });
+      if (this.isLoading) {
+        if (!this.loading.callback) {
+          var loader = document.createElement("div");
+          loader.innerHTML = this.loading.html;
+          loader.className = this.classes.loader;
+          ctx.appendChild(loader);
+        } else {
+          this.loading.callback(this);
+        }
+      }
+    }
 
     /**
      *
@@ -384,6 +409,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
       var _this3 = this;
       this.log("XACSankey.attributeChangedCallback: ".concat(property, " ").concat(newValue));
       if (oldValue === newValue) return;
+      this.handleLoader();
       if (property === 'data') {
         this.fetchData().then(function () {
           _this3.clearCanvas();

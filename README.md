@@ -52,12 +52,12 @@ const ops = {
 ```
 const el = document.getElementById('js-sankey')
 el.setOptions({
-    api: {
-        url: 'https://entity.api.sennetconsortium.org/datasets/sankey_data'
-        token: 'groups token here'
-    },
-    filters,
-    
+    api[obj], // {api: {url[str], token[str]}}
+    filters[obj], // {column_name: str}
+    dataCallback[function(row)], // returns filtered data
+    validFilterMap[obj], // {column_name: str}
+    d3[obj], //{d3, d3sankey, sankeyLinkHorizontal }
+    styleSheetPath[str] // publicly accessible url to stylesheet
 })
 
 ```

@@ -4,7 +4,8 @@ class XACSankey extends HTMLElement {
     constructor() {
         super();
         this.classes = {
-            style: 'xac-style'
+            style: 'xac-style',
+            loader: 'xac-loader'
         }
         this.filters = {}
         this.dataCallback = null
@@ -14,12 +15,16 @@ class XACSankey extends HTMLElement {
         }
         this.containerDimensions = {}
         this.graphData = null
-        this.loading = false
+        this.isLoading = true
         this.validFilterMap = {
             group_name: 'dataset_group_name',
             dataset_type: 'dataset_dataset_type',
             organ: 'organ_type',
             status: 'dataset_status'
+        }
+        this.loading = {
+            html: '<div class="c-sankey__loader"></div>',
+            callback: null
         }
         this.handleOptions()
         if (this.ops?.useShadow) {
@@ -39,7 +44,7 @@ class XACSankey extends HTMLElement {
         s.type = 'text/css';
         s.rel = 'stylesheet';
         s.href = this.styleSheetPath
-        this.#shadow.appendChild(s)
+        this.#shadow?.appendChild(s)
     }
 
     handleOptions() {
@@ -71,6 +76,7 @@ class XACSankey extends HTMLElement {
     setOptions(ops) {
         this.filters = ops.filters || this.filters
         this.api = ops.api || this.api
+        this.loading = ops.loading || this.loading
         this.dataCallback = ops.dataCallback || this.dataCallback
         this.validFilterMap = ops.validFilterMap || this.validFilterMap
         this.d3 = ops.d3 || this.d3
@@ -158,7 +164,7 @@ class XACSankey extends HTMLElement {
             })
         })
 
-        this.loading = false;
+        this.isLoading = false;
         this.graphData = newGraph;
         this.useEffect('fetch')
     }
@@ -292,6 +298,25 @@ class XACSankey extends HTMLElement {
         }
     }
 
+    handleLoader() {
+        const ctx = this.ops.useShadow ? this.#shadow : this
+        ctx.querySelectorAll(`.${this.classes.loader}`).forEach(
+            (el) => {
+                el.remove()
+            }
+        )
+        if (this.isLoading) {
+            if (!this.loading.callback) {
+                const loader = document.createElement("div")
+                loader.innerHTML = this.loading.html
+                loader.className = this.classes.loader
+                ctx.appendChild(loader)
+            } else {
+                this.loading.callback(this)
+            }
+        }
+    }
+
     /**
      *
      * @param property
@@ -301,7 +326,7 @@ class XACSankey extends HTMLElement {
     attributeChangedCallback(property, oldValue, newValue) {
         this.log(`XACSankey.attributeChangedCallback: ${property} ${newValue}`)
         if (oldValue === newValue) return;
-
+        this.handleLoader()
 
         if (property === 'data') {
             this.fetchData().then((()=> {
