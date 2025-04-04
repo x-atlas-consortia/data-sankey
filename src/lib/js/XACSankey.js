@@ -148,7 +148,7 @@ class XACSankey extends HTMLElement {
         if (this.validFilterMap.organ && !Object.keys(this.organsDict).length) {
             await this.setOrganTypes()
         }
-        
+
         // call the sankey endpoint
         const res = await fetch(this.api.sankey, this.getHeaders())
         let data = await res.json()
@@ -210,8 +210,6 @@ class XACSankey extends HTMLElement {
                 }
             })
         })
-
-        this.isLoading = false;
         this.graphData = newGraph;
         this.useEffect('fetch')
     }
@@ -318,6 +316,9 @@ class XACSankey extends HTMLElement {
             .filter((d) => d.x0 < width / 2)
             .attr('x', 6 + sankey.nodeWidth())
             .attr('text-anchor', 'start')
+
+        this.isLoading = false;
+        this.useEffect('graph')
     }
 
     onWindowResize() {
@@ -331,7 +332,7 @@ class XACSankey extends HTMLElement {
     }
 
     static get observedAttributes() {
-        return ['data', 'fetch', 'options']
+        return ['data', 'fetch', 'options', 'graph']
     }
 
     clearCanvas() {
@@ -375,16 +376,17 @@ class XACSankey extends HTMLElement {
         if (oldValue === newValue) return;
         this.handleLoader()
 
-        if (property === 'data') {
-            this.fetchData().then((()=> {
+        if (property !== 'graph') {
+            if (property === 'data') {
+                this.fetchData().then((()=> {
+                    this.clearCanvas()
+                    this.buildGraph()
+                }).bind(this))
+            } else {
                 this.clearCanvas()
                 this.buildGraph()
-            }).bind(this))
-        } else {
-            this.clearCanvas()
-            this.buildGraph()
+            }
         }
-
     }
 
     static isLocal() {

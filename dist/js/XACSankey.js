@@ -324,10 +324,9 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
                   }
                 });
               });
-              this.isLoading = false;
               this.graphData = newGraph;
               this.useEffect('fetch');
-            case 20:
+            case 19:
             case "end":
               return _context2.stop();
           }
@@ -435,6 +434,8 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
       }).filter(function (d) {
         return d.x0 < width / 2;
       }).attr('x', 6 + sankey.nodeWidth()).attr('text-anchor', 'start');
+      this.isLoading = false;
+      this.useEffect('graph');
     }
   }, {
     key: "onWindowResize",
@@ -492,14 +493,16 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
       this.log("XACSankey.attributeChangedCallback: ".concat(property, " ").concat(newValue));
       if (oldValue === newValue) return;
       this.handleLoader();
-      if (property === 'data') {
-        this.fetchData().then(function () {
-          _this4.clearCanvas();
-          _this4.buildGraph();
-        }.bind(this));
-      } else {
-        this.clearCanvas();
-        this.buildGraph();
+      if (property !== 'graph') {
+        if (property === 'data') {
+          this.fetchData().then(function () {
+            _this4.clearCanvas();
+            _this4.buildGraph();
+          }.bind(this));
+        } else {
+          this.clearCanvas();
+          this.buildGraph();
+        }
       }
     }
   }, {
@@ -513,7 +516,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
   }], [{
     key: "observedAttributes",
     get: function get() {
-      return ['data', 'fetch', 'options'];
+      return ['data', 'fetch', 'options', 'graph'];
     }
   }, {
     key: "isLocal",
