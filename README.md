@@ -41,7 +41,7 @@ String value options can be passed to the options attribute. It takes a stringif
 ```
 const ops = {
     api: {
-        url: 'https://entity.api.sennetconsortium.org/datasets/sankey_data'
+        sankey: 'https://entity.api.sennetconsortium.org/datasets/sankey_data'
         token: 'groups token here'
     }
 }
@@ -52,7 +52,7 @@ const ops = {
 ```
 const el = document.getElementById('js-sankey')
 el.setOptions({
-    api[obj], // {api: {url[str], token[str]}}
+    api[obj], // {api: {sankey[str], token[str], ubkg[obj]}}
     filters[obj], // {column_name: str}, key-value pair to filter data on
     dataCallback[function(row)] -> list[obj], // returns list of objects of filtered data
     validFilterMap[obj], // {column_name: str}

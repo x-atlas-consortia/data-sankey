@@ -9,9 +9,14 @@ class XACSankey extends HTMLElement {
         }
         this.filters = {}
         this.dataCallback = null
+        this.organsDict = {}
         this.api = {
-            url: 'https://entity-api.dev.sennetconsortium.org/datasets/sankey_data',
-            token: null
+            sankey: 'https://entity.api.sennetconsortium.org/datasets/sankey_data',
+            token: null,
+            ubkg: {
+                sap: 'sennet',
+                organs: 'https://ontology.api.hubmapconsortium.org/organs?application_context='
+            }
         }
         this.containerDimensions = {}
         this.graphData = null
@@ -32,6 +37,26 @@ class XACSankey extends HTMLElement {
             this.applyStyles()
         }
         this.fetchData()
+    }
+
+    async setOrganTypes() {
+        const res = await fetch(this.api.ubkg.organs + this.api.ubkg.sap);
+        const organs = await res.json()
+        for (let o of organs) {
+            this.organsDict[o.term.trim().toLowerCase()] = o.category?.term?.trim() || o.term?.trim()
+        }
+    }
+
+    getOrganHierarchy(str) {
+        if (!str) return str
+        let res = this.organsDict[str.trim().toLowerCase()]
+        // fallback incase of missing unkg data
+        if (!res) {
+            const r = new RegExp(/.+?(?=\()/)
+            res = str.match(r)
+            return res && res.length ? res[0].trim() : str
+        }
+        return res
     }
 
     applyStyles() {
@@ -74,12 +99,24 @@ class XACSankey extends HTMLElement {
     }
 
     setOptions(ops) {
-        this.filters = ops.filters || this.filters
-        this.api = ops.api || this.api
-        this.loading = ops.loading || this.loading
-        this.dataCallback = ops.dataCallback || this.dataCallback
-        this.validFilterMap = ops.validFilterMap || this.validFilterMap
-        this.d3 = ops.d3 || this.d3
+        if (ops.filters) {
+            this.filters = ops.filters
+        }
+        if (ops.loading) {
+            Object.assign(this.loading, ops.loading)
+        }
+        if (ops.api) {
+            Object.assign(this.api, ops.api)
+        }
+        if (ops.dataCallback) {
+            this.dataCallback = ops.dataCallback
+        }
+        if (ops.validFilterMap) {
+            Object.assign(this.validFilterMap, ops.validFilterMap)
+        }
+        if (ops.d3) {
+            this.d3 = ops.d3
+        }
         if (ops.styleSheetPath) {
             this.styleSheetPath = ops.styleSheetPath
             this.#shadow?.querySelector(`.${this.classes.style}`)?.remove()
@@ -108,10 +145,20 @@ class XACSankey extends HTMLElement {
     }
 
     async fetchData() {
+        if (this.validFilterMap.organ && !Object.keys(this.organsDict).length) {
+            await this.setOrganTypes()
+        }
+        
         // call the sankey endpoint
-        const res = await fetch(this.api.url, this.getHeaders())
+        const res = await fetch(this.api.sankey, this.getHeaders())
         let data = await res.json()
-
+        
+        if (this.validFilterMap.organ) {
+            data = data.map((row) => {
+                return {...row, [this.validFilterMap.organ]: this.getOrganHierarchy(row[this.validFilterMap.organ])}
+            })
+        }
+        
         if (this.dataCallback) {
             data = data.map(this.dataCallback)
         }
