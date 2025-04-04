@@ -1,7 +1,7 @@
 {
   "name": "xac-sankey",
+  "version": "1.0.0",
   "description": "X Atlas Consortia Sankey",
-  "author": "lisabruney@pitt.edu",
   "keywords": [
     "sankey",
     "data",

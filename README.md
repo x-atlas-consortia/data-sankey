@@ -1,4 +1,4 @@
-# data-sankey
+# Data Sankey (xac-sankey)
 Reusable component for displaying consortia data visualization
 
 ## Usage
@@ -53,10 +53,11 @@ const ops = {
 const el = document.getElementById('js-sankey')
 el.setOptions({
     api[obj], // {api: {url[str], token[str]}}
-    filters[obj], // {column_name: str}
-    dataCallback[function(row)], // returns filtered data
+    filters[obj], // {column_name: str}, key-value pair to filter data on
+    dataCallback[function(row)] -> list[obj], // returns list of objects of filtered data
     validFilterMap[obj], // {column_name: str}
-    d3[obj], //{d3, d3sankey, sankeyLinkHorizontal }
+    d3[obj], // {d3, d3sankey, sankeyLinkHorizontal } // the d3 library and related functions for building the graph
+    loading[obj], // {html[str], callback[function(ctx)]} // loading html and callback
     styleSheetPath[str] // publicly accessible url to stylesheet
 })
 

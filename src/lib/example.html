@@ -15,6 +15,20 @@
         styleSheetPath: './xac-sankey.css'
     }
     el.setAttribute('options', btoa(JSON.stringify(ops)))
+
+    document.onreadystatechange = ()=> {
+        el.setOptions(
+            {
+                validFilterMap: {
+                    group_name: 'dataset_group_name',
+                    dataset_type: 'dataset_dataset_type',
+                    organ: 'organ_type',
+                    //source_type: 'source_type',
+                    status: 'dataset_status'
+                }
+            }
+        )
+    }
 </script>
 </body>
 </html>
