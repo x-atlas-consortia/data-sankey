@@ -345,6 +345,7 @@ class XACSankey extends HTMLElement {
             .text((d) => `${d.name}\n${d.value} Datasets`) // Tooltip
 
         node.append('text')
+            .attr('class', 'c-sankey__label')
             .attr('x', -6)
             .attr('y', (d) => (d.y1 - d.y0) / 2)
             .attr('dy', '0.35em')
@@ -353,6 +354,14 @@ class XACSankey extends HTMLElement {
             .filter((d) => d.x0 < width / 2)
             .attr('x', 6 + sankey.nodeWidth())
             .attr('text-anchor', 'start')
+
+        node.append('text')
+            .attr('class', 'c-sankey__value')
+            .attr('x', sankey.nodeWidth()/1.4)
+            .attr('y', (d) => ((d.y1 - d.y0) / 2) - 10)
+            .attr('dy', '0.35em')
+            .attr('text-anchor', 'end')
+            .text((d) => d.value > 30 ? d.value : '')
 
         this.isLoading = false;
         this.useEffect('graph')
