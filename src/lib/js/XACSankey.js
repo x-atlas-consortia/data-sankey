@@ -39,6 +39,10 @@ class XACSankey extends HTMLElement {
         this.fetchData()
     }
 
+    /**
+     * Sets the organTypes from UBKG.
+     * @returns {Promise<void>}
+     */
     async setOrganTypes() {
         const res = await fetch(this.api.ubkg.organs + this.api.ubkg.sap);
         const organs = await res.json()
@@ -47,6 +51,11 @@ class XACSankey extends HTMLElement {
         }
     }
 
+    /**
+     * Gets corresponding organ category from organ type. Example Lung (Left) -> Lung.
+     * @param {string} str The organ type
+     * @returns {string|*}
+     */
     getOrganHierarchy(str) {
         if (!str) return str
         let res = this.organsDict[str.trim().toLowerCase()]
@@ -59,6 +68,9 @@ class XACSankey extends HTMLElement {
         return res
     }
 
+    /**
+     * Appends stylesheet to exposed shadow dom.
+     */
     applyStyles() {
         if (!this.styleSheetPath) {
             console.warn('XACSankey.applyStyles No stylesheet provided.')
@@ -72,6 +84,9 @@ class XACSankey extends HTMLElement {
         this.#shadow?.appendChild(s)
     }
 
+    /**
+     * Retrieves options set via the element's options attr.
+     */
     handleOptions() {
         this.ops = this.getAttribute('options')
         if (this.ops) {
@@ -86,6 +101,10 @@ class XACSankey extends HTMLElement {
         }
     }
 
+    /**
+     * Returns request headers.
+     * @returns {{headers: {"Content-Type": string}}}
+     */
     getHeaders() {
         let h = {
             headers: {
@@ -98,6 +117,10 @@ class XACSankey extends HTMLElement {
         return h
     }
 
+    /**
+     * Sets options to this instance.
+     * @param {object} ops
+     */
     setOptions(ops) {
         if (ops.filters) {
             this.filters = ops.filters
@@ -126,16 +149,20 @@ class XACSankey extends HTMLElement {
     }
 
     /**
-     * Modifies the component attr so that attributeChangedCallback can be triggered
-     * @param attr
+     * Modifies the component attr so that attributeChangedCallback can be triggered.
+     * @param {string} attr Name of a watche attribute.
      */
     useEffect(attr = 'data') {
         this.setAttribute(attr, `${Date.now()}`)
     }
 
+    /**
+     * Converts the filter from the URL to the field names returned from the sankey endpoint.
+     * Also splits comma separated filter values into an array.
+     * @returns {{}}
+     */
     getValidFilters() {
-        // converts the filter from the URL to the field names returned from the sankey endpoint
-        // also splits comma separated filter values into an array
+
         return Object.keys(this.filters).reduce((acc, key) => {
             if (this.validFilterMap[key.toLowerCase()] !== undefined) {
                 acc[this.validFilterMap[key].toLowerCase()] = this.filters[key].split(',')
@@ -144,6 +171,10 @@ class XACSankey extends HTMLElement {
         }, {})
     }
 
+    /**
+     * Gets and handles main sankey data to be visualized.
+     * @returns {Promise<void>}
+     */
     async fetchData() {
         if (this.validFilterMap.organ && !Object.keys(this.organsDict).length) {
             await this.setOrganTypes()
@@ -214,11 +245,17 @@ class XACSankey extends HTMLElement {
         this.useEffect('fetch')
     }
 
-    handleWindowResize(){
+    /**
+     * Grabs client size info.
+     */
+    handleWindowResize() {
         this.containerDimensions.width = this.clientWidth
         this.containerDimensions.height = Math.max(this.clientHeight, 1080)
     }
 
+    /**
+     * Builds the visualization.
+     */
     buildGraph() {
         if (!this.d3) {
             console.error('No D3 library loaded.')
@@ -321,20 +358,33 @@ class XACSankey extends HTMLElement {
         this.useEffect('graph')
     }
 
+    /**
+     * Callback for handling window resize.
+     */
     onWindowResize() {
         this.handleWindowResize()
         this.useEffect('options')
     }
 
+    /**
+     * Runs when the element is connected to the DOM.
+     */
     connectedCallback() {
         this.handleWindowResize()
         window.addEventListener('resize', this.onWindowResize.bind(this))
     }
 
+    /**
+     * Determines which attributes to watch for triggering change notifications to attributeChangedCallback.
+     * @returns {string[]}
+     */
     static get observedAttributes() {
         return ['data', 'fetch', 'options', 'graph']
     }
 
+    /**
+     * Clears viewport of svgs.
+     */
     clearCanvas() {
         if (this.ops.useShadow) {
             const l = this.#shadow.querySelectorAll('svg')
@@ -346,6 +396,9 @@ class XACSankey extends HTMLElement {
         }
     }
 
+    /**
+     * Displays or removes loading spinner.
+     */
     handleLoader() {
         const ctx = this.ops.useShadow ? this.#shadow : this
         ctx.querySelectorAll(`.${this.classes.loader}`).forEach(
@@ -366,7 +419,7 @@ class XACSankey extends HTMLElement {
     }
 
     /**
-     *
+     * Invoked when one of the custom element's attributes is added, removed, or changed.
      * @param property
      * @param oldValue
      * @param newValue
@@ -389,10 +442,19 @@ class XACSankey extends HTMLElement {
         }
     }
 
+    /**
+     * Checks if running in local or dev env
+     * @returns {boolean}
+     */
     static isLocal() {
         return (location.host.indexOf('localhost') !== -1) || (location.host.indexOf('.dev') !== -1)
     }
 
+    /**
+     * Logs message to screen
+     * @param {string} msg The message to display
+     * @param {object} ops Color options for console
+     */
     static log(msg, ops) {
         ops = ops || {}
         let {fn, color, data} = ops
@@ -404,6 +466,11 @@ class XACSankey extends HTMLElement {
         }
     }
 
+    /**
+     *  Logs message to screen.
+     * @param {string} msg The message to display
+     * @param {string} fn The type of message {log|warn|error}
+     */
     log(msg, fn = 'log') {
         XACSankey.log(msg, {fn})
     }
