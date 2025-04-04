@@ -8,6 +8,10 @@
     "medical",
     "dbmi"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/x-atlas-consortia/data-sankey.git"
+  },
   "private": false,
   "main": "dist/index.js",
   "module": "dist/index.js",
@@ -36,6 +40,7 @@
     "@babel/cli": "^7.26.4",
     "@babel/core": "^7.26.10",
     "@babel/preset-env": "^7.26.9",
-    "babel-plugin-file-loader": "^2.0.0"
+    "babel-plugin-file-loader": "^2.0.0",
+    "babel-plugin-add-header-comment": "^1.0.3"
   }
 }

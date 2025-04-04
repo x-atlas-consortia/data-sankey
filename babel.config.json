@@ -1,5 +1,11 @@
 {
   "plugins": [
+    ["add-header-comment", {
+      "header": [
+        "!node build.js",
+        "?build.txt"
+      ]
+    }]
   ],
   "presets": [
     [
