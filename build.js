@@ -1,3 +1,5 @@
+// The is run whenever the build via npm run dist is executed.
+
 const fs = require('node:fs');
 fs.readFile('./package.json', function(err, data) {
 

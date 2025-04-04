@@ -65,7 +65,7 @@ el.setOptions({
 
 ## Dev
 ```angular2html
-npm run all // starts watcher and serves example for viewing results
+npm run all // starts watcher, auto builds and serves example for viewing results
 npm run dist // builds distribution
 npm run example // serves distribution with example implementation
 ```
