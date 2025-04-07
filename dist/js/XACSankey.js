@@ -1,6 +1,6 @@
 /**
 * 
-* 4/7/2025, 2:27:58 PM | X Atlas Consortia Sankey 1.0.0 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/7/2025, 2:40:17 PM | X Atlas Consortia Sankey 1.0.0 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
@@ -609,6 +609,21 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
           this.buildGraph();
         }
       }
+    }
+
+    /**
+     * Flips an obj on its keys.
+     * Example: Given {a: b} -> {b: a}
+     * @param obj
+     * @returns {{}}
+     */
+  }, {
+    key: "flipObj",
+    value: function flipObj(obj) {
+      return Object.keys(obj).reduce(function (ret, key) {
+        ret[obj[key]] = key;
+        return ret;
+      }, {});
     }
 
     /**

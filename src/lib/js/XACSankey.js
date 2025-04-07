@@ -483,6 +483,19 @@ class XACSankey extends HTMLElement {
     }
 
     /**
+     * Flips an obj on its keys.
+     * Example: Given {a: b} -> {b: a}
+     * @param obj
+     * @returns {{}}
+     */
+    flipObj(obj) {
+        return Object.keys(obj).reduce((ret, key) => {
+            ret[obj[key]] = key;
+            return ret;
+        }, {})
+    }
+
+    /**
      * Checks if running in local or dev env
      * @returns {boolean}
      */

@@ -9,12 +9,6 @@
     <consortia-sankey id="js-sankey" />
 </div>
 <script>
-    const flipObj = (obj) => {
-        return Object.keys(obj).reduce((ret, key) => {
-            ret[obj[key]] = key;
-            return ret;
-        }, {})
-    }
 
     const el = document.getElementById('js-sankey')
     const ops = {
@@ -25,8 +19,8 @@
 
     const i = setInterval(()=> {
         if (el.setOptions) {
-            let filterMap = flipObj(el.validFilterMap)
-            console.log('Options...')
+            let filterMap = el.flipObj(el.validFilterMap)
+
             const goTo = (d) => {
                 let values = filterMap[d.ref] === 'organ' ? el.organsDictByCategory[d.name] : [d.name]
                 if (values) {
