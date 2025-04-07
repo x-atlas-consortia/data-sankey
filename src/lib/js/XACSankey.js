@@ -345,7 +345,7 @@ class XACSankey extends HTMLElement {
             .selectAll('.node')
             .data(nodes)
             .join('g')
-            .attr('class', 'c-sankey__node')
+            .attr('class', (d) => `c-sankey__node c-sankey__node--${d.ref}`)
             .attr('transform', (d) => `translate(${d.x0},${d.y0})`)
             .call(drag)
             .on('click', ((e, d) => {

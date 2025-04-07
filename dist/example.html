@@ -20,7 +20,7 @@
     const i = setInterval(()=> {
         if (el.setOptions) {
             let filterMap = el.flipObj(el.validFilterMap)
-        
+
             const goTo = (d) => {
                 let values = filterMap[d.ref] === 'organ' ? el.organsDictByCategory[d.name] : [d.name]
                 if (values) {
