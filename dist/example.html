@@ -16,19 +16,29 @@
     }
     el.setAttribute('options', btoa(JSON.stringify(ops)))
 
-    // document.onreadystatechange = ()=> {
-    //     el.setOptions(
-    //         {
-    //             validFilterMap: {
-    //                 group_name: 'dataset_group_name',
-    //                 dataset_type: 'dataset_dataset_type',
-    //                 organ: 'organ_type',
-    //                 //source_type: 'source_type',
-    //                 status: 'dataset_status'
-    //             }
-    //         }
-    //     )
-    // }
+    const i = setInterval(()=> {
+        if (el.setOptions) {
+            console.log('Options...')
+            clearInterval(i)
+            el.setOptions(
+                {
+                    onNodeClickCallback: (e, d) => {
+                      console.log('node clicked', d)
+                    },
+                    onLabelClickCallback: (e, d) => {
+                        console.log('label clicked', d)
+                    },
+                    validFilterMap: {
+                        group_name: 'dataset_group_name',
+                        dataset_type: 'dataset_dataset_type',
+                        organ: 'organ_type',
+                        //source_type: 'source_type',
+                        status: 'dataset_status'
+                    }
+                }
+            )
+        }
+    }, 500)
 </script>
 </body>
 </html>

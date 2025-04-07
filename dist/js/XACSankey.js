@@ -1,6 +1,6 @@
 /**
 * 
-* 4/4/2025, 4:18:11 PM | X Atlas Consortia Sankey 1.0.0 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/7/2025, 10:12:42 AM | X Atlas Consortia Sankey 1.0.0 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
@@ -221,6 +221,12 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
       if (ops.dataCallback) {
         this.dataCallback = ops.dataCallback;
       }
+      if (ops.onNodeClickCallback) {
+        this.onNodeClickCallback = ops.onNodeClickCallback;
+      }
+      if (ops.onLabelClickCallback) {
+        this.onLabelClickCallback = ops.onLabelClickCallback;
+      }
       if (ops.validFilterMap) {
         Object.assign(this.validFilterMap, ops.validFilterMap);
       }
@@ -336,7 +342,8 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
                       found = {
                         node: newGraph.nodes.length,
                         name: row[columnName],
-                        column: columnIndex
+                        column: columnIndex,
+                        ref: columnName
                       };
                       newGraph.nodes.push(found);
                     }
@@ -347,6 +354,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
                       found2 = {
                         node: newGraph.nodes.length,
                         name: row[columnNames[columnIndex + 1]],
+                        ref: columnNames[columnIndex + 1],
                         column: columnIndex + 1
                       };
                       newGraph.nodes.push(found2);
@@ -396,6 +404,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
   }, {
     key: "buildGraph",
     value: function buildGraph() {
+      var _this4 = this;
       if (!this.d3) {
         console.error('No D3 library loaded.');
       }
@@ -473,7 +482,11 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
         return Math.max(5, d.y1 - d.y0);
       }).attr('width', sankey.nodeWidth()).attr('fill', function (d) {
         return color(d.name);
-      }).attr('stroke-width', 0).append('title').text(function (d) {
+      }).attr('stroke-width', 0).on('click', function (e, d) {
+        if (_this4.onNodeClickCallback) {
+          _this4.onNodeClickCallback(e, d);
+        }
+      }.bind(this)).append('title').text(function (d) {
         return "".concat(d.name, "\n").concat(d.value, " Datasets");
       }); // Tooltip
 
@@ -483,12 +496,20 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
         return d.name;
       }).filter(function (d) {
         return d.x0 < width / 2;
-      }).attr('x', 6 + sankey.nodeWidth()).attr('text-anchor', 'start');
+      }).attr('x', 6 + sankey.nodeWidth()).attr('text-anchor', 'start').on('click', function (e, d) {
+        if (_this4.onLabelClickCallback) {
+          _this4.onLabelClickCallback(e, d);
+        }
+      }.bind(this));
       node.append('text').attr('class', 'c-sankey__value').attr('x', sankey.nodeWidth() / 1.4).attr('y', function (d) {
         return (d.y1 - d.y0) / 2 - 10;
       }).attr('dy', '0.35em').attr('text-anchor', 'end').text(function (d) {
         return d.value > 30 ? d.value : '';
-      });
+      }).on('click', function (e, d) {
+        if (_this4.onNodeClickCallback) {
+          _this4.onNodeClickCallback(e, d);
+        }
+      }.bind(this));
       this.isLoading = false;
       this.useEffect('graph');
     }
@@ -565,15 +586,15 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
   }, {
     key: "attributeChangedCallback",
     value: function attributeChangedCallback(property, oldValue, newValue) {
-      var _this4 = this;
+      var _this5 = this;
       this.log("XACSankey.attributeChangedCallback: ".concat(property, " ").concat(newValue));
       if (oldValue === newValue) return;
       this.handleLoader();
       if (property !== 'graph') {
         if (property === 'data') {
           this.fetchData().then(function () {
-            _this4.clearCanvas();
-            _this4.buildGraph();
+            _this5.clearCanvas();
+            _this5.buildGraph();
           }.bind(this));
         } else {
           this.clearCanvas();

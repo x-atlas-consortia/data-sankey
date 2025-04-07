@@ -134,6 +134,12 @@ class XACSankey extends HTMLElement {
         if (ops.dataCallback) {
             this.dataCallback = ops.dataCallback
         }
+        if (ops.onNodeClickCallback) {
+            this.onNodeClickCallback = ops.onNodeClickCallback
+        }
+        if (ops.onLabelClickCallback) {
+            this.onLabelClickCallback = ops.onLabelClickCallback
+        }
         if (ops.validFilterMap) {
             Object.assign(this.validFilterMap, ops.validFilterMap)
         }
@@ -218,7 +224,7 @@ class XACSankey extends HTMLElement {
                 if (columnIndex !== columnNames.length - 1) {
                     let found = newGraph.nodes.find((found) => found.column === columnIndex && found.name === row[columnNames[columnIndex]])
                     if (found === undefined) {
-                        found = {node: newGraph.nodes.length, name: row[columnName], column: columnIndex}
+                        found = {node: newGraph.nodes.length, name: row[columnName], column: columnIndex, ref: columnName}
                         newGraph.nodes.push(found)
                     }
 
@@ -227,6 +233,7 @@ class XACSankey extends HTMLElement {
                         found2 = {
                             node: newGraph.nodes.length,
                             name: row[columnNames[columnIndex + 1]],
+                            ref: columnNames[columnIndex + 1],
                             column: columnIndex + 1
                         }
                         newGraph.nodes.push(found2)
@@ -341,6 +348,11 @@ class XACSankey extends HTMLElement {
             .attr('width', sankey.nodeWidth())
             .attr('fill', (d) => color(d.name))
             .attr('stroke-width', 0)
+            .on('click', ((e, d) => {
+                if (this.onNodeClickCallback) {
+                    this.onNodeClickCallback(e, d)
+                }
+            }).bind(this))
             .append('title')
             .text((d) => `${d.name}\n${d.value} Datasets`) // Tooltip
 
@@ -354,6 +366,11 @@ class XACSankey extends HTMLElement {
             .filter((d) => d.x0 < width / 2)
             .attr('x', 6 + sankey.nodeWidth())
             .attr('text-anchor', 'start')
+            .on('click', ((e, d) => {
+                if (this.onLabelClickCallback) {
+                    this.onLabelClickCallback(e, d)
+                }
+            }).bind(this))
 
         node.append('text')
             .attr('class', 'c-sankey__value')
@@ -362,6 +379,11 @@ class XACSankey extends HTMLElement {
             .attr('dy', '0.35em')
             .attr('text-anchor', 'end')
             .text((d) => d.value > 30 ? d.value : '')
+            .on('click', ((e, d) => {
+                if (this.onNodeClickCallback) {
+                    this.onNodeClickCallback(e, d)
+                }
+            }).bind(this))
 
         this.isLoading = false;
         this.useEffect('graph')
