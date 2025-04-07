@@ -1,6 +1,6 @@
 /**
 * 
-* 4/7/2025, 10:12:42 AM | X Atlas Consortia Sankey 1.0.0 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/7/2025, 2:27:58 PM | X Atlas Consortia Sankey 1.0.0 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
@@ -51,6 +51,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
     _this.filters = {};
     _this.dataCallback = null;
     _this.organsDict = {};
+    _this.organsDictByCategory = {};
     _this.api = {
       sankey: 'https://entity.api.sennetconsortium.org/datasets/sankey_data',
       token: null,
@@ -62,6 +63,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
     _this.containerDimensions = {};
     _this.graphData = null;
     _this.isLoading = true;
+    _this.groupByOrganCategoryKey = 'rui_code';
     _this.validFilterMap = {
       group_name: 'dataset_group_name',
       dataset_type: 'dataset_dataset_type',
@@ -92,7 +94,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
     key: "setOrganTypes",
     value: (function () {
       var _setOrganTypes = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
-        var res, organs, _iterator, _step, _o$category, _o$term, o;
+        var res, organs, _iterator, _step, _o$category, _o$term, _o$category2, _o$this$groupByOrganC, o, cat;
         return _regeneratorRuntime().wrap(function _callee$(_context) {
           while (1) switch (_context.prev = _context.next) {
             case 0:
@@ -109,6 +111,9 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
                 for (_iterator.s(); !(_step = _iterator.n()).done;) {
                   o = _step.value;
                   this.organsDict[o.term.trim().toLowerCase()] = ((_o$category = o.category) === null || _o$category === void 0 || (_o$category = _o$category.term) === null || _o$category === void 0 ? void 0 : _o$category.trim()) || ((_o$term = o.term) === null || _o$term === void 0 ? void 0 : _o$term.trim());
+                  cat = ((_o$category2 = o.category) === null || _o$category2 === void 0 ? void 0 : _o$category2.term) || o.term.trim().toLowerCase();
+                  this.organsDictByCategory[cat] = this.organsDictByCategory[cat] || new Set();
+                  this.organsDictByCategory[cat].add((_o$this$groupByOrganC = o[this.groupByOrganCategoryKey]) === null || _o$this$groupByOrganC === void 0 ? void 0 : _o$this$groupByOrganC.trim());
                 }
               } catch (err) {
                 _iterator.e(err);
@@ -446,7 +451,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
 
       // Define the drag behavior
       var drag = d3.drag().on('start', function (event, d) {
-        d3.select(this).raise();
+        d3.select(this).classed("dragging", true);
         d.dragging = {
           offsetX: event.x - d.x0,
           offsetY: event.y - d.y0
@@ -477,16 +482,17 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
       // Nodes
       var node = svg.append('g').selectAll('.node').data(nodes).join('g').attr('class', 'c-sankey__node').attr('transform', function (d) {
         return "translate(".concat(d.x0, ",").concat(d.y0, ")");
-      }).call(drag);
+      }).call(drag).on('click', function (e, d) {
+        if (e.defaultPrevented) return;
+        if (_this4.onNodeClickCallback) {
+          _this4.onNodeClickCallback(e, d);
+        }
+      }.bind(this));
       node.append('rect').attr('height', function (d) {
         return Math.max(5, d.y1 - d.y0);
       }).attr('width', sankey.nodeWidth()).attr('fill', function (d) {
         return color(d.name);
-      }).attr('stroke-width', 0).on('click', function (e, d) {
-        if (_this4.onNodeClickCallback) {
-          _this4.onNodeClickCallback(e, d);
-        }
-      }.bind(this)).append('title').text(function (d) {
+      }).attr('stroke-width', 0).append('title').text(function (d) {
         return "".concat(d.name, "\n").concat(d.value, " Datasets");
       }); // Tooltip
 
@@ -497,6 +503,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
       }).filter(function (d) {
         return d.x0 < width / 2;
       }).attr('x', 6 + sankey.nodeWidth()).attr('text-anchor', 'start').on('click', function (e, d) {
+        if (e.defaultPrevented) return;
         if (_this4.onLabelClickCallback) {
           _this4.onLabelClickCallback(e, d);
         }
@@ -506,6 +513,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
       }).attr('dy', '0.35em').attr('text-anchor', 'end').text(function (d) {
         return d.value > 30 ? d.value : '';
       }).on('click', function (e, d) {
+        if (e.defaultPrevented) return;
         if (_this4.onNodeClickCallback) {
           _this4.onNodeClickCallback(e, d);
         }

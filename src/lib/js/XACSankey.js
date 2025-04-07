@@ -10,6 +10,7 @@ class XACSankey extends HTMLElement {
         this.filters = {}
         this.dataCallback = null
         this.organsDict = {}
+        this.organsDictByCategory = {}
         this.api = {
             sankey: 'https://entity.api.sennetconsortium.org/datasets/sankey_data',
             token: null,
@@ -21,6 +22,7 @@ class XACSankey extends HTMLElement {
         this.containerDimensions = {}
         this.graphData = null
         this.isLoading = true
+        this.groupByOrganCategoryKey = 'rui_code'
         this.validFilterMap = {
             group_name: 'dataset_group_name',
             dataset_type: 'dataset_dataset_type',
@@ -48,6 +50,10 @@ class XACSankey extends HTMLElement {
         const organs = await res.json()
         for (let o of organs) {
             this.organsDict[o.term.trim().toLowerCase()] = o.category?.term?.trim() || o.term?.trim()
+
+            const cat = o.category?.term || o.term.trim().toLowerCase()
+            this.organsDictByCategory[cat] = this.organsDictByCategory[cat] || new Set()
+            this.organsDictByCategory[cat].add(o[this.groupByOrganCategoryKey]?.trim())
         }
     }
 
@@ -301,7 +307,7 @@ class XACSankey extends HTMLElement {
         const drag = d3
             .drag()
             .on('start', function (event, d) {
-                d3.select(this).raise()
+                d3.select(this).classed("dragging", true)
                 d.dragging = {
                     offsetX: event.x - d.x0,
                     offsetY: event.y - d.y0
@@ -342,17 +348,18 @@ class XACSankey extends HTMLElement {
             .attr('class', 'c-sankey__node')
             .attr('transform', (d) => `translate(${d.x0},${d.y0})`)
             .call(drag)
+            .on('click', ((e, d) => {
+                if (e.defaultPrevented) return;
+                if (this.onNodeClickCallback) {
+                    this.onNodeClickCallback(e, d)
+                }
+            }).bind(this))
 
         node.append('rect')
             .attr('height', (d) => Math.max(5, d.y1 - d.y0))
             .attr('width', sankey.nodeWidth())
             .attr('fill', (d) => color(d.name))
             .attr('stroke-width', 0)
-            .on('click', ((e, d) => {
-                if (this.onNodeClickCallback) {
-                    this.onNodeClickCallback(e, d)
-                }
-            }).bind(this))
             .append('title')
             .text((d) => `${d.name}\n${d.value} Datasets`) // Tooltip
 
@@ -367,6 +374,7 @@ class XACSankey extends HTMLElement {
             .attr('x', 6 + sankey.nodeWidth())
             .attr('text-anchor', 'start')
             .on('click', ((e, d) => {
+                if (e.defaultPrevented) return;
                 if (this.onLabelClickCallback) {
                     this.onLabelClickCallback(e, d)
                 }
@@ -380,6 +388,7 @@ class XACSankey extends HTMLElement {
             .attr('text-anchor', 'end')
             .text((d) => d.value > 30 ? d.value : '')
             .on('click', ((e, d) => {
+                if (e.defaultPrevented) return;
                 if (this.onNodeClickCallback) {
                     this.onNodeClickCallback(e, d)
                 }

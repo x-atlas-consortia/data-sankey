@@ -9,6 +9,13 @@
     <consortia-sankey id="js-sankey" />
 </div>
 <script>
+    const flipObj = (obj) => {
+        return Object.keys(obj).reduce((ret, key) => {
+            ret[obj[key]] = key;
+            return ret;
+        }, {})
+    }
+
     const el = document.getElementById('js-sankey')
     const ops = {
         useShadow: true,
@@ -18,23 +25,26 @@
 
     const i = setInterval(()=> {
         if (el.setOptions) {
+            let filterMap = flipObj(el.validFilterMap)
             console.log('Options...')
+            const goTo = (d) => {
+                let values = filterMap[d.ref] === 'organ' ? el.organsDictByCategory[d.name] : [d.name]
+                if (values) {
+                    values = Array.from(values)
+                    window.location = `http://localhost:3000/search?addFilters=${filterMap[d.ref]}=${values.join(',')}`
+                }
+            }
             clearInterval(i)
             el.setOptions(
                 {
                     onNodeClickCallback: (e, d) => {
-                      console.log('node clicked', d)
+                        console.log('node clicked', d)
+                        goTo(d)
                     },
                     onLabelClickCallback: (e, d) => {
                         console.log('label clicked', d)
+                        goTo(d)
                     },
-                    validFilterMap: {
-                        group_name: 'dataset_group_name',
-                        dataset_type: 'dataset_dataset_type',
-                        organ: 'organ_type',
-                        //source_type: 'source_type',
-                        status: 'dataset_status'
-                    }
                 }
             )
         }
