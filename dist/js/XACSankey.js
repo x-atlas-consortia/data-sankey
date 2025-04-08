@@ -1,6 +1,6 @@
 /**
 * 
-* 4/8/2025, 9:40:29 AM | X Atlas Consortia Sankey 1.0.1a | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/8/2025, 11:39:12 AM | X Atlas Consortia Sankey 1.0.1b | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
@@ -208,6 +208,20 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
     }
 
     /**
+     * Removes null values from obj.
+     * @param obj
+     */
+  }, {
+    key: "purgeObject",
+    value: function purgeObject(obj) {
+      for (var i in obj) {
+        if (obj[i] === null) {
+          delete obj[i];
+        }
+      }
+    }
+
+    /**
      * Sets options to this instance.
      * @param {object} ops
      */
@@ -216,6 +230,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
     value: function setOptions(ops) {
       if (ops.filters) {
         this.filters = ops.filters;
+        this.purgeObject(this.filters);
       }
       if (ops.loading) {
         Object.assign(this.loading, ops.loading);
@@ -234,6 +249,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
       }
       if (ops.validFilterMap) {
         Object.assign(this.validFilterMap, ops.validFilterMap);
+        this.purgeObject(this.validFilterMap);
       }
       if (ops.d3) {
         this.d3 = ops.d3;
@@ -513,7 +529,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
       node.append('text').attr('class', 'c-sankey__value').attr('x', sankey.nodeWidth() / 1.4).attr('y', function (d) {
         return (d.y1 - d.y0) / 2 - 5;
       }).attr('dy', '0.35em').attr('text-anchor', 'middle').text(function (d) {
-        return d.value > 30 ? d.value : '';
+        return Math.max(5, d.y1 - d.y0) > 15 ? d.value : '';
       }).on('click', function (e, d) {
         if (e.defaultPrevented) return;
         if (_this4.onNodeClickCallback) {

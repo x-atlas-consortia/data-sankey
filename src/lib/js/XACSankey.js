@@ -124,12 +124,25 @@ class XACSankey extends HTMLElement {
     }
 
     /**
+     * Removes null values from obj.
+     * @param obj
+     */
+    purgeObject(obj) {
+        for (let i in obj) {
+            if (obj[i] === null) {
+                delete obj[i]
+            }
+        }
+    }
+
+    /**
      * Sets options to this instance.
      * @param {object} ops
      */
     setOptions(ops) {
         if (ops.filters) {
             this.filters = ops.filters
+            this.purgeObject(this.filters)
         }
         if (ops.loading) {
             Object.assign(this.loading, ops.loading)
@@ -148,6 +161,7 @@ class XACSankey extends HTMLElement {
         }
         if (ops.validFilterMap) {
             Object.assign(this.validFilterMap, ops.validFilterMap)
+            this.purgeObject(this.validFilterMap)
         }
         if (ops.d3) {
             this.d3 = ops.d3
@@ -386,7 +400,7 @@ class XACSankey extends HTMLElement {
             .attr('y', (d) => ((d.y1 - d.y0) / 2) - 5)
             .attr('dy', '0.35em')
             .attr('text-anchor', 'middle')
-            .text((d) => d.value > 30 ? d.value : '')
+            .text((d) => Math.max(5, d.y1 - d.y0) > 15 ? d.value : '')
             .on('click', ((e, d) => {
                 if (e.defaultPrevented) return;
                 if (this.onNodeClickCallback) {
