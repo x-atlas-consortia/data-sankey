@@ -1,6 +1,6 @@
 /**
 * 
-* 4/4/2025, 2:26:12 PM | X Atlas Consortia Sankey 1.0.0 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/8/2025, 2:12:32 PM | X Atlas Consortia Sankey 1.0.2 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
@@ -51,6 +51,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
     _this.filters = {};
     _this.dataCallback = null;
     _this.organsDict = {};
+    _this.organsDictByCategory = {};
     _this.api = {
       sankey: 'https://entity.api.sennetconsortium.org/datasets/sankey_data',
       token: null,
@@ -62,6 +63,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
     _this.containerDimensions = {};
     _this.graphData = null;
     _this.isLoading = true;
+    _this.groupByOrganCategoryKey = 'rui_code';
     _this.validFilterMap = {
       group_name: 'dataset_group_name',
       dataset_type: 'dataset_dataset_type',
@@ -92,7 +94,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
     key: "setOrganTypes",
     value: (function () {
       var _setOrganTypes = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
-        var res, organs, _iterator, _step, _o$category, _o$term, o;
+        var res, organs, _iterator, _step, _o$category, _o$term, _o$category2, _o$this$groupByOrganC, o, cat;
         return _regeneratorRuntime().wrap(function _callee$(_context) {
           while (1) switch (_context.prev = _context.next) {
             case 0:
@@ -109,6 +111,9 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
                 for (_iterator.s(); !(_step = _iterator.n()).done;) {
                   o = _step.value;
                   this.organsDict[o.term.trim().toLowerCase()] = ((_o$category = o.category) === null || _o$category === void 0 || (_o$category = _o$category.term) === null || _o$category === void 0 ? void 0 : _o$category.trim()) || ((_o$term = o.term) === null || _o$term === void 0 ? void 0 : _o$term.trim());
+                  cat = ((_o$category2 = o.category) === null || _o$category2 === void 0 ? void 0 : _o$category2.term) || o.term.trim().toLowerCase();
+                  this.organsDictByCategory[cat] = this.organsDictByCategory[cat] || new Set();
+                  this.organsDictByCategory[cat].add((_o$this$groupByOrganC = o[this.groupByOrganCategoryKey]) === null || _o$this$groupByOrganC === void 0 ? void 0 : _o$this$groupByOrganC.trim());
                 }
               } catch (err) {
                 _iterator.e(err);
@@ -203,6 +208,20 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
     }
 
     /**
+     * Removes null values from obj.
+     * @param obj
+     */
+  }, {
+    key: "purgeObject",
+    value: function purgeObject(obj) {
+      for (var i in obj) {
+        if (obj[i] === null) {
+          delete obj[i];
+        }
+      }
+    }
+
+    /**
      * Sets options to this instance.
      * @param {object} ops
      */
@@ -211,6 +230,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
     value: function setOptions(ops) {
       if (ops.filters) {
         this.filters = ops.filters;
+        this.purgeObject(this.filters);
       }
       if (ops.loading) {
         Object.assign(this.loading, ops.loading);
@@ -221,8 +241,15 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
       if (ops.dataCallback) {
         this.dataCallback = ops.dataCallback;
       }
+      if (ops.onNodeClickCallback) {
+        this.onNodeClickCallback = ops.onNodeClickCallback;
+      }
+      if (ops.onLabelClickCallback) {
+        this.onLabelClickCallback = ops.onLabelClickCallback;
+      }
       if (ops.validFilterMap) {
         Object.assign(this.validFilterMap, ops.validFilterMap);
+        this.purgeObject(this.validFilterMap);
       }
       if (ops.d3) {
         this.d3 = ops.d3;
@@ -336,7 +363,8 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
                       found = {
                         node: newGraph.nodes.length,
                         name: row[columnName],
-                        column: columnIndex
+                        column: columnIndex,
+                        ref: columnName
                       };
                       newGraph.nodes.push(found);
                     }
@@ -347,6 +375,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
                       found2 = {
                         node: newGraph.nodes.length,
                         name: row[columnNames[columnIndex + 1]],
+                        ref: columnNames[columnIndex + 1],
                         column: columnIndex + 1
                       };
                       newGraph.nodes.push(found2);
@@ -396,6 +425,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
   }, {
     key: "buildGraph",
     value: function buildGraph() {
+      var _this4 = this;
       if (!this.d3) {
         console.error('No D3 library loaded.');
       }
@@ -437,7 +467,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
 
       // Define the drag behavior
       var drag = d3.drag().on('start', function (event, d) {
-        d3.select(this).raise();
+        d3.select(this).classed("dragging", true);
         d.dragging = {
           offsetX: event.x - d.x0,
           offsetY: event.y - d.y0
@@ -466,9 +496,16 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
       }); // Tooltip
 
       // Nodes
-      var node = svg.append('g').selectAll('.node').data(nodes).join('g').attr('class', 'c-sankey__node').attr('transform', function (d) {
+      var node = svg.append('g').selectAll('.node').data(nodes).join('g').attr('class', function (d) {
+        return "c-sankey__node c-sankey__node--".concat(d.ref);
+      }).attr('transform', function (d) {
         return "translate(".concat(d.x0, ",").concat(d.y0, ")");
-      }).call(drag);
+      }).call(drag).on('click', function (e, d) {
+        if (e.defaultPrevented) return;
+        if (_this4.onNodeClickCallback) {
+          _this4.onNodeClickCallback(e, d);
+        }
+      }.bind(this));
       node.append('rect').attr('height', function (d) {
         return Math.max(5, d.y1 - d.y0);
       }).attr('width', sankey.nodeWidth()).attr('fill', function (d) {
@@ -477,13 +514,28 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
         return "".concat(d.name, "\n").concat(d.value, " Datasets");
       }); // Tooltip
 
-      node.append('text').attr('x', -6).attr('y', function (d) {
+      node.append('text').attr('class', 'c-sankey__label').attr('x', -6).attr('y', function (d) {
         return (d.y1 - d.y0) / 2;
       }).attr('dy', '0.35em').attr('text-anchor', 'end').text(function (d) {
         return d.name;
       }).filter(function (d) {
         return d.x0 < width / 2;
-      }).attr('x', 6 + sankey.nodeWidth()).attr('text-anchor', 'start');
+      }).attr('x', 6 + sankey.nodeWidth()).attr('text-anchor', 'start').on('click', function (e, d) {
+        if (e.defaultPrevented) return;
+        if (_this4.onLabelClickCallback) {
+          _this4.onLabelClickCallback(e, d);
+        }
+      }.bind(this));
+      node.append('text').attr('class', 'c-sankey__value').attr('y', sankey.nodeWidth() / 1.9).attr('x', function (d) {
+        return (d.y1 - d.y0) / 2 * -1;
+      }).attr('dy', '0.35em').attr('text-anchor', 'middle').text(function (d) {
+        return Math.max(5, d.y1 - d.y0) > 15 ? d.value : '';
+      }).on('click', function (e, d) {
+        if (e.defaultPrevented) return;
+        if (_this4.onNodeClickCallback) {
+          _this4.onNodeClickCallback(e, d);
+        }
+      }.bind(this));
       this.isLoading = false;
       this.useEffect('graph');
     }
@@ -560,21 +612,36 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
   }, {
     key: "attributeChangedCallback",
     value: function attributeChangedCallback(property, oldValue, newValue) {
-      var _this4 = this;
+      var _this5 = this;
       this.log("XACSankey.attributeChangedCallback: ".concat(property, " ").concat(newValue));
       if (oldValue === newValue) return;
       this.handleLoader();
       if (property !== 'graph') {
         if (property === 'data') {
           this.fetchData().then(function () {
-            _this4.clearCanvas();
-            _this4.buildGraph();
+            _this5.clearCanvas();
+            _this5.buildGraph();
           }.bind(this));
         } else {
           this.clearCanvas();
           this.buildGraph();
         }
       }
+    }
+
+    /**
+     * Flips an obj on its keys.
+     * Example: Given {a: b} -> {b: a}
+     * @param obj
+     * @returns {{}}
+     */
+  }, {
+    key: "flipObj",
+    value: function flipObj(obj) {
+      return Object.keys(obj).reduce(function (ret, key) {
+        ret[obj[key]] = key;
+        return ret;
+      }, {});
     }
 
     /**

@@ -9,26 +9,47 @@
     <consortia-sankey id="js-sankey" />
 </div>
 <script>
+
     const el = document.getElementById('js-sankey')
     const ops = {
         useShadow: true,
-        styleSheetPath: './xac-sankey.css'
+        styleSheetPath: './xac-sankey.css',
+        api: {
+          sankey: 'https://entity-api.dev.sennetconsortium.org/datasets/sankey_data'
+        },
+        validFilterMap: {
+            status: null,
+            source_type: 'dataset_source_type'
+        }
     }
     el.setAttribute('options', btoa(JSON.stringify(ops)))
 
-    // document.onreadystatechange = ()=> {
-    //     el.setOptions(
-    //         {
-    //             validFilterMap: {
-    //                 group_name: 'dataset_group_name',
-    //                 dataset_type: 'dataset_dataset_type',
-    //                 organ: 'organ_type',
-    //                 //source_type: 'source_type',
-    //                 status: 'dataset_status'
-    //             }
-    //         }
-    //     )
-    // }
+    const i = setInterval(()=> {
+        if (el.setOptions) {
+            let filterMap = el.flipObj(el.validFilterMap)
+
+            const goTo = (d) => {
+                let values = filterMap[d.ref] === 'organ' ? el.organsDictByCategory[d.name] : [d.name]
+                if (values) {
+                    values = Array.from(values)
+                    window.location = `http://localhost:3000/search?addFilters=${filterMap[d.ref]}=${values.join(',')}`
+                }
+            }
+            clearInterval(i)
+            el.setOptions(
+                {
+                    onNodeClickCallback: (e, d) => {
+                        console.log('node clicked', d)
+                        goTo(d)
+                    },
+                    onLabelClickCallback: (e, d) => {
+                        console.log('label clicked', d)
+                        goTo(d)
+                    },
+                }
+            )
+        }
+    }, 500)
 </script>
 </body>
 </html>

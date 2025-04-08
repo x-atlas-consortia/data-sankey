@@ -10,6 +10,7 @@ class XACSankey extends HTMLElement {
         this.filters = {}
         this.dataCallback = null
         this.organsDict = {}
+        this.organsDictByCategory = {}
         this.api = {
             sankey: 'https://entity.api.sennetconsortium.org/datasets/sankey_data',
             token: null,
@@ -21,6 +22,7 @@ class XACSankey extends HTMLElement {
         this.containerDimensions = {}
         this.graphData = null
         this.isLoading = true
+        this.groupByOrganCategoryKey = 'rui_code'
         this.validFilterMap = {
             group_name: 'dataset_group_name',
             dataset_type: 'dataset_dataset_type',
@@ -48,6 +50,10 @@ class XACSankey extends HTMLElement {
         const organs = await res.json()
         for (let o of organs) {
             this.organsDict[o.term.trim().toLowerCase()] = o.category?.term?.trim() || o.term?.trim()
+
+            const cat = o.category?.term || o.term.trim().toLowerCase()
+            this.organsDictByCategory[cat] = this.organsDictByCategory[cat] || new Set()
+            this.organsDictByCategory[cat].add(o[this.groupByOrganCategoryKey]?.trim())
         }
     }
 
@@ -118,12 +124,25 @@ class XACSankey extends HTMLElement {
     }
 
     /**
+     * Removes null values from obj.
+     * @param obj
+     */
+    purgeObject(obj) {
+        for (let i in obj) {
+            if (obj[i] === null) {
+                delete obj[i]
+            }
+        }
+    }
+
+    /**
      * Sets options to this instance.
      * @param {object} ops
      */
     setOptions(ops) {
         if (ops.filters) {
             this.filters = ops.filters
+            this.purgeObject(this.filters)
         }
         if (ops.loading) {
             Object.assign(this.loading, ops.loading)
@@ -134,8 +153,15 @@ class XACSankey extends HTMLElement {
         if (ops.dataCallback) {
             this.dataCallback = ops.dataCallback
         }
+        if (ops.onNodeClickCallback) {
+            this.onNodeClickCallback = ops.onNodeClickCallback
+        }
+        if (ops.onLabelClickCallback) {
+            this.onLabelClickCallback = ops.onLabelClickCallback
+        }
         if (ops.validFilterMap) {
             Object.assign(this.validFilterMap, ops.validFilterMap)
+            this.purgeObject(this.validFilterMap)
         }
         if (ops.d3) {
             this.d3 = ops.d3
@@ -218,7 +244,7 @@ class XACSankey extends HTMLElement {
                 if (columnIndex !== columnNames.length - 1) {
                     let found = newGraph.nodes.find((found) => found.column === columnIndex && found.name === row[columnNames[columnIndex]])
                     if (found === undefined) {
-                        found = {node: newGraph.nodes.length, name: row[columnName], column: columnIndex}
+                        found = {node: newGraph.nodes.length, name: row[columnName], column: columnIndex, ref: columnName}
                         newGraph.nodes.push(found)
                     }
 
@@ -227,6 +253,7 @@ class XACSankey extends HTMLElement {
                         found2 = {
                             node: newGraph.nodes.length,
                             name: row[columnNames[columnIndex + 1]],
+                            ref: columnNames[columnIndex + 1],
                             column: columnIndex + 1
                         }
                         newGraph.nodes.push(found2)
@@ -294,7 +321,7 @@ class XACSankey extends HTMLElement {
         const drag = d3
             .drag()
             .on('start', function (event, d) {
-                d3.select(this).raise()
+                d3.select(this).classed("dragging", true)
                 d.dragging = {
                     offsetX: event.x - d.x0,
                     offsetY: event.y - d.y0
@@ -332,9 +359,15 @@ class XACSankey extends HTMLElement {
             .selectAll('.node')
             .data(nodes)
             .join('g')
-            .attr('class', 'c-sankey__node')
+            .attr('class', (d) => `c-sankey__node c-sankey__node--${d.ref}`)
             .attr('transform', (d) => `translate(${d.x0},${d.y0})`)
             .call(drag)
+            .on('click', ((e, d) => {
+                if (e.defaultPrevented) return;
+                if (this.onNodeClickCallback) {
+                    this.onNodeClickCallback(e, d)
+                }
+            }).bind(this))
 
         node.append('rect')
             .attr('height', (d) => Math.max(5, d.y1 - d.y0))
@@ -345,6 +378,7 @@ class XACSankey extends HTMLElement {
             .text((d) => `${d.name}\n${d.value} Datasets`) // Tooltip
 
         node.append('text')
+            .attr('class', 'c-sankey__label')
             .attr('x', -6)
             .attr('y', (d) => (d.y1 - d.y0) / 2)
             .attr('dy', '0.35em')
@@ -353,6 +387,26 @@ class XACSankey extends HTMLElement {
             .filter((d) => d.x0 < width / 2)
             .attr('x', 6 + sankey.nodeWidth())
             .attr('text-anchor', 'start')
+            .on('click', ((e, d) => {
+                if (e.defaultPrevented) return;
+                if (this.onLabelClickCallback) {
+                    this.onLabelClickCallback(e, d)
+                }
+            }).bind(this))
+
+        node.append('text')
+            .attr('class', 'c-sankey__value')
+            .attr('y', sankey.nodeWidth()/1.9)
+            .attr('x', (d) => ((d.y1 - d.y0) / 2) * -1)
+            .attr('dy', '0.35em')
+            .attr('text-anchor', 'middle')
+            .text((d) => Math.max(5, d.y1 - d.y0) > 15 ? d.value : '')
+            .on('click', ((e, d) => {
+                if (e.defaultPrevented) return;
+                if (this.onNodeClickCallback) {
+                    this.onNodeClickCallback(e, d)
+                }
+            }).bind(this))
 
         this.isLoading = false;
         this.useEffect('graph')
@@ -440,6 +494,19 @@ class XACSankey extends HTMLElement {
                 this.buildGraph()
             }
         }
+    }
+
+    /**
+     * Flips an obj on its keys.
+     * Example: Given {a: b} -> {b: a}
+     * @param obj
+     * @returns {{}}
+     */
+    flipObj(obj) {
+        return Object.keys(obj).reduce((ret, key) => {
+            ret[obj[key]] = key;
+            return ret;
+        }, {})
     }
 
     /**

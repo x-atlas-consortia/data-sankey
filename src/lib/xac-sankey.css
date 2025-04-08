@@ -1,5 +1,5 @@
 .c-sankey {
-    min-height: 100vh
+    min-height: 100vh;
 }
 
 .c-sankey__node rect {
@@ -29,6 +29,11 @@
     height: 50px;
     animation: spin 500ms linear infinite;
     margin: auto;
+}
+
+.c-sankey__value {
+    transform: rotate(-90deg);
+    font-size: 12px;
 }
 
 @keyframes spin {
