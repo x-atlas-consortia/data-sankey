@@ -51,7 +51,7 @@ class XACSankey extends HTMLElement {
         for (let o of organs) {
             this.organsDict[o.term.trim().toLowerCase()] = o.category?.term?.trim() || o.term?.trim()
 
-            const cat = o.category?.term || o.term.trim().toLowerCase()
+            const cat = o.category?.term?.trim() || o.term.trim()
             this.organsDictByCategory[cat] = this.organsDictByCategory[cat] || new Set()
             this.organsDictByCategory[cat].add(o[this.groupByOrganCategoryKey]?.trim())
         }

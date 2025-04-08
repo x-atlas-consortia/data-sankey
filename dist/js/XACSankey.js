@@ -1,6 +1,6 @@
 /**
 * 
-* 4/8/2025, 2:12:32 PM | X Atlas Consortia Sankey 1.0.2 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/8/2025, 2:45:52 PM | X Atlas Consortia Sankey 1.0.2a | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
@@ -111,7 +111,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
                 for (_iterator.s(); !(_step = _iterator.n()).done;) {
                   o = _step.value;
                   this.organsDict[o.term.trim().toLowerCase()] = ((_o$category = o.category) === null || _o$category === void 0 || (_o$category = _o$category.term) === null || _o$category === void 0 ? void 0 : _o$category.trim()) || ((_o$term = o.term) === null || _o$term === void 0 ? void 0 : _o$term.trim());
-                  cat = ((_o$category2 = o.category) === null || _o$category2 === void 0 ? void 0 : _o$category2.term) || o.term.trim().toLowerCase();
+                  cat = ((_o$category2 = o.category) === null || _o$category2 === void 0 || (_o$category2 = _o$category2.term) === null || _o$category2 === void 0 ? void 0 : _o$category2.trim()) || o.term.trim();
                   this.organsDictByCategory[cat] = this.organsDictByCategory[cat] || new Set();
                   this.organsDictByCategory[cat].add((_o$this$groupByOrganC = o[this.groupByOrganCategoryKey]) === null || _o$this$groupByOrganC === void 0 ? void 0 : _o$this$groupByOrganC.trim());
                 }
