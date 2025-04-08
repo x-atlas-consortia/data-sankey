@@ -1,6 +1,6 @@
 /**
 * 
-* 4/7/2025, 3:55:23 PM | X Atlas Consortia Sankey 1.0.0 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/8/2025, 9:28:42 AM | X Atlas Consortia Sankey 1.0.1 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
@@ -511,8 +511,8 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
         }
       }.bind(this));
       node.append('text').attr('class', 'c-sankey__value').attr('x', sankey.nodeWidth() / 1.4).attr('y', function (d) {
-        return (d.y1 - d.y0) / 2 - 10;
-      }).attr('dy', '0.35em').attr('text-anchor', 'end').text(function (d) {
+        return (d.y1 - d.y0) / 2 - 5;
+      }).attr('dy', '0.35em').attr('text-anchor', 'middle').text(function (d) {
         return d.value > 30 ? d.value : '';
       }).on('click', function (e, d) {
         if (e.defaultPrevented) return;

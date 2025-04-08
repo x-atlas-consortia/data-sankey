@@ -383,9 +383,9 @@ class XACSankey extends HTMLElement {
         node.append('text')
             .attr('class', 'c-sankey__value')
             .attr('x', sankey.nodeWidth()/1.4)
-            .attr('y', (d) => ((d.y1 - d.y0) / 2) - 10)
+            .attr('y', (d) => ((d.y1 - d.y0) / 2) - 5)
             .attr('dy', '0.35em')
-            .attr('text-anchor', 'end')
+            .attr('text-anchor', 'middle')
             .text((d) => d.value > 30 ? d.value : '')
             .on('click', ((e, d) => {
                 if (e.defaultPrevented) return;
