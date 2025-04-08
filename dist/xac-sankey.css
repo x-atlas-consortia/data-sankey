@@ -32,7 +32,7 @@
 }
 
 .c-sankey__value {
-    writing-mode: sideways-lr;
+    transform: rotate(-90deg);
     font-size: 12px;
 }
 
