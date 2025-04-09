@@ -49,7 +49,7 @@ const ops = {
 ```
 
 #### Via the `setOptions` method
-`setOptions` only becomes available, when `useShadow` is set to true. Must pass the styleSheetPath for css to be applied to the shadow DOM.
+`setOptions` only becomes available when `useShadow` is set to true. Must pass the `styleSheetPath` for css to be applied to the shadow DOM.
 
 ```
 const ops = {
