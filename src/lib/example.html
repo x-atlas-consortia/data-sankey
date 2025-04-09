@@ -15,7 +15,7 @@
         useShadow: true,
         styleSheetPath: './xac-sankey.css',
         api: {
-          sankey: 'https://entity-api.dev.sennetconsortium.org/datasets/sankey_data'
+            sankey: 'https://entity-api.dev.sennetconsortium.org/datasets/sankey_data'
         },
         validFilterMap: {
             status: null,
@@ -29,10 +29,17 @@
             let filterMap = el.flipObj(el.validFilterMap)
 
             const goTo = (d) => {
+                if (d.ref === 'dataset_dataset_type') return
+                const facetsMap = {
+                    organ: 'origin_samples.organ',
+                    source_type: 'sources.source_type'
+                }
                 let values = filterMap[d.ref] === 'organ' ? el.organsDictByCategory[d.name] : [d.name]
+                const facet = facetsMap[filterMap[d.ref]] || filterMap[d.ref]
+                const addFilters = ';entity_type=Dataset'
                 if (values) {
                     values = Array.from(values)
-                    window.location = `http://localhost:3000/search?addFilters=${filterMap[d.ref]}=${values.join(',')}`
+                    window.open(`http://localhost:3000/search?addFilters=${filterMap[d.ref]}=${values.join(',')}`, '_blank')
                 }
             }
             clearInterval(i)

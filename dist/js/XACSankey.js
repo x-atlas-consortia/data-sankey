@@ -1,6 +1,6 @@
 /**
 * 
-* 4/8/2025, 2:45:52 PM | X Atlas Consortia Sankey 1.0.2a | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/9/2025, 11:03:47 AM | X Atlas Consortia Sankey 1.0.2b | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
@@ -321,7 +321,31 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
               data = _context2.sent;
               if (this.validFilterMap.organ) {
                 data = data.map(function (row) {
-                  return _objectSpread(_objectSpread({}, row), {}, _defineProperty({}, _this3.validFilterMap.organ, _this3.getOrganHierarchy(row[_this3.validFilterMap.organ])));
+                  var groups = new Set();
+                  var _iterator2 = _createForOfIteratorHelper(row[_this3.validFilterMap.organ]),
+                    _step2;
+                  try {
+                    for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+                      var g = _step2.value;
+                      groups.add(_this3.getOrganHierarchy(g));
+                    }
+                  } catch (err) {
+                    _iterator2.e(err);
+                  } finally {
+                    _iterator2.f();
+                  }
+                  var _iterator3 = _createForOfIteratorHelper(groups),
+                    _step3;
+                  try {
+                    for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+                      var _g = _step3.value;
+                      return _objectSpread(_objectSpread({}, row), {}, _defineProperty({}, _this3.validFilterMap.organ, _g));
+                    }
+                  } catch (err) {
+                    _iterator3.e(err);
+                  } finally {
+                    _iterator3.f();
+                  }
                 });
               }
               if (this.dataCallback) {

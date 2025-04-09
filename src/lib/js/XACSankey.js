@@ -212,7 +212,13 @@ class XACSankey extends HTMLElement {
         
         if (this.validFilterMap.organ) {
             data = data.map((row) => {
-                return {...row, [this.validFilterMap.organ]: this.getOrganHierarchy(row[this.validFilterMap.organ])}
+                let groups = new Set()
+                for (let g of row[this.validFilterMap.organ]) {
+                    groups.add(this.getOrganHierarchy(g))
+                }
+                for (let g of groups) {
+                    return {...row, [this.validFilterMap.organ]: g}
+                }
             })
         }
         
