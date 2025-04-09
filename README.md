@@ -72,7 +72,8 @@ el.setOptions({
     validFilterMap[obj], // {column_name: str}
     d3[obj], // {d3, d3sankey, sankeyLinkHorizontal } // the d3 library and related functions for building the graph
     loading[obj], // {html[str], callback[function(ctx)]} // loading html and callback
-    styleSheetPath[str] // publicly accessible url to stylesheet
+    styleSheetPath[str], // publicly accessible url to stylesheet
+    groupByOrganCategoryKey[str]: // the UBKG property name to use when building dictionary of organs category; default is rui_code
 })
 
 ```

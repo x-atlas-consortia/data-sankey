@@ -144,6 +144,8 @@ class XACSankey extends HTMLElement {
             this.filters = ops.filters
             this.purgeObject(this.filters)
         }
+        this.groupByOrganCategoryKey = ops.groupByOrganCategoryKey || this.groupByOrganCategoryKey
+        
         if (ops.loading) {
             Object.assign(this.loading, ops.loading)
         }
@@ -209,7 +211,7 @@ class XACSankey extends HTMLElement {
         // call the sankey endpoint
         const res = await fetch(this.api.sankey, this.getHeaders())
         let data = await res.json()
-        
+
         if (this.validFilterMap.organ) {
             data = data.map((row) => {
                 let groups = new Set()

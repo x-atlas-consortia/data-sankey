@@ -29,17 +29,18 @@
             let filterMap = el.flipObj(el.validFilterMap)
 
             const goTo = (d) => {
-                if (d.ref === 'dataset_dataset_type') return
+                const col = filterMap[d.ref]
+                if (col === 'dataset_type') return
                 const facetsMap = {
                     organ: 'origin_samples.organ',
                     source_type: 'sources.source_type'
                 }
-                let values = filterMap[d.ref] === 'organ' ? el.organsDictByCategory[d.name] : [d.name]
-                const facet = facetsMap[filterMap[d.ref]] || filterMap[d.ref]
+                let values = col === 'organ' ? el.organsDictByCategory[d.name] : [d.name]
+                const facet = facetsMap[col] || col
                 const addFilters = ';entity_type=Dataset'
                 if (values) {
                     values = Array.from(values)
-                    window.open(`http://localhost:3000/search?addFilters=${filterMap[d.ref]}=${values.join(',')}`, '_blank')
+                    window.open(`http://localhost:3000/search?addFilters=${col}=${values.join(',')}${addFilters}`, '_blank')
                 }
             }
             clearInterval(i)
