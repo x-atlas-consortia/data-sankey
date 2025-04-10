@@ -1,6 +1,6 @@
 /**
 * 
-* 4/10/2025, 10:43:43 AM | X Atlas Consortia Sankey 1.0.3 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/10/2025, 11:59:08 AM | X Atlas Consortia Sankey 1.0.3 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
@@ -451,19 +451,42 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
                     };
                     setSourcesTargets(sources, row[columnName]);
                     setSourcesTargets(targets, row[columnNames[columnIndex + 1]]);
-                    for (var _i2 = 0, _sources = sources; _i2 < _sources.length; _i2++) {
-                      var s = _sources[_i2];
+                    if (sources.length > 1) {
                       var _iterator6 = _createForOfIteratorHelper(targets),
                         _step6;
                       try {
                         for (_iterator6.s(); !(_step6 = _iterator6.n()).done;) {
                           var t = _step6.value;
-                          buildLink(s, t);
+                          buildLink(sources[0], t);
                         }
                       } catch (err) {
                         _iterator6.e(err);
                       } finally {
                         _iterator6.f();
+                      }
+                    } else {
+                      var _iterator7 = _createForOfIteratorHelper(sources),
+                        _step7;
+                      try {
+                        for (_iterator7.s(); !(_step7 = _iterator7.n()).done;) {
+                          var s = _step7.value;
+                          var _iterator8 = _createForOfIteratorHelper(targets),
+                            _step8;
+                          try {
+                            for (_iterator8.s(); !(_step8 = _iterator8.n()).done;) {
+                              var _t = _step8.value;
+                              buildLink(s, _t);
+                            }
+                          } catch (err) {
+                            _iterator8.e(err);
+                          } finally {
+                            _iterator8.f();
+                          }
+                        }
+                      } catch (err) {
+                        _iterator7.e(err);
+                      } finally {
+                        _iterator7.f();
                       }
                     }
                   }
@@ -610,7 +633,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
       node.append('text').attr('class', 'c-sankey__value').attr('y', sankey.nodeWidth() / 1.9).attr('x', function (d) {
         return (d.y1 - d.y0) / 2 * -1;
       }).attr('dy', '0.35em').attr('text-anchor', 'middle').text(function (d) {
-        return Math.max(5, d.y1 - d.y0) > 15 ? d.value : '';
+        return Math.max(5, d.y1 - d.y0) > 15 ? d.weight : '';
       }).on('click', function (e, d) {
         if (e.defaultPrevented) return;
         if (_this3.onNodeClickCallback) {
