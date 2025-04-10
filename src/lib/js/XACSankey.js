@@ -145,7 +145,7 @@ class XACSankey extends HTMLElement {
             this.purgeObject(this.filters)
         }
         this.groupByOrganCategoryKey = ops.groupByOrganCategoryKey || this.groupByOrganCategoryKey
-        
+
         if (ops.loading) {
             Object.assign(this.loading, ops.loading)
         }
@@ -210,18 +210,19 @@ class XACSankey extends HTMLElement {
 
         // call the sankey endpoint
         const res = await fetch(this.api.sankey, this.getHeaders())
-        let data = await res.json()
+        let rawData = await res.json()
 
+        let data = []
         if (this.validFilterMap.organ) {
-            data = data.map((row) => {
+            for (let row of rawData) {
                 let groups = new Set()
                 for (let g of row[this.validFilterMap.organ]) {
                     groups.add(this.getOrganHierarchy(g))
                 }
                 for (let g of groups) {
-                    return {...row, [this.validFilterMap.organ]: g}
+                    data.push({...row, [this.validFilterMap.organ]: g})
                 }
-            })
+            }
         }
         
         if (this.dataCallback) {
@@ -244,39 +245,47 @@ class XACSankey extends HTMLElement {
             })
         }
 
-        // group the data into nodes and links
+        XACSankey.log('filteredData', {data: filteredData, color: 'orange'})
+
         const columnNames = Object.values(this.validFilterMap)
-        const newGraph = {nodes: [], links: []}
+        const graphMap = {nodes: {}, links: {}}
+        let i = 0;
+
+        // First build the nodes using a dictionary for faster access time
+        filteredData.forEach((row, rowIndex) => {
+            columnNames.forEach((columnName, columnIndex) => {
+                let node = graphMap.nodes[row[columnName]]
+                if (node === undefined) {
+                    graphMap.nodes[row[columnName]] = {node: i, name: row[columnName], ref: columnName, columnIndex, weight: 0}
+                    node = graphMap.nodes[row[columnName]]
+                    i++
+                }
+                node.weight = node.weight + 1
+            })
+        })
+
         filteredData.forEach((row) => {
             columnNames.forEach((columnName, columnIndex) => {
                 if (columnIndex !== columnNames.length - 1) {
-                    let found = newGraph.nodes.find((found) => found.column === columnIndex && found.name === row[columnNames[columnIndex]])
-                    if (found === undefined) {
-                        found = {node: newGraph.nodes.length, name: row[columnName], column: columnIndex, ref: columnName}
-                        newGraph.nodes.push(found)
-                    }
 
-                    let found2 = newGraph.nodes.find((found2) => found2.column === columnIndex + 1 && found2.name === row[columnNames[columnIndex + 1]])
-                    if (found2 === undefined) {
-                        found2 = {
-                            node: newGraph.nodes.length,
-                            name: row[columnNames[columnIndex + 1]],
-                            ref: columnNames[columnIndex + 1],
-                            column: columnIndex + 1
-                        }
-                        newGraph.nodes.push(found2)
-                    }
+                    // Capture source and target by name O(1)
+                    const source = graphMap.nodes[row[columnName]]
+                    const target = graphMap.nodes[row[columnNames[columnIndex + 1]]]
 
-                    let found3 = newGraph.links.find((found3) => found3.source === found.node && found3.target === found2.node)
-                    if (found3 === undefined) {
-                        found3 = {source: found.node, target: found2.node, value: 0}
-                        newGraph.links.push(found3)
+                    // Find a link O(1)
+                    let link = graphMap.links[`${source.name}_${target.name}`]
+                    if (link === undefined) {
+                        graphMap.links[`${source.name}_${target.name}`] = {source: source.node, target: target.node, value: 0}
+                        link = graphMap.links[`${source.name}_${target.name}`]
                     }
-                    found3.value = found3.value + 1
+                    link.value = link.value + 1
                 }
             })
         })
-        this.graphData = newGraph;
+
+        XACSankey.log('graphMap', {data: graphMap, color: 'green'})
+
+        this.graphData = {nodes: Object.values(graphMap.nodes), links: Object.values(graphMap.links)};
         this.useEffect('fetch')
     }
 

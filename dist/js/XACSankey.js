@@ -1,6 +1,6 @@
 /**
 * 
-* 4/9/2025, 11:34:59 AM | X Atlas Consortia Sankey 1.0.2c | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/10/2025, 9:17:12 AM | X Atlas Consortia Sankey 1.0.2d | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
@@ -300,8 +300,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
     key: "fetchData",
     value: (function () {
       var _fetchData = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
-        var _this3 = this;
-        var res, data, validFilters, filteredData, columnNames, newGraph;
+        var res, rawData, data, _iterator2, _step2, row, groups, _iterator3, _step3, g, _iterator4, _step4, _g, validFilters, filteredData, columnNames, graphMap, i;
         return _regeneratorRuntime().wrap(function _callee2$(_context2) {
           while (1) switch (_context2.prev = _context2.next) {
             case 0:
@@ -319,35 +318,42 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
               _context2.next = 8;
               return res.json();
             case 8:
-              data = _context2.sent;
+              rawData = _context2.sent;
+              data = [];
               if (this.validFilterMap.organ) {
-                data = data.map(function (row) {
-                  var groups = new Set();
-                  var _iterator2 = _createForOfIteratorHelper(row[_this3.validFilterMap.organ]),
-                    _step2;
-                  try {
-                    for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
-                      var g = _step2.value;
-                      groups.add(_this3.getOrganHierarchy(g));
+                _iterator2 = _createForOfIteratorHelper(rawData);
+                try {
+                  for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+                    row = _step2.value;
+                    groups = new Set();
+                    _iterator3 = _createForOfIteratorHelper(row[this.validFilterMap.organ]);
+                    try {
+                      for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+                        g = _step3.value;
+                        groups.add(this.getOrganHierarchy(g));
+                      }
+                    } catch (err) {
+                      _iterator3.e(err);
+                    } finally {
+                      _iterator3.f();
                     }
-                  } catch (err) {
-                    _iterator2.e(err);
-                  } finally {
-                    _iterator2.f();
-                  }
-                  var _iterator3 = _createForOfIteratorHelper(groups),
-                    _step3;
-                  try {
-                    for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
-                      var _g = _step3.value;
-                      return _objectSpread(_objectSpread({}, row), {}, _defineProperty({}, _this3.validFilterMap.organ, _g));
+                    _iterator4 = _createForOfIteratorHelper(groups);
+                    try {
+                      for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
+                        _g = _step4.value;
+                        data.push(_objectSpread(_objectSpread({}, row), {}, _defineProperty({}, this.validFilterMap.organ, _g)));
+                      }
+                    } catch (err) {
+                      _iterator4.e(err);
+                    } finally {
+                      _iterator4.f();
                     }
-                  } catch (err) {
-                    _iterator3.e(err);
-                  } finally {
-                    _iterator3.f();
                   }
-                });
+                } catch (err) {
+                  _iterator2.e(err);
+                } finally {
+                  _iterator2.f();
+                }
               }
               if (this.dataCallback) {
                 data = data.map(this.dataCallback);
@@ -371,58 +377,64 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
                   return true;
                 });
               }
-
-              // group the data into nodes and links
+              XACSankey.log('filteredData', {
+                data: filteredData,
+                color: 'orange'
+              });
               columnNames = Object.values(this.validFilterMap);
-              newGraph = {
-                nodes: [],
-                links: []
+              graphMap = {
+                nodes: {},
+                links: {}
               };
+              i = 0; // First build the nodes using a dictionary for faster access time
+              filteredData.forEach(function (row, rowIndex) {
+                columnNames.forEach(function (columnName, columnIndex) {
+                  var node = graphMap.nodes[row[columnName]];
+                  if (node === undefined) {
+                    graphMap.nodes[row[columnName]] = {
+                      node: i,
+                      name: row[columnName],
+                      ref: columnName,
+                      columnIndex: columnIndex,
+                      weight: 0
+                    };
+                    node = graphMap.nodes[row[columnName]];
+                    i++;
+                  }
+                  node.weight = node.weight + 1;
+                });
+              });
               filteredData.forEach(function (row) {
                 columnNames.forEach(function (columnName, columnIndex) {
                   if (columnIndex !== columnNames.length - 1) {
-                    var found = newGraph.nodes.find(function (found) {
-                      return found.column === columnIndex && found.name === row[columnNames[columnIndex]];
-                    });
-                    if (found === undefined) {
-                      found = {
-                        node: newGraph.nodes.length,
-                        name: row[columnName],
-                        column: columnIndex,
-                        ref: columnName
-                      };
-                      newGraph.nodes.push(found);
-                    }
-                    var found2 = newGraph.nodes.find(function (found2) {
-                      return found2.column === columnIndex + 1 && found2.name === row[columnNames[columnIndex + 1]];
-                    });
-                    if (found2 === undefined) {
-                      found2 = {
-                        node: newGraph.nodes.length,
-                        name: row[columnNames[columnIndex + 1]],
-                        ref: columnNames[columnIndex + 1],
-                        column: columnIndex + 1
-                      };
-                      newGraph.nodes.push(found2);
-                    }
-                    var found3 = newGraph.links.find(function (found3) {
-                      return found3.source === found.node && found3.target === found2.node;
-                    });
-                    if (found3 === undefined) {
-                      found3 = {
-                        source: found.node,
-                        target: found2.node,
+                    // Capture source and target by name O(1)
+                    var source = graphMap.nodes[row[columnName]];
+                    var target = graphMap.nodes[row[columnNames[columnIndex + 1]]];
+
+                    // Find a link O(1)
+                    var link = graphMap.links["".concat(source.name, "_").concat(target.name)];
+                    if (link === undefined) {
+                      graphMap.links["".concat(source.name, "_").concat(target.name)] = {
+                        source: source.node,
+                        target: target.node,
                         value: 0
                       };
-                      newGraph.links.push(found3);
+                      link = graphMap.links["".concat(source.name, "_").concat(target.name)];
                     }
-                    found3.value = found3.value + 1;
+                    link.value = link.value + 1;
                   }
                 });
               });
-              this.graphData = newGraph;
+              XACSankey.log('graphMap', {
+                data: graphMap,
+                color: 'green'
+              });
+              this.graphData = {
+                nodes: Object.values(graphMap.nodes),
+                links: Object.values(graphMap.links)
+              };
               this.useEffect('fetch');
-            case 19:
+            case 24:
             case "end":
               return _context2.stop();
           }
@@ -450,7 +462,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
   }, {
     key: "buildGraph",
     value: function buildGraph() {
-      var _this4 = this;
+      var _this3 = this;
       if (!this.d3) {
         console.error('No D3 library loaded.');
       }
@@ -527,8 +539,8 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
         return "translate(".concat(d.x0, ",").concat(d.y0, ")");
       }).call(drag).on('click', function (e, d) {
         if (e.defaultPrevented) return;
-        if (_this4.onNodeClickCallback) {
-          _this4.onNodeClickCallback(e, d);
+        if (_this3.onNodeClickCallback) {
+          _this3.onNodeClickCallback(e, d);
         }
       }.bind(this));
       node.append('rect').attr('height', function (d) {
@@ -547,8 +559,8 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
         return d.x0 < width / 2;
       }).attr('x', 6 + sankey.nodeWidth()).attr('text-anchor', 'start').on('click', function (e, d) {
         if (e.defaultPrevented) return;
-        if (_this4.onLabelClickCallback) {
-          _this4.onLabelClickCallback(e, d);
+        if (_this3.onLabelClickCallback) {
+          _this3.onLabelClickCallback(e, d);
         }
       }.bind(this));
       node.append('text').attr('class', 'c-sankey__value').attr('y', sankey.nodeWidth() / 1.9).attr('x', function (d) {
@@ -557,8 +569,8 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
         return Math.max(5, d.y1 - d.y0) > 15 ? d.value : '';
       }).on('click', function (e, d) {
         if (e.defaultPrevented) return;
-        if (_this4.onNodeClickCallback) {
-          _this4.onNodeClickCallback(e, d);
+        if (_this3.onNodeClickCallback) {
+          _this3.onNodeClickCallback(e, d);
         }
       }.bind(this));
       this.isLoading = false;
@@ -637,15 +649,15 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
   }, {
     key: "attributeChangedCallback",
     value: function attributeChangedCallback(property, oldValue, newValue) {
-      var _this5 = this;
+      var _this4 = this;
       this.log("XACSankey.attributeChangedCallback: ".concat(property, " ").concat(newValue));
       if (oldValue === newValue) return;
       this.handleLoader();
       if (property !== 'graph') {
         if (property === 'data') {
           this.fetchData().then(function () {
-            _this5.clearCanvas();
-            _this5.buildGraph();
+            _this4.clearCanvas();
+            _this4.buildGraph();
           }.bind(this));
         } else {
           this.clearCanvas();
