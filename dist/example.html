@@ -15,7 +15,8 @@
         useShadow: true,
         styleSheetPath: './xac-sankey.css',
         api: {
-          sankey: 'https://entity-api.dev.sennetconsortium.org/datasets/sankey_data'
+            sankey: 'https://entity-api.dev.sennetconsortium.org/datasets/sankey_data',
+            token: 'AgaMgW0VpjqEEaQjQzWdp8jzN5PO50NkBqzEz5QwMN9B85xz7Qh9C6l45DnmJ4kdO2aMqn1mXJEnrESnQDo7BUqBnno'
         },
         validFilterMap: {
             status: null,
@@ -29,10 +30,18 @@
             let filterMap = el.flipObj(el.validFilterMap)
 
             const goTo = (d) => {
-                let values = filterMap[d.ref] === 'organ' ? el.organsDictByCategory[d.name] : [d.name]
+                const col = filterMap[d.ref]
+                if (col === 'dataset_type') return
+                const facetsMap = {
+                    organ: 'origin_samples.organ',
+                    source_type: 'sources.source_type'
+                }
+                let values = col === 'organ' ? el.organsDictByCategory[d.name] : [d.name]
+                const facet = facetsMap[col] || col
+                const addFilters = ';data_class=Create Dataset Activity;entity_type=Dataset'
                 if (values) {
                     values = Array.from(values)
-                    window.location = `http://localhost:3000/search?addFilters=${filterMap[d.ref]}=${values.join(',')}`
+                    window.open(`http://localhost:3000/search?addFilters=${facet}=${values.join(',')}${addFilters}`, '_blank')
                 }
             }
             clearInterval(i)

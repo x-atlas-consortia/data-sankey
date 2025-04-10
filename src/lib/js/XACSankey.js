@@ -51,7 +51,7 @@ class XACSankey extends HTMLElement {
         for (let o of organs) {
             this.organsDict[o.term.trim().toLowerCase()] = o.category?.term?.trim() || o.term?.trim()
 
-            const cat = o.category?.term || o.term.trim().toLowerCase()
+            const cat = o.category?.term?.trim() || o.term.trim()
             this.organsDictByCategory[cat] = this.organsDictByCategory[cat] || new Set()
             this.organsDictByCategory[cat].add(o[this.groupByOrganCategoryKey]?.trim())
         }
@@ -144,6 +144,8 @@ class XACSankey extends HTMLElement {
             this.filters = ops.filters
             this.purgeObject(this.filters)
         }
+        this.groupByOrganCategoryKey = ops.groupByOrganCategoryKey || this.groupByOrganCategoryKey
+
         if (ops.loading) {
             Object.assign(this.loading, ops.loading)
         }
@@ -208,12 +210,17 @@ class XACSankey extends HTMLElement {
 
         // call the sankey endpoint
         const res = await fetch(this.api.sankey, this.getHeaders())
-        let data = await res.json()
-        
+        let rawData = await res.json()
+
+        let data = []
         if (this.validFilterMap.organ) {
-            data = data.map((row) => {
-                return {...row, [this.validFilterMap.organ]: this.getOrganHierarchy(row[this.validFilterMap.organ])}
-            })
+            for (let row of rawData) {
+                let groups = new Set()
+                for (let g of row[this.validFilterMap.organ]) {
+                    groups.add(this.getOrganHierarchy(g))
+                }
+                data.push({...row, [this.validFilterMap.organ]: Array.from(groups)})
+            }
         }
         
         if (this.dataCallback) {
@@ -236,39 +243,76 @@ class XACSankey extends HTMLElement {
             })
         }
 
-        // group the data into nodes and links
+        XACSankey.log('filteredData', {data: filteredData, color: 'orange'})
+
         const columnNames = Object.values(this.validFilterMap)
-        const newGraph = {nodes: [], links: []}
-        filteredData.forEach((row) => {
+        const graphMap = {nodes: {}, links: {}}
+        let i = 0;
+
+        // First build the nodes using a dictionary for faster access time
+        filteredData.forEach((row, rowIndex) => {
             columnNames.forEach((columnName, columnIndex) => {
-                if (columnIndex !== columnNames.length - 1) {
-                    let found = newGraph.nodes.find((found) => found.column === columnIndex && found.name === row[columnNames[columnIndex]])
-                    if (found === undefined) {
-                        found = {node: newGraph.nodes.length, name: row[columnName], column: columnIndex, ref: columnName}
-                        newGraph.nodes.push(found)
+                const buildNode = (colName, val) => {
+                    let node = graphMap.nodes[val]
+                    if (node === undefined) {
+                        graphMap.nodes[val] = {node: i, name: val, ref: colName, columnIndex, weight: 0}
+                        node = graphMap.nodes[val]
+                        i++
                     }
-
-                    let found2 = newGraph.nodes.find((found2) => found2.column === columnIndex + 1 && found2.name === row[columnNames[columnIndex + 1]])
-                    if (found2 === undefined) {
-                        found2 = {
-                            node: newGraph.nodes.length,
-                            name: row[columnNames[columnIndex + 1]],
-                            ref: columnNames[columnIndex + 1],
-                            column: columnIndex + 1
-                        }
-                        newGraph.nodes.push(found2)
+                    node.weight = node.weight + 1
+                }
+                if (Array.isArray(row[columnName])) {
+                    for (let v of row[columnName]) {
+                        buildNode(columnName, v)
                     }
-
-                    let found3 = newGraph.links.find((found3) => found3.source === found.node && found3.target === found2.node)
-                    if (found3 === undefined) {
-                        found3 = {source: found.node, target: found2.node, value: 0}
-                        newGraph.links.push(found3)
-                    }
-                    found3.value = found3.value + 1
+                } else {
+                    buildNode(columnName, row[columnName])
                 }
             })
         })
-        this.graphData = newGraph;
+
+        filteredData.forEach((row) => {
+            columnNames.forEach((columnName, columnIndex) => {
+                if (columnIndex !== columnNames.length - 1) {
+
+                    const buildLink = (source, target) => {
+                        const key = `${source.name}_${target.name}`
+                        // Find a link O(1)
+                        let link = graphMap.links[key]
+                        if (link === undefined) {
+                            graphMap.links[key] = {source: source.node, target: target.node, value: 0}
+                            link = graphMap.links[key]
+                        }
+                        link.value = link.value + 1
+                    }
+
+                    let sources = []
+                    let targets = []
+                    const setSourcesTargets = (bucket, current) => {
+                        if (Array.isArray(current)) {
+                            for (let v of current) {
+                                bucket.push(graphMap.nodes[v])
+                            }
+                        } else {
+                            bucket.push(graphMap.nodes[current])
+                        }
+                    }
+
+                    setSourcesTargets(sources, row[columnName])
+                    setSourcesTargets(targets, row[columnNames[columnIndex + 1]])
+
+                    for (let s of sources) {
+                        for (let t of targets) {
+                            buildLink(s, t)
+                        }
+                    }
+                }
+            })
+        })
+
+        XACSankey.log('graphMap', {data: graphMap, color: 'green'})
+
+        this.graphData = {nodes: Object.values(graphMap.nodes), links: Object.values(graphMap.links)};
         this.useEffect('fetch')
     }
 

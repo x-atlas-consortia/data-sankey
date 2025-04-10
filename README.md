@@ -48,7 +48,21 @@ const ops = {
 <react-consortia-sankey id='js-sankey' options={btoa(JSON.stringify(ops))} />
 ```
 
-#### Via the setOptions method
+#### Via the `setOptions` method
+`setOptions` only becomes available when `useShadow` is set to `true`. Must pass the `styleSheetPath` for css to be applied to the shadow DOM.
+
+```
+const ops = {
+    useShadow: true,
+    styleSheetPath: './xac-sankey.css',
+    api: {
+        token: 'groups token here'
+    }
+}
+<react-consortia-sankey id='js-sankey' options={btoa(JSON.stringify(ops))} />
+```
+
+`setOptions` will then be available once shadow DOM is ready. You may need to make a check for this depending on your environment. Either with [MutationObserver](https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver) or a `setTimeout`/`setInterval` callback that asserts `el.setOptions` is not `undefined`.
 ```
 const el = document.getElementById('js-sankey')
 el.setOptions({
@@ -58,13 +72,40 @@ el.setOptions({
     validFilterMap[obj], // {column_name: str}
     d3[obj], // {d3, d3sankey, sankeyLinkHorizontal } // the d3 library and related functions for building the graph
     loading[obj], // {html[str], callback[function(ctx)]} // loading html and callback
-    styleSheetPath[str] // publicly accessible url to stylesheet
+    styleSheetPath[str], // publicly accessible url to stylesheet
+    groupByOrganCategoryKey[str]: // the UBKG property name to use when building dictionary of organs category; default is rui_code
 })
 
 ```
 
+## UBKG
+To set the `sap` for UBKG organs endpoint:
+```
+const ops = {
+    ubkg: {
+        sap: 'hubmap',
+    }
+}
+el.setAttribute('options', btoa(JSON.stringify(ops)))
+```
+
+## Other
+You may remove defaults from `validFilterMap` by setting the property to `null`.
+```
+const el = document.getElementById('js-sankey')
+const ops = {
+    useShadow: true,
+    styleSheetPath: './xac-sankey.css',
+    validFilterMap: {
+        status: null,
+        source_type: 'dataset_source_type'
+    }
+}
+el.setAttribute('options', btoa(JSON.stringify(ops)))
+```
+
 ## Dev
-```angular2html
+```
 npm run all // starts watcher, auto builds and serves example for viewing results
 npm run dist // builds distribution
 npm run example // serves distribution with example implementation
