@@ -276,12 +276,12 @@ class XACSankey extends HTMLElement {
                 if (columnIndex !== columnNames.length - 1) {
 
                     const buildLink = (source, target) => {
-
+                        const key = `${source.name}_${target.name}`
                         // Find a link O(1)
-                        let link = graphMap.links[`${source.name}_${target.name}`]
+                        let link = graphMap.links[key]
                         if (link === undefined) {
-                            graphMap.links[`${source.name}_${target.name}`] = {source: source.node, target: target.node, value: 0}
-                            link = graphMap.links[`${source.name}_${target.name}`]
+                            graphMap.links[key] = {source: source.node, target: target.node, value: 0}
+                            link = graphMap.links[key]
                         }
                         link.value = link.value + 1
                     }

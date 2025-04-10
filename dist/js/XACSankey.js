@@ -1,6 +1,6 @@
 /**
 * 
-* 4/10/2025, 10:36:36 AM | X Atlas Consortia Sankey 1.0.3 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/10/2025, 10:43:43 AM | X Atlas Consortia Sankey 1.0.3 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
@@ -416,15 +416,16 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
                 columnNames.forEach(function (columnName, columnIndex) {
                   if (columnIndex !== columnNames.length - 1) {
                     var buildLink = function buildLink(source, target) {
+                      var key = "".concat(source.name, "_").concat(target.name);
                       // Find a link O(1)
-                      var link = graphMap.links["".concat(source.name, "_").concat(target.name)];
+                      var link = graphMap.links[key];
                       if (link === undefined) {
-                        graphMap.links["".concat(source.name, "_").concat(target.name)] = {
+                        graphMap.links[key] = {
                           source: source.node,
                           target: target.node,
                           value: 0
                         };
-                        link = graphMap.links["".concat(source.name, "_").concat(target.name)];
+                        link = graphMap.links[key];
                       }
                       link.value = link.value + 1;
                     };
