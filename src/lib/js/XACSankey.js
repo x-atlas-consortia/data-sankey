@@ -301,11 +301,18 @@ class XACSankey extends HTMLElement {
                     setSourcesTargets(sources, row[columnName])
                     setSourcesTargets(targets, row[columnNames[columnIndex + 1]])
 
-                    for (let s of sources) {
+                    if (sources.length > 1) {
                         for (let t of targets) {
-                            buildLink(s, t)
+                            buildLink(sources[0], t)
+                        }
+                    } else {
+                        for (let s of sources) {
+                            for (let t of targets) {
+                                buildLink(s, t)
+                            }
                         }
                     }
+
                 }
             })
         })
@@ -444,7 +451,7 @@ class XACSankey extends HTMLElement {
             .attr('x', (d) => ((d.y1 - d.y0) / 2) * -1)
             .attr('dy', '0.35em')
             .attr('text-anchor', 'middle')
-            .text((d) => Math.max(5, d.y1 - d.y0) > 15 ? d.value : '')
+            .text((d) => Math.max(5, d.y1 - d.y0) > 15 ? d.weight : '')
             .on('click', ((e, d) => {
                 if (e.defaultPrevented) return;
                 if (this.onNodeClickCallback) {
