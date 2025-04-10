@@ -1,6 +1,6 @@
 /**
 * 
-* 4/10/2025, 11:59:08 AM | X Atlas Consortia Sankey 1.0.3 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/10/2025, 5:11:17 PM | X Atlas Consortia Sankey 1.0.3 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
@@ -36,6 +36,7 @@ function _checkPrivateRedeclaration(e, t) { if (t.has(e)) throw new TypeError("C
 function _classPrivateFieldGet(s, a) { return s.get(_assertClassBrand(s, a)); }
 function _classPrivateFieldSet(s, a, r) { return s.set(_assertClassBrand(s, a), r), r; }
 function _assertClassBrand(e, t, n) { if ("function" == typeof e ? e === t : e.has(t)) return arguments.length < 3 ? t : n; throw new TypeError("Private element is not present on this object"); }
+import SankeyAdapter from "./adapters/SankeyAdapter.js";
 var _shadow = /*#__PURE__*/new WeakMap();
 var XACSankey = /*#__PURE__*/function (_HTMLElement) {
   function XACSankey() {
@@ -300,7 +301,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
     key: "fetchData",
     value: (function () {
       var _fetchData = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
-        var res, rawData, data, _iterator2, _step2, row, groups, _iterator3, _step3, g, validFilters, filteredData, columnNames, graphMap, i;
+        var res, data, _iterator2, _step2, row, groups, _iterator3, _step3, g, validFilters, filteredData, columnNames, graphMap, i;
         return _regeneratorRuntime().wrap(function _callee2$(_context2) {
           while (1) switch (_context2.prev = _context2.next) {
             case 0:
@@ -318,10 +319,10 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
               _context2.next = 8;
               return res.json();
             case 8:
-              rawData = _context2.sent;
+              this.rawData = _context2.sent;
               data = [];
               if (this.validFilterMap.organ) {
-                _iterator2 = _createForOfIteratorHelper(rawData);
+                _iterator2 = _createForOfIteratorHelper(this.rawData);
                 try {
                   for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
                     row = _step2.value;
@@ -385,7 +386,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
                       graphMap.nodes[val] = {
                         node: i,
                         name: val,
-                        ref: colName,
+                        columnName: colName,
                         columnIndex: columnIndex,
                         weight: 0
                       };
@@ -601,7 +602,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
 
       // Nodes
       var node = svg.append('g').selectAll('.node').data(nodes).join('g').attr('class', function (d) {
-        return "c-sankey__node c-sankey__node--".concat(d.ref);
+        return "c-sankey__node c-sankey__node--".concat(d.columnName);
       }).attr('transform', function (d) {
         return "translate(".concat(d.x0, ",").concat(d.y0, ")");
       }).call(drag).on('click', function (e, d) {
@@ -774,7 +775,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
   }, {
     key: "isLocal",
     value: function isLocal() {
-      return location.host.indexOf('localhost') !== -1 || location.host.indexOf('.dev') !== -1;
+      SankeyAdapter.isLocal();
     }
 
     /**
@@ -785,17 +786,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
   }, {
     key: "log",
     value: function log(msg, ops) {
-      ops = ops || {};
-      var _ops = ops,
-        fn = _ops.fn,
-        color = _ops.color,
-        data = _ops.data;
-      fn = fn || 'log';
-      color = color || '#bada55';
-      data = data || '';
-      if (XACSankey.isLocal()) {
-        console[fn]("%c ".concat(msg), "background: #222; color: ".concat(color), data);
-      }
+      SankeyAdapter.log(msg, ops);
     }
   }]);
 }(/*#__PURE__*/_wrapNativeSuper(HTMLElement));

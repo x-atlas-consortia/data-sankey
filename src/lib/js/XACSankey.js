@@ -1,3 +1,5 @@
+import SankeyAdapter from "./adapters/SankeyAdapter.js"
+
 class XACSankey extends HTMLElement {
     #shadow;
 
@@ -210,11 +212,11 @@ class XACSankey extends HTMLElement {
 
         // call the sankey endpoint
         const res = await fetch(this.api.sankey, this.getHeaders())
-        let rawData = await res.json()
+        this.rawData = await res.json()
 
         let data = []
         if (this.validFilterMap.organ) {
-            for (let row of rawData) {
+            for (let row of this.rawData) {
                 let groups = new Set()
                 for (let g of row[this.validFilterMap.organ]) {
                     groups.add(this.getOrganHierarchy(g))
@@ -255,7 +257,7 @@ class XACSankey extends HTMLElement {
                 const buildNode = (colName, val) => {
                     let node = graphMap.nodes[val]
                     if (node === undefined) {
-                        graphMap.nodes[val] = {node: i, name: val, ref: colName, columnIndex, weight: 0}
+                        graphMap.nodes[val] = {node: i, name: val, columnName: colName, columnIndex, weight: 0}
                         node = graphMap.nodes[val]
                         i++
                     }
@@ -410,7 +412,7 @@ class XACSankey extends HTMLElement {
             .selectAll('.node')
             .data(nodes)
             .join('g')
-            .attr('class', (d) => `c-sankey__node c-sankey__node--${d.ref}`)
+            .attr('class', (d) => `c-sankey__node c-sankey__node--${d.columnName}`)
             .attr('transform', (d) => `translate(${d.x0},${d.y0})`)
             .call(drag)
             .on('click', ((e, d) => {
@@ -565,7 +567,7 @@ class XACSankey extends HTMLElement {
      * @returns {boolean}
      */
     static isLocal() {
-        return (location.host.indexOf('localhost') !== -1) || (location.host.indexOf('.dev') !== -1)
+        SankeyAdapter.isLocal()
     }
 
     /**
@@ -574,14 +576,7 @@ class XACSankey extends HTMLElement {
      * @param {object} ops Color options for console
      */
     static log(msg, ops) {
-        ops = ops || {}
-        let {fn, color, data} = ops
-        fn = fn || 'log'
-        color = color || '#bada55'
-        data = data || ''
-        if (XACSankey.isLocal()) {
-            console[fn](`%c ${msg}`, `background: #222; color: ${color}`, data)
-        }
+        SankeyAdapter.log(msg, ops)
     }
 
     /**

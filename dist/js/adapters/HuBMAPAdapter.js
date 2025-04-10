@@ -15,23 +15,12 @@ function _isNativeReflectConstruct() { try { var t = !Boolean.prototype.valueOf.
 function _getPrototypeOf(t) { return _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function (t) { return t.__proto__ || Object.getPrototypeOf(t); }, _getPrototypeOf(t); }
 function _inherits(t, e) { if ("function" != typeof e && null !== e) throw new TypeError("Super expression must either be null or a function"); t.prototype = Object.create(e && e.prototype, { constructor: { value: t, writable: !0, configurable: !0 } }), Object.defineProperty(t, "prototype", { writable: !1 }), e && _setPrototypeOf(t, e); }
 function _setPrototypeOf(t, e) { return _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function (t, e) { return t.__proto__ = e, t; }, _setPrototypeOf(t, e); }
-import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
-import { sankey as d3sankey, sankeyLinkHorizontal } from 'https://cdn.jsdelivr.net/npm/d3-sankey@0.12.3/+esm';
-import XACSankey from "./XACSankey.js";
-var ConsortiaSankey = /*#__PURE__*/function (_XACSankey) {
-  function ConsortiaSankey() {
-    var _this;
-    _classCallCheck(this, ConsortiaSankey);
-    _this = _callSuper(this, ConsortiaSankey);
-    _this.d3 = {
-      d3: d3,
-      d3sankey: d3sankey,
-      sankeyLinkHorizontal: sankeyLinkHorizontal
-    };
-    return _this;
+var HuBMAPAdapter = /*#__PURE__*/function (_SankeyAdapter) {
+  function HuBMAPAdapter(context) {
+    var ops = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+    _classCallCheck(this, HuBMAPAdapter);
+    return _callSuper(this, HuBMAPAdapter, [context, ops]);
   }
-  _inherits(ConsortiaSankey, _XACSankey);
-  return _createClass(ConsortiaSankey);
-}(XACSankey);
-customElements.define('consortia-sankey', ConsortiaSankey);
-export default ConsortiaSankey;
+  _inherits(HuBMAPAdapter, _SankeyAdapter);
+  return _createClass(HuBMAPAdapter);
+}(SankeyAdapter);
