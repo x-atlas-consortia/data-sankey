@@ -1,6 +1,6 @@
 /**
 * 
-* 4/10/2025, 9:17:12 AM | X Atlas Consortia Sankey 1.0.2d | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/10/2025, 10:28:07 AM | X Atlas Consortia Sankey 1.0.2d | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
@@ -300,7 +300,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
     key: "fetchData",
     value: (function () {
       var _fetchData = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
-        var res, rawData, data, _iterator2, _step2, row, groups, _iterator3, _step3, g, _iterator4, _step4, _g, validFilters, filteredData, columnNames, graphMap, i;
+        var res, rawData, data, _iterator2, _step2, row, groups, _iterator3, _step3, g, validFilters, filteredData, columnNames, graphMap, i;
         return _regeneratorRuntime().wrap(function _callee2$(_context2) {
           while (1) switch (_context2.prev = _context2.next) {
             case 0:
@@ -337,17 +337,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
                     } finally {
                       _iterator3.f();
                     }
-                    _iterator4 = _createForOfIteratorHelper(groups);
-                    try {
-                      for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
-                        _g = _step4.value;
-                        data.push(_objectSpread(_objectSpread({}, row), {}, _defineProperty({}, this.validFilterMap.organ, _g)));
-                      }
-                    } catch (err) {
-                      _iterator4.e(err);
-                    } finally {
-                      _iterator4.f();
-                    }
+                    data.push(_objectSpread(_objectSpread({}, row), {}, _defineProperty({}, this.validFilterMap.organ, Array.from(groups))));
                   }
                 } catch (err) {
                   _iterator2.e(err);
@@ -389,39 +379,92 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
               i = 0; // First build the nodes using a dictionary for faster access time
               filteredData.forEach(function (row, rowIndex) {
                 columnNames.forEach(function (columnName, columnIndex) {
-                  var node = graphMap.nodes[row[columnName]];
-                  if (node === undefined) {
-                    graphMap.nodes[row[columnName]] = {
-                      node: i,
-                      name: row[columnName],
-                      ref: columnName,
-                      columnIndex: columnIndex,
-                      weight: 0
-                    };
-                    node = graphMap.nodes[row[columnName]];
-                    i++;
+                  var buildNode = function buildNode(colName, val) {
+                    var node = graphMap.nodes[val];
+                    if (node === undefined) {
+                      graphMap.nodes[val] = {
+                        node: i,
+                        name: val,
+                        ref: colName,
+                        columnIndex: columnIndex,
+                        weight: 0
+                      };
+                      node = graphMap.nodes[val];
+                      i++;
+                    }
+                    node.weight = node.weight + 1;
+                  };
+                  if (Array.isArray(row[columnName])) {
+                    var _iterator4 = _createForOfIteratorHelper(row[columnName]),
+                      _step4;
+                    try {
+                      for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
+                        var v = _step4.value;
+                        buildNode(columnName, v);
+                      }
+                    } catch (err) {
+                      _iterator4.e(err);
+                    } finally {
+                      _iterator4.f();
+                    }
+                  } else {
+                    buildNode(columnName, row[columnName]);
                   }
-                  node.weight = node.weight + 1;
                 });
               });
               filteredData.forEach(function (row) {
                 columnNames.forEach(function (columnName, columnIndex) {
                   if (columnIndex !== columnNames.length - 1) {
-                    // Capture source and target by name O(1)
-                    var source = graphMap.nodes[row[columnName]];
-                    var target = graphMap.nodes[row[columnNames[columnIndex + 1]]];
-
-                    // Find a link O(1)
-                    var link = graphMap.links["".concat(source.name, "_").concat(target.name)];
-                    if (link === undefined) {
-                      graphMap.links["".concat(source.name, "_").concat(target.name)] = {
-                        source: source.node,
-                        target: target.node,
-                        value: 0
-                      };
-                      link = graphMap.links["".concat(source.name, "_").concat(target.name)];
+                    var buildLink = function buildLink(source, target) {
+                      // Find a link O(1)
+                      var link = graphMap.links["".concat(source.name, "_").concat(target.name)];
+                      if (link === undefined) {
+                        graphMap.links["".concat(source.name, "_").concat(target.name)] = {
+                          source: source.node,
+                          target: target.node,
+                          value: 0
+                        };
+                        link = graphMap.links["".concat(source.name, "_").concat(target.name)];
+                      }
+                      link.value = link.value + 1;
+                    };
+                    var sources = [];
+                    var targets = [];
+                    var setSourcesTargets = function setSourcesTargets(bucket, current) {
+                      if (Array.isArray(current)) {
+                        var _iterator5 = _createForOfIteratorHelper(current),
+                          _step5;
+                        try {
+                          for (_iterator5.s(); !(_step5 = _iterator5.n()).done;) {
+                            var v = _step5.value;
+                            bucket.push(graphMap.nodes[v]);
+                          }
+                        } catch (err) {
+                          _iterator5.e(err);
+                        } finally {
+                          _iterator5.f();
+                        }
+                      } else {
+                        bucket.push(graphMap.nodes[current]);
+                      }
+                    };
+                    setSourcesTargets(sources, row[columnName]);
+                    setSourcesTargets(targets, row[columnNames[columnIndex + 1]]);
+                    for (var _i2 = 0, _sources = sources; _i2 < _sources.length; _i2++) {
+                      var s = _sources[_i2];
+                      var _iterator6 = _createForOfIteratorHelper(targets),
+                        _step6;
+                      try {
+                        for (_iterator6.s(); !(_step6 = _iterator6.n()).done;) {
+                          var t = _step6.value;
+                          buildLink(s, t);
+                        }
+                      } catch (err) {
+                        _iterator6.e(err);
+                      } finally {
+                        _iterator6.f();
+                      }
                     }
-                    link.value = link.value + 1;
                   }
                 });
               });

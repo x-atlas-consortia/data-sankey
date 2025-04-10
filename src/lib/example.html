@@ -38,7 +38,7 @@
                 }
                 let values = col === 'organ' ? el.organsDictByCategory[d.name] : [d.name]
                 const facet = facetsMap[col] || col
-                const addFilters = ';entity_type=Dataset'
+                const addFilters = ';data_class=Create Dataset Activity;entity_type=Dataset'
                 if (values) {
                     values = Array.from(values)
                     window.open(`http://localhost:3000/search?addFilters=${facet}=${values.join(',')}${addFilters}`, '_blank')

@@ -219,9 +219,7 @@ class XACSankey extends HTMLElement {
                 for (let g of row[this.validFilterMap.organ]) {
                     groups.add(this.getOrganHierarchy(g))
                 }
-                for (let g of groups) {
-                    data.push({...row, [this.validFilterMap.organ]: g})
-                }
+                data.push({...row, [this.validFilterMap.organ]: Array.from(groups)})
             }
         }
         
@@ -254,13 +252,22 @@ class XACSankey extends HTMLElement {
         // First build the nodes using a dictionary for faster access time
         filteredData.forEach((row, rowIndex) => {
             columnNames.forEach((columnName, columnIndex) => {
-                let node = graphMap.nodes[row[columnName]]
-                if (node === undefined) {
-                    graphMap.nodes[row[columnName]] = {node: i, name: row[columnName], ref: columnName, columnIndex, weight: 0}
-                    node = graphMap.nodes[row[columnName]]
-                    i++
+                const buildNode = (colName, val) => {
+                    let node = graphMap.nodes[val]
+                    if (node === undefined) {
+                        graphMap.nodes[val] = {node: i, name: val, ref: colName, columnIndex, weight: 0}
+                        node = graphMap.nodes[val]
+                        i++
+                    }
+                    node.weight = node.weight + 1
                 }
-                node.weight = node.weight + 1
+                if (Array.isArray(row[columnName])) {
+                    for (let v of row[columnName]) {
+                        buildNode(columnName, v)
+                    }
+                } else {
+                    buildNode(columnName, row[columnName])
+                }
             })
         })
 
@@ -268,17 +275,37 @@ class XACSankey extends HTMLElement {
             columnNames.forEach((columnName, columnIndex) => {
                 if (columnIndex !== columnNames.length - 1) {
 
-                    // Capture source and target by name O(1)
-                    const source = graphMap.nodes[row[columnName]]
-                    const target = graphMap.nodes[row[columnNames[columnIndex + 1]]]
+                    const buildLink = (source, target) => {
 
-                    // Find a link O(1)
-                    let link = graphMap.links[`${source.name}_${target.name}`]
-                    if (link === undefined) {
-                        graphMap.links[`${source.name}_${target.name}`] = {source: source.node, target: target.node, value: 0}
-                        link = graphMap.links[`${source.name}_${target.name}`]
+                        // Find a link O(1)
+                        let link = graphMap.links[`${source.name}_${target.name}`]
+                        if (link === undefined) {
+                            graphMap.links[`${source.name}_${target.name}`] = {source: source.node, target: target.node, value: 0}
+                            link = graphMap.links[`${source.name}_${target.name}`]
+                        }
+                        link.value = link.value + 1
                     }
-                    link.value = link.value + 1
+
+                    let sources = []
+                    let targets = []
+                    const setSourcesTargets = (bucket, current) => {
+                        if (Array.isArray(current)) {
+                            for (let v of current) {
+                                bucket.push(graphMap.nodes[v])
+                            }
+                        } else {
+                            bucket.push(graphMap.nodes[current])
+                        }
+                    }
+
+                    setSourcesTargets(sources, row[columnName])
+                    setSourcesTargets(targets, row[columnNames[columnIndex + 1]])
+
+                    for (let s of sources) {
+                        for (let t of targets) {
+                            buildLink(s, t)
+                        }
+                    }
                 }
             })
         })
