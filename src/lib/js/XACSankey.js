@@ -14,12 +14,10 @@ class XACSankey extends HTMLElement {
         this.organsDict = {}
         this.organsDictByCategory = {}
         this.api = {
+            context: 'sennet',
             sankey: 'https://ingest.api.sennetconsortium.org/datasets/sankey_data',
             token: null,
-            ubkg: {
-                sap: 'sennet',
-                organs: 'https://ontology.api.hubmapconsortium.org/organs?application_context='
-            }
+            ubkgOrgans: 'https://ontology.api.hubmapconsortium.org/organs?application_context='
         }
         this.containerDimensions = {}
         this.graphData = null
@@ -48,7 +46,7 @@ class XACSankey extends HTMLElement {
      * @returns {Promise<void>}
      */
     async setOrganTypes() {
-        const res = await fetch(this.api.ubkg.organs + this.api.ubkg.sap);
+        const res = await fetch(this.api.ubkgOrgans + this.api.context);
         const organs = await res.json()
         for (let o of organs) {
             this.organsDict[o.term.trim().toLowerCase()] = o.category?.term?.trim() || o.term?.trim()

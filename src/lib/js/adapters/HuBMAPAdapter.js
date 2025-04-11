@@ -49,14 +49,21 @@ class HuBMAPAdapter extends SankeyAdapter {
         const col = this.filterMap[d.columnName]
         
         let facetMap = {
-            organ_type: 'origin_samples_unique_mapped_organs'
+            organ: 'origin_samples_unique_mapped_organs',
         }
 
         const field = facetMap[col] || col
 
+        let values = [d.name]
+
+
+        if (col === 'organ') {
+            values = Array.from(this.ctx.organsDictByCategory[d.name])
+        }
+
         let filters = {
             [field]: {
-                values: [d.name],
+                values,
                 type: 'TERM',
             }
         }

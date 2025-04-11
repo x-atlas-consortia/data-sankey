@@ -1,6 +1,6 @@
 /**
 * 
-* 4/11/2025, 12:46:42 PM | X Atlas Consortia Sankey 1.0.3 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/11/2025, 2:14:06 PM | X Atlas Consortia Sankey 1.0.3 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
@@ -69,7 +69,7 @@ var SenNetAdapter = /*#__PURE__*/function (_SankeyAdapter) {
       }
       var facet = facetsMap[col] || col;
       var addFilters = ";data_class=Create Dataset Activity;entity_type=Dataset";
-      if (values) {
+      if (values && (values.length || values.size)) {
         values = Array.from(values);
         var filters = encodeURIComponent("".concat(facet, "=").concat(values.join(',')).concat(addFilters));
         var url = "".concat(this.getUrls().portal, "search?addFilters=").concat(filters);

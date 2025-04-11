@@ -1,6 +1,6 @@
 /**
 * 
-* 4/11/2025, 12:46:42 PM | X Atlas Consortia Sankey 1.0.3 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/11/2025, 2:14:06 PM | X Atlas Consortia Sankey 1.0.3 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
@@ -54,12 +54,10 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
     _this.organsDict = {};
     _this.organsDictByCategory = {};
     _this.api = {
+      context: 'sennet',
       sankey: 'https://ingest.api.sennetconsortium.org/datasets/sankey_data',
       token: null,
-      ubkg: {
-        sap: 'sennet',
-        organs: 'https://ontology.api.hubmapconsortium.org/organs?application_context='
-      }
+      ubkgOrgans: 'https://ontology.api.hubmapconsortium.org/organs?application_context='
     };
     _this.containerDimensions = {};
     _this.graphData = null;
@@ -100,7 +98,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
           while (1) switch (_context.prev = _context.next) {
             case 0:
               _context.next = 2;
-              return fetch(this.api.ubkg.organs + this.api.ubkg.sap);
+              return fetch(this.api.ubkgOrgans + this.api.context);
             case 2:
               res = _context.sent;
               _context.next = 5;

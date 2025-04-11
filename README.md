@@ -66,7 +66,7 @@ const ops = {
 ```
 const el = document.getElementById('js-sankey')
 el.setOptions({
-    api[obj], // {api: {sankey[str], token[str], ubkg[obj]}}
+    api[obj], // {context[str], sankey[str], token[str], ubkgOrgans[str]}
     filters[obj], // {column_name: str}, key-value pair to filter data on
     dataCallback[function(row)] -> list[obj], // returns list of objects of filtered data
     validFilterMap[obj], // {column_name: str}
@@ -79,12 +79,10 @@ el.setOptions({
 ```
 
 ## UBKG
-To set the `sap` for UBKG organs endpoint:
+To set the `context` (SAP) for UBKG organs endpoint:
 ```
 const ops = {
-    ubkg: {
-        sap: 'hubmap',
-    }
+    context: 'hubmap'
 }
 el.setAttribute('options', btoa(JSON.stringify(ops)))
 ```
