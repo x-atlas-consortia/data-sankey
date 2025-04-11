@@ -1,6 +1,6 @@
 /**
 * 
-* 4/11/2025, 2:14:06 PM | X Atlas Consortia Sankey 1.0.3 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/11/2025, 2:23:51 PM | X Atlas Consortia Sankey 1.0.4a | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
