@@ -12,7 +12,9 @@ class SankeyAdapter {
         let result = new Set()
         for (let d of data) {
             if (d[keys.matchKey] === keys.matchValue) {
-                result.add(d[keys.keepKey])
+                if (d[keys.keepKey]) {
+                    result.add(d[keys.keepKey])
+                }
             }
         }
         return result
