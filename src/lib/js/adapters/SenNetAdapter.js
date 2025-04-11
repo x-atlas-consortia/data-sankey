@@ -48,7 +48,7 @@ class SenNetAdapter extends SankeyAdapter {
 
         const facet = facetsMap[col] || col
         const addFilters = `;data_class=Create Dataset Activity;entity_type=Dataset`
-        if (values) {
+        if (values && (values.length || values.size)) {
             values = Array.from(values)
             const filters = encodeURIComponent(`${facet}=${values.join(',')}${addFilters}`)
             const url = `${this.getUrls().portal}search?addFilters=${filters}`

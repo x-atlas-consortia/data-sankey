@@ -1,6 +1,6 @@
 /**
 * 
-* 4/11/2025, 12:35:27 PM | X Atlas Consortia Sankey 1.0.3 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/11/2025, 12:46:42 PM | X Atlas Consortia Sankey 1.0.3 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
@@ -337,19 +337,23 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
                 try {
                   for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
                     row = _step2.value;
-                    groups = new Set();
-                    _iterator3 = _createForOfIteratorHelper(row[this.validFilterMap.organ]);
-                    try {
-                      for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
-                        g = _step3.value;
-                        groups.add(this.getOrganHierarchy(g));
+                    if (Array.isArray(row[this.validFilterMap.organ])) {
+                      groups = new Set();
+                      _iterator3 = _createForOfIteratorHelper(row[this.validFilterMap.organ]);
+                      try {
+                        for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+                          g = _step3.value;
+                          groups.add(this.getOrganHierarchy(g));
+                        }
+                      } catch (err) {
+                        _iterator3.e(err);
+                      } finally {
+                        _iterator3.f();
                       }
-                    } catch (err) {
-                      _iterator3.e(err);
-                    } finally {
-                      _iterator3.f();
+                      data.push(_objectSpread(_objectSpread({}, row), {}, _defineProperty({}, this.validFilterMap.organ, Array.from(groups))));
+                    } else {
+                      data.push(_objectSpread(_objectSpread({}, row), {}, _defineProperty({}, this.validFilterMap.organ, this.getOrganHierarchy(row[this.validFilterMap.organ]))));
                     }
-                    data.push(_objectSpread(_objectSpread({}, row), {}, _defineProperty({}, this.validFilterMap.organ, Array.from(groups))));
                   }
                 } catch (err) {
                   _iterator2.e(err);

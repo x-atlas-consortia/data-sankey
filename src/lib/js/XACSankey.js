@@ -227,11 +227,16 @@ class XACSankey extends HTMLElement {
         let data = []
         if (this.validFilterMap.organ) {
             for (let row of this.rawData) {
-                let groups = new Set()
-                for (let g of row[this.validFilterMap.organ]) {
-                    groups.add(this.getOrganHierarchy(g))
+                if (Array.isArray(row[this.validFilterMap.organ])) {
+                    let groups = new Set()
+                    for (let g of row[this.validFilterMap.organ]) {
+                        groups.add(this.getOrganHierarchy(g))
+                    }
+                    data.push({...row, [this.validFilterMap.organ]: Array.from(groups)})
+                } else {
+                    data.push({...row, [this.validFilterMap.organ]: this.getOrganHierarchy(row[this.validFilterMap.organ])})
                 }
-                data.push({...row, [this.validFilterMap.organ]: Array.from(groups)})
+                
             }
         }
         

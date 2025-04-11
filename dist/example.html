@@ -3,6 +3,7 @@
     <title>DS</title>
     <script type="module" src="./js/adapters/SenNetAdapter.js"></script>
     <script type="module" src="./js/ConsortiaSankey.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/lz-string@1.5.0/libs/lz-string.js"></script>
     <link rel="stylesheet" href="./xac-sankey.css" />
 </head>
 <body>
@@ -16,8 +17,8 @@
         useShadow: true,
         styleSheetPath: './xac-sankey.css',
         api: {
-            // sankey: 'https://ingest-api.dev.sennetconsortium.org/datasets/sankey_data',
-            sankey: 'http://localhost:5555/datasets/sankey_data',
+            sankey: 'https://ingest-api.dev.sennetconsortium.org/datasets/sankey_data',
+            // sankey: 'http://localhost:5555/datasets/sankey_data',
             //token: ''
         },
         validFilterMap: {
@@ -30,7 +31,8 @@
 
     const i = setInterval(()=> {
         if (el.setOptions) {
-            const adapter = new SenNetAdapter(el, {urls: {portal: 'https://data.sennetconsortium.org/'}})
+            //  {urls: {portal: 'https://data.sennetconsortium.org/'}}
+            const adapter = new SenNetAdapter(el)
 
             clearInterval(i)
             el.setOptions(
