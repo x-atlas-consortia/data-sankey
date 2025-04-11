@@ -1,6 +1,6 @@
 /**
 * 
-* 4/11/2025, 2:23:51 PM | X Atlas Consortia Sankey 1.0.4a | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/11/2025, 2:47:32 PM | X Atlas Consortia Sankey 1.0.4a | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
@@ -19,9 +19,12 @@ function _setPrototypeOf(t, e) { return _setPrototypeOf = Object.setPrototypeOf 
 import SankeyAdapter from './SankeyAdapter.js';
 var HuBMAPAdapter = /*#__PURE__*/function (_SankeyAdapter) {
   function HuBMAPAdapter(context) {
+    var _this;
     var ops = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
     _classCallCheck(this, HuBMAPAdapter);
-    return _callSuper(this, HuBMAPAdapter, [context, ops]);
+    _this = _callSuper(this, HuBMAPAdapter, [context, ops]);
+    _this.checkDependencies();
+    return _this;
   }
   _inherits(HuBMAPAdapter, _SankeyAdapter);
   return _createClass(HuBMAPAdapter, [{
@@ -44,6 +47,14 @@ var HuBMAPAdapter = /*#__PURE__*/function (_SankeyAdapter) {
         }
       };
     }
+  }, {
+    key: "checkDependencies",
+    value: function checkDependencies() {
+      var _LZString;
+      if (!LZString && !((_LZString = LZString) !== null && _LZString !== void 0 && _LZString.compressToEncodedURIComponent)) {
+        console.error('HuBMAPAdapter > LZString library not loaded. Please include the script at src: https://unpkg.com/lz-string@1.5.0/libs/lz-string.js');
+      }
+    }
 
     /**
      * Builds a HuBMAP Portal compatible filter link.
@@ -57,9 +68,7 @@ var HuBMAPAdapter = /*#__PURE__*/function (_SankeyAdapter) {
     value: function buildSearchLink(_ref) {
       var entityType = _ref.entityType,
         filters = _ref.filters;
-      if (!LZString && !LZString.compressToEncodedURIComponent) {
-        console.error('HuBMAPAdapter > LZString library not loaded. Please include the script at src: https://unpkg.com/lz-string@1.5.0/libs/lz-string.js');
-      }
+      this.checkDependencies();
       var search = filters ? "?".concat(LZString.compressToEncodedURIComponent(JSON.stringify({
         filters: filters
       }))) : "";

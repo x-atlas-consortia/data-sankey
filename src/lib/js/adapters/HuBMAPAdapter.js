@@ -4,6 +4,7 @@ class HuBMAPAdapter extends SankeyAdapter {
 
     constructor(context, ops = {}) {
         super(context, ops);
+        this.checkDependencies()
     }
 
     getProdEnv() {
@@ -24,6 +25,14 @@ class HuBMAPAdapter extends SankeyAdapter {
         }
     }
 
+    checkDependencies() {
+        try {
+            const dep = LZString?.compressToEncodedURIComponent || LZString
+        } catch (e) {
+            console.error('HuBMAPAdapter > LZString library not loaded. Please include the script at src: https://unpkg.com/lz-string@1.5.0/libs/lz-string.js')
+        }
+    }
+
     /**
      * Builds a HuBMAP Portal compatible filter link.
      * 
@@ -32,9 +41,7 @@ class HuBMAPAdapter extends SankeyAdapter {
      * @returns {string}
      */
     buildSearchLink({ entityType, filters }) {
-        if (!LZString && !LZString.compressToEncodedURIComponent) {
-            console.error('HuBMAPAdapter > LZString library not loaded. Please include the script at src: https://unpkg.com/lz-string@1.5.0/libs/lz-string.js')
-        }
+        this.checkDependencies()
         const search = filters
             ? `?${LZString.compressToEncodedURIComponent(JSON.stringify({ filters }))}`
             : ""
