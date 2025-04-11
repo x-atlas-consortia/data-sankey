@@ -7,17 +7,9 @@ class SankeyAdapter {
         this.ctx = context
         this.filterMap = context.flipObj(context.validFilterMap)
     }
-    
+
     captureByKeysValue(keys, data) {
-        let result = new Set()
-        for (let d of data) {
-            if (d[keys.matchKey] === keys.matchValue) {
-                if (d[keys.keepKey]) {
-                    result.add(d[keys.keepKey])
-                }
-            }
-        }
-        return result
+        return Util.captureByKeysValue(keys, data)
     }
     
     getEnv() {

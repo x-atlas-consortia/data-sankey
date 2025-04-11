@@ -43,7 +43,7 @@ class SenNetAdapter extends SankeyAdapter {
         }
        
         if (col === 'dataset_type') {
-            values = Array.from(this.captureByKeysValue({matchKey: d.columnName, matchValue: d.name, keepKey: 'dataset_type_description'}, this.ctx.rawData))
+            values = this.captureByKeysValue({matchKey: d.columnName, matchValue: d.name, keepKey: 'dataset_type_description'}, this.ctx.rawData)
         }
 
         const facet = facetsMap[col] || col

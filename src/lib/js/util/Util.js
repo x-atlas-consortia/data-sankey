@@ -1,4 +1,23 @@
 class Util {
+
+    /**
+     *
+     * @param keys
+     * @param data
+     * @returns {any[string]}
+     */
+    static captureByKeysValue(keys, data) {
+        let result = new Set()
+        for (let d of data) {
+            if (d[keys.matchKey] === keys.matchValue) {
+                if (d[keys.keepKey]) {
+                    result.add(d[keys.keepKey])
+                }
+            }
+        }
+        return Array.from(result)
+    }
+
     /**
      * Checks if running in local or dev env
      * @returns {boolean}

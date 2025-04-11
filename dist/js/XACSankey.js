@@ -1,6 +1,6 @@
 /**
 * 
-* 4/11/2025, 4:13:02 PM | X Atlas Consortia Sankey 1.0.4 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/11/2025, 4:44:31 PM | X Atlas Consortia Sankey 1.0.4 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
@@ -243,6 +243,9 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
       }
       if (ops.onNodeClickCallback) {
         this.onNodeClickCallback = ops.onNodeClickCallback;
+      }
+      if (ops.onNodeBuildCssCallback) {
+        this.onNodeBuildCssCallback = ops.onNodeBuildCssCallback;
       }
       if (ops.onLabelClickCallback) {
         this.onLabelClickCallback = ops.onLabelClickCallback;
@@ -622,7 +625,11 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
 
       // Nodes
       var node = svg.append('g').selectAll('.node').data(nodes).join('g').attr('class', function (d) {
-        return "c-sankey__node c-sankey__node--".concat(d.columnName);
+        var classes = "c-sankey__node c-sankey__node--".concat(d.columnName);
+        if (_this3.onNodeBuildCssCallback) {
+          classes = classes + ' ' + _this3.onNodeBuildCssCallback(d);
+        }
+        return classes;
       }).attr('transform', function (d) {
         return "translate(".concat(d.x0, ",").concat(d.y0, ")");
       }).call(drag).on('click', function (e, d) {

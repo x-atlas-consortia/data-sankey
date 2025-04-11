@@ -158,6 +158,9 @@ class XACSankey extends HTMLElement {
         if (ops.onNodeClickCallback) {
             this.onNodeClickCallback = ops.onNodeClickCallback
         }
+        if (ops.onNodeBuildCssCallback) {
+            this.onNodeBuildCssCallback = ops.onNodeBuildCssCallback
+        }
         if (ops.onLabelClickCallback) {
             this.onLabelClickCallback = ops.onLabelClickCallback
         }
@@ -430,7 +433,13 @@ class XACSankey extends HTMLElement {
             .selectAll('.node')
             .data(nodes)
             .join('g')
-            .attr('class', (d) => `c-sankey__node c-sankey__node--${d.columnName}`)
+            .attr('class', (d) => {
+                let classes = `c-sankey__node c-sankey__node--${d.columnName}`
+                if (this.onNodeBuildCssCallback) {
+                    classes = classes +' '+ this.onNodeBuildCssCallback(d)
+                }
+                return classes
+            })
             .attr('transform', (d) => `translate(${d.x0},${d.y0})`)
             .call(drag)
             .on('click', ((e, d) => {
