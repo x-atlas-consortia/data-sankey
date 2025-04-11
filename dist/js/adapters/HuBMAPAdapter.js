@@ -1,6 +1,6 @@
 /**
 * 
-* 4/11/2025, 2:47:32 PM | X Atlas Consortia Sankey 1.0.4a | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/11/2025, 3:35:00 PM | X Atlas Consortia Sankey 1.0.4a | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
@@ -50,8 +50,10 @@ var HuBMAPAdapter = /*#__PURE__*/function (_SankeyAdapter) {
   }, {
     key: "checkDependencies",
     value: function checkDependencies() {
-      var _LZString;
-      if (!LZString && !((_LZString = LZString) !== null && _LZString !== void 0 && _LZString.compressToEncodedURIComponent)) {
+      try {
+        var _LZString;
+        var dep = ((_LZString = LZString) === null || _LZString === void 0 ? void 0 : _LZString.compressToEncodedURIComponent) || LZString;
+      } catch (e) {
         console.error('HuBMAPAdapter > LZString library not loaded. Please include the script at src: https://unpkg.com/lz-string@1.5.0/libs/lz-string.js');
       }
     }

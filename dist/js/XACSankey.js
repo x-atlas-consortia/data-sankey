@@ -1,6 +1,6 @@
 /**
 * 
-* 4/11/2025, 2:47:32 PM | X Atlas Consortia Sankey 1.0.4a | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/11/2025, 3:35:00 PM | X Atlas Consortia Sankey 1.0.4a | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
@@ -322,13 +322,20 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
                 _context2.next = 12;
                 break;
               }
-              this.handleLoader("<span class=\"c-sankey__msg\">".concat(this.rawData.message, "</span>"));
+              this.handleLoader(this.rawData.message);
               return _context2.abrupt("return");
             case 12:
               // Check if actual data has data property
               if (Array.isArray(this.rawData.data)) {
                 this.rawData = this.rawData.data;
               }
+              if (Array.isArray(this.rawData)) {
+                _context2.next = 16;
+                break;
+              }
+              console.error('XACSankey > Incorrectly formatted data. Data must be in array of dictionaries');
+              return _context2.abrupt("return");
+            case 16:
               data = [];
               if (this.validFilterMap.organ) {
                 _iterator2 = _createForOfIteratorHelper(this.rawData);
@@ -515,7 +522,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
                 links: Object.values(graphMap.links)
               };
               this.useEffect('fetch');
-            case 28:
+            case 31:
             case "end":
               return _context2.stop();
           }
@@ -704,20 +711,19 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
      */
   }, {
     key: "handleLoader",
-    value: function handleLoader() {
-      var msg = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
+    value: function handleLoader(msg) {
       var ctx = this.ops.useShadow ? _classPrivateFieldGet(_shadow, this) : this;
       ctx.querySelectorAll(".".concat(this.classes.loader)).forEach(function (el) {
         el.remove();
       });
-      if (this.isLoading || msg != '') {
+      if (this.isLoading || msg) {
         if (!this.loading.callback) {
           var loader = document.createElement("div");
-          loader.innerHTML = this.loading.html + msg;
+          loader.innerHTML = this.loading.html + (msg ? "<span class=\"c-sankey__msg\">".concat(msg, "</span>") : '');
           loader.className = this.classes.loader;
           ctx.appendChild(loader);
         } else {
-          this.loading.callback(this);
+          this.loading.callback(this, msg);
         }
       }
     }

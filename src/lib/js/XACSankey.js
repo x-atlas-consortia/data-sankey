@@ -213,13 +213,18 @@ class XACSankey extends HTMLElement {
         this.rawData = await res.json()
 
         if (this.rawData.message || res.status === 202) {
-            this.handleLoader(`<span class="c-sankey__msg">${this.rawData.message}</span>`)
+            this.handleLoader(this.rawData.message)
             return
         }
 
         // Check if actual data has data property
         if (Array.isArray(this.rawData.data)) {
             this.rawData = this.rawData.data
+        }
+
+        if (!Array.isArray(this.rawData)) {
+            console.error('XACSankey > Incorrectly formatted data. Data must be in array of dictionaries')
+            return
         }
 
         let data = []
@@ -519,21 +524,21 @@ class XACSankey extends HTMLElement {
     /**
      * Displays or removes loading spinner.
      */
-    handleLoader(msg = '') {
+    handleLoader(msg) {
         const ctx = this.ops.useShadow ? this.#shadow : this
         ctx.querySelectorAll(`.${this.classes.loader}`).forEach(
             (el) => {
                 el.remove()
             }
         )
-        if (this.isLoading || msg != '') {
+        if (this.isLoading || msg) {
             if (!this.loading.callback) {
                 const loader = document.createElement("div")
-                loader.innerHTML = this.loading.html + msg
+                loader.innerHTML = this.loading.html + (msg ? `<span class="c-sankey__msg">${msg}</span>` : '')
                 loader.className = this.classes.loader
                 ctx.appendChild(loader)
             } else {
-                this.loading.callback(this)
+                this.loading.callback(this, msg)
             }
         }
     }
