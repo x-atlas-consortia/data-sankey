@@ -1,6 +1,6 @@
 /**
 * 
-* 4/11/2025, 3:35:00 PM | X Atlas Consortia Sankey 1.0.4a | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/11/2025, 3:52:47 PM | X Atlas Consortia Sankey 1.0.4a | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
@@ -722,9 +722,10 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
           loader.innerHTML = this.loading.html + (msg ? "<span class=\"c-sankey__msg\">".concat(msg, "</span>") : '');
           loader.className = this.classes.loader;
           ctx.appendChild(loader);
-        } else {
-          this.loading.callback(this, msg);
         }
+      }
+      if (this.loading.callback) {
+        this.loading.callback(this, msg);
       }
     }
 

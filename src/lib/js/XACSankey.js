@@ -537,9 +537,10 @@ class XACSankey extends HTMLElement {
                 loader.innerHTML = this.loading.html + (msg ? `<span class="c-sankey__msg">${msg}</span>` : '')
                 loader.className = this.classes.loader
                 ctx.appendChild(loader)
-            } else {
-                this.loading.callback(this, msg)
             }
+        }
+        if (this.loading.callback) {
+            this.loading.callback(this, msg)
         }
     }
 
