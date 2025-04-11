@@ -1,6 +1,6 @@
 /**
 * 
-* 4/10/2025, 5:11:17 PM | X Atlas Consortia Sankey 1.0.3 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/11/2025, 12:23:49 PM | X Atlas Consortia Sankey 1.0.3 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
@@ -36,7 +36,7 @@ function _checkPrivateRedeclaration(e, t) { if (t.has(e)) throw new TypeError("C
 function _classPrivateFieldGet(s, a) { return s.get(_assertClassBrand(s, a)); }
 function _classPrivateFieldSet(s, a, r) { return s.set(_assertClassBrand(s, a), r), r; }
 function _assertClassBrand(e, t, n) { if ("function" == typeof e ? e === t : e.has(t)) return arguments.length < 3 ? t : n; throw new TypeError("Private element is not present on this object"); }
-import SankeyAdapter from "./adapters/SankeyAdapter.js";
+import Util from "./util/Util.js";
 var _shadow = /*#__PURE__*/new WeakMap();
 var XACSankey = /*#__PURE__*/function (_HTMLElement) {
   function XACSankey() {
@@ -54,7 +54,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
     _this.organsDict = {};
     _this.organsDictByCategory = {};
     _this.api = {
-      sankey: 'https://entity.api.sennetconsortium.org/datasets/sankey_data',
+      sankey: 'https://ingest.api.sennetconsortium.org/datasets/sankey_data',
       token: null,
       ubkg: {
         sap: 'sennet',
@@ -320,6 +320,17 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
               return res.json();
             case 8:
               this.rawData = _context2.sent;
+              if (!(this.rawData.message || res.status === 202)) {
+                _context2.next = 12;
+                break;
+              }
+              this.handleLoader("<span class=\"c-sankey__msg\">".concat(this.rawData.message, "</span>"));
+              return _context2.abrupt("return");
+            case 12:
+              // Check if actual data has data property
+              if (Array.isArray(this.rawData.data)) {
+                this.rawData = this.rawData.data;
+              }
               data = [];
               if (this.validFilterMap.organ) {
                 _iterator2 = _createForOfIteratorHelper(this.rawData);
@@ -502,7 +513,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
                 links: Object.values(graphMap.links)
               };
               this.useEffect('fetch');
-            case 24:
+            case 28:
             case "end":
               return _context2.stop();
           }
@@ -692,14 +703,15 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
   }, {
     key: "handleLoader",
     value: function handleLoader() {
+      var msg = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
       var ctx = this.ops.useShadow ? _classPrivateFieldGet(_shadow, this) : this;
       ctx.querySelectorAll(".".concat(this.classes.loader)).forEach(function (el) {
         el.remove();
       });
-      if (this.isLoading) {
+      if (this.isLoading || msg != '') {
         if (!this.loading.callback) {
           var loader = document.createElement("div");
-          loader.innerHTML = this.loading.html;
+          loader.innerHTML = this.loading.html + msg;
           loader.className = this.classes.loader;
           ctx.appendChild(loader);
         } else {
@@ -775,7 +787,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
   }, {
     key: "isLocal",
     value: function isLocal() {
-      SankeyAdapter.isLocal();
+      Util.isLocal();
     }
 
     /**
@@ -786,7 +798,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
   }, {
     key: "log",
     value: function log(msg, ops) {
-      SankeyAdapter.log(msg, ops);
+      Util.log(msg, ops);
     }
   }]);
 }(/*#__PURE__*/_wrapNativeSuper(HTMLElement));

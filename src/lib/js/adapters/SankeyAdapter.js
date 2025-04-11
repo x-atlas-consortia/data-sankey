@@ -1,3 +1,5 @@
+import Util from '../util/Util.js'
+
 class SankeyAdapter {
 
     constructor(context, ops = {}) {
@@ -19,16 +21,31 @@ class SankeyAdapter {
     getEnv() {
        return SankeyAdapter.isLocal() || this.ops.isDev  ? 'getDevEnv' : 'getProdEnv'
     }
+
+    openUrl(url) {
+        const a = document.createElement('a')
+        a.href = url
+        a.setAttribute('target', '_blank')
+        document.body.append(a)
+        a.click()
+        a.remove()
+    }
+
+    getUrls() {
+        const envFn = this.getEnv()
+        this.ops.urls = this.ops.urls || {}
+        let urls = this[envFn]()
+        Object.assign(urls, this.ops.urls)
+        
+        return urls
+    }
+    
     /**
      * Checks if running in local or dev env
      * @returns {boolean}
      */
     static isLocal() {
-        return SankeyAdapter.isLocalHost() || (location.host.indexOf('.dev') !== -1)
-    }
-
-    static isLocalHost() {
-        return (location.host.indexOf('localhost') !== -1)
+        return Util.isLocal()
     }
 
     /**
@@ -37,14 +54,7 @@ class SankeyAdapter {
      * @param {object} ops Color options for console
      */
     static log(msg, ops) {
-        ops = ops || {}
-        let {fn, color, data} = ops
-        fn = fn || 'log'
-        color = color || '#bada55'
-        data = data || ''
-        if (SankeyAdapter.isLocal()) {
-            console[fn](`%c ${msg}`, `background: #222; color: ${color}`, data)
-        }
+        Util.log(msg, ops)
     }
 
     /**

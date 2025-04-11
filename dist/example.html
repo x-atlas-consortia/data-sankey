@@ -16,8 +16,9 @@
         useShadow: true,
         styleSheetPath: './xac-sankey.css',
         api: {
-            sankey: 'https://ingest-api.dev.sennetconsortium.org/datasets/sankey_data',
-            //token: 'AgaMgW0VpjqEEaQjQzWdp8jzN5PO50NkBqzEz5QwMN9B85xz7Qh9C6l45DnmJ4kdO2aMqn1mXJEnrESnQDo7BUqBnno'
+            // sankey: 'https://ingest-api.dev.sennetconsortium.org/datasets/sankey_data',
+            sankey: 'http://localhost:5555/datasets/sankey_data',
+            //token: ''
         },
         validFilterMap: {
             dataset_type: 'dataset_type_hierarchy',
@@ -29,7 +30,7 @@
 
     const i = setInterval(()=> {
         if (el.setOptions) {
-            const adapter = new SenNetAdapter(el)
+            const adapter = new SenNetAdapter(el, {urls: {portal: 'https://data.sennetconsortium.org/'}})
 
             clearInterval(i)
             el.setOptions(

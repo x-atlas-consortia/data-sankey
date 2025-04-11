@@ -6,20 +6,20 @@ class SenNetAdapter extends SankeyAdapter {
         super(context, ops);
     }
 
-    static getProdEnv() {
+    getProdEnv() {
         return {
             portal: 'https://data.sennetconsortium.org/',
             api: {
-                sankey: 'https://entity.api.sennetconsortium.org/datasets/sankey_data'
+                sankey: 'https://ingest.api.sennetconsortium.org/datasets/sankey_data'
             }
         }
     }
 
-    static getDevEnv() {
+    getDevEnv() {
         return {
             portal: 'https://data.dev.sennetconsortium.org/',
             api: {
-                sankey: 'https://entity-api.dev.sennetconsortium.org/datasets/sankey_data'
+                sankey: 'https://ingest-api.dev.sennetconsortium.org/datasets/sankey_data'
             }
         }
     }
@@ -48,14 +48,11 @@ class SenNetAdapter extends SankeyAdapter {
 
         const facet = facetsMap[col] || col
         const addFilters = `;data_class=Create Dataset Activity;entity_type=Dataset`
+        const filters = encodeURIComponent(`${facet}=${values.join(',')}${addFilters}`)
         if (values) {
             values = Array.from(values)
-            window.open(
-                `${SenNetAdapter[this.getEnv()]().portal}search?addFilters=${facet}=${values.join(
-                    ','
-                )}${addFilters}`,
-                '_blank'
-            )
+            const url = `${this.getUrls().portal}search?addFilters=${filters}`
+            this.openUrl(url)
         }
     }
 }

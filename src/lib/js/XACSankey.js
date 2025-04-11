@@ -1,4 +1,4 @@
-import SankeyAdapter from "./adapters/SankeyAdapter.js"
+import Util from "./util/Util.js"
 
 class XACSankey extends HTMLElement {
     #shadow;
@@ -14,7 +14,7 @@ class XACSankey extends HTMLElement {
         this.organsDict = {}
         this.organsDictByCategory = {}
         this.api = {
-            sankey: 'https://entity.api.sennetconsortium.org/datasets/sankey_data',
+            sankey: 'https://ingest.api.sennetconsortium.org/datasets/sankey_data',
             token: null,
             ubkg: {
                 sap: 'sennet',
@@ -213,6 +213,16 @@ class XACSankey extends HTMLElement {
         // call the sankey endpoint
         const res = await fetch(this.api.sankey, this.getHeaders())
         this.rawData = await res.json()
+
+        if (this.rawData.message || res.status === 202) {
+            this.handleLoader(`<span class="c-sankey__msg">${this.rawData.message}</span>`)
+            return
+        }
+
+        // Check if actual data has data property
+        if (Array.isArray(this.rawData.data)) {
+            this.rawData = this.rawData.data
+        }
 
         let data = []
         if (this.validFilterMap.organ) {
@@ -506,17 +516,17 @@ class XACSankey extends HTMLElement {
     /**
      * Displays or removes loading spinner.
      */
-    handleLoader() {
+    handleLoader(msg = '') {
         const ctx = this.ops.useShadow ? this.#shadow : this
         ctx.querySelectorAll(`.${this.classes.loader}`).forEach(
             (el) => {
                 el.remove()
             }
         )
-        if (this.isLoading) {
+        if (this.isLoading || msg != '') {
             if (!this.loading.callback) {
                 const loader = document.createElement("div")
-                loader.innerHTML = this.loading.html
+                loader.innerHTML = this.loading.html + msg
                 loader.className = this.classes.loader
                 ctx.appendChild(loader)
             } else {
@@ -567,7 +577,7 @@ class XACSankey extends HTMLElement {
      * @returns {boolean}
      */
     static isLocal() {
-        SankeyAdapter.isLocal()
+        Util.isLocal()
     }
 
     /**
@@ -576,7 +586,7 @@ class XACSankey extends HTMLElement {
      * @param {object} ops Color options for console
      */
     static log(msg, ops) {
-        SankeyAdapter.log(msg, ops)
+        Util.log(msg, ops)
     }
 
     /**

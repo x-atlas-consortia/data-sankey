@@ -25,7 +25,7 @@
   "scripts": {
     "dist": "rm -rf dist && NODE_ENV=production babel src/lib --out-dir dist --copy-files",
     "example": "serve ./dist",
-    "dev": "serve ./src/lib",
+    "dev": "serve ./src/lib -p 3003",
     "watch": "npm-watch",
     "all": "npm-run-all --parallel watch dev"
   },

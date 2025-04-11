@@ -1,6 +1,6 @@
 /**
 * 
-* 4/10/2025, 5:11:17 PM | X Atlas Consortia Sankey 1.0.3 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/11/2025, 12:23:49 PM | X Atlas Consortia Sankey 1.0.3 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
@@ -24,13 +24,33 @@ var SenNetAdapter = /*#__PURE__*/function (_SankeyAdapter) {
   }
   _inherits(SenNetAdapter, _SankeyAdapter);
   return _createClass(SenNetAdapter, [{
-    key: "goTo",
-    value:
+    key: "getProdEnv",
+    value: function getProdEnv() {
+      return {
+        portal: 'https://data.sennetconsortium.org/',
+        api: {
+          sankey: 'https://ingest.api.sennetconsortium.org/datasets/sankey_data'
+        }
+      };
+    }
+  }, {
+    key: "getDevEnv",
+    value: function getDevEnv() {
+      return {
+        portal: 'https://data.dev.sennetconsortium.org/',
+        api: {
+          sankey: 'https://ingest-api.dev.sennetconsortium.org/datasets/sankey_data'
+        }
+      };
+    }
+
     /**
      * Opens a new tab/window based on data
      * @param {object} d - The current data node
      */
-    function goTo(d) {
+  }, {
+    key: "goTo",
+    value: function goTo(d) {
       var col = this.filterMap[d.columnName];
       var facetsMap = {
         organ: 'origin_samples.organ',
@@ -49,30 +69,12 @@ var SenNetAdapter = /*#__PURE__*/function (_SankeyAdapter) {
       }
       var facet = facetsMap[col] || col;
       var addFilters = ";data_class=Create Dataset Activity;entity_type=Dataset";
+      var filters = encodeURIComponent("".concat(facet, "=").concat(values.join(',')).concat(addFilters));
       if (values) {
         values = Array.from(values);
-        window.open("".concat(SenNetAdapter[this.getEnv()]().portal, "search?addFilters=").concat(facet, "=").concat(values.join(',')).concat(addFilters), '_blank');
+        var url = "".concat(this.getUrls().portal, "search?addFilters=").concat(filters);
+        this.openUrl(url);
       }
-    }
-  }], [{
-    key: "getProdEnv",
-    value: function getProdEnv() {
-      return {
-        portal: 'https://data.sennetconsortium.org/',
-        api: {
-          sankey: 'https://entity.api.sennetconsortium.org/datasets/sankey_data'
-        }
-      };
-    }
-  }, {
-    key: "getDevEnv",
-    value: function getDevEnv() {
-      return {
-        portal: 'https://data.dev.sennetconsortium.org/',
-        api: {
-          sankey: 'https://entity-api.dev.sennetconsortium.org/datasets/sankey_data'
-        }
-      };
     }
   }]);
 }(SankeyAdapter);
