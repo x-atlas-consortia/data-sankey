@@ -19,10 +19,10 @@
             organ: 'lung',
             source_type: "human"
         },
-        api: {
-            sankey: 'https://ingest-api.dev.sennetconsortium.org/datasets/sankey_data',
-            token: ''
-        },
+        // api: {
+        //     sankey: 'https://ingest-api.dev.sennetconsortium.org/datasets/sankey_data',
+        //     token: ''
+        // },
         validFilterMap: {
             dataset_type: 'dataset_type_hierarchy',
             status: null,
@@ -34,7 +34,7 @@
     const i = setInterval(()=> {
         if (el.setOptions) {
             //  {urls: {portal: 'https://data.sennetconsortium.org/'}}
-            const adapter = new SenNetAdapter(el)
+            const adapter = new SenNetAdapter(el, {env: 'getProdEnv'})
 
             clearInterval(i)
             el.setOptions(
