@@ -16,14 +16,13 @@
         useShadow: true,
         styleSheetPath: './xac-sankey.css',
         filters: {
-            group_name: 'TDA - Buck Institute',
             organ: 'lung',
             source_type: "human"
         },
-        api: {
-            sankey: 'https://ingest-api.dev.sennetconsortium.org/datasets/sankey_data',
-            token: 'AgqKwQkD0V82PxVbNk3mqoWM97vY9qV56PnrmO2e33j5PG6BQlTqCy38k9K8jna7j77NPNbPGnxgrzt54dQv8TGx88n'
-        },
+        // api: {
+        //     sankey: 'https://ingest-api.dev.sennetconsortium.org/datasets/sankey_data',
+        //     token: ''
+        // },
         validFilterMap: {
             dataset_type: 'dataset_type_hierarchy',
             status: null,
@@ -34,8 +33,7 @@
 
     const i = setInterval(()=> {
         if (el.setOptions) {
-            //  {urls: {portal: 'https://data.sennetconsortium.org/'}}
-            const adapter = new SenNetAdapter(el)
+            const adapter = new SenNetAdapter(el, {isProd: true})
 
             clearInterval(i)
             el.setOptions(

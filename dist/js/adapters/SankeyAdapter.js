@@ -1,12 +1,8 @@
 /**
 * 
-* 4/14/2025, 4:43:53 PM | X Atlas Consortia Sankey 1.0.4 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/14/2025, 6:58:53 PM | X Atlas Consortia Sankey 1.0.4 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
-function _toConsumableArray(r) { return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread(); }
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-function _iterableToArray(r) { if ("undefined" != typeof Symbol && null != r[Symbol.iterator] || null != r["@@iterator"]) return Array.from(r); }
-function _arrayWithoutHoles(r) { if (Array.isArray(r)) return _arrayLikeToArray(r); }
 function _createForOfIteratorHelper(r, e) { var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (!t) { if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) { t && (r = t); var _n = 0, F = function F() {}; return { s: F, n: function n() { return _n >= r.length ? { done: !0 } : { done: !1, value: r[_n++] }; }, e: function e(r) { throw r; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var o, a = !0, u = !1; return { s: function s() { t = t.call(r); }, n: function n() { var r = t.next(); return a = r.done, r; }, e: function e(r) { u = !0, o = r; }, f: function f() { try { a || null == t["return"] || t["return"](); } finally { if (u) throw o; } } }; }
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -45,6 +41,17 @@ var SankeyAdapter = /*#__PURE__*/function () {
     }
 
     /**
+     * Checks if current column is organ column
+     * @param col
+     * @returns {boolean}
+     */
+  }, {
+    key: "isOrganColumn",
+    value: function isOrganColumn(col) {
+      return this.eq(col, 'organ');
+    }
+
+    /**
      * Returns the actual value from the data with proper casing
      * @param col
      * @param needles
@@ -56,8 +63,6 @@ var SankeyAdapter = /*#__PURE__*/function () {
       needles = needles.split(',');
       var values = new Set();
       var validFilters = _defineProperty({}, this.ctx.validFilterMap[col], needles);
-      var organCol = this.ctx.validFilterMap.organ;
-      var ctx = this.ctx;
       this.ctx.filteredData.forEach(function (row, index) {
         for (var _i = 0, _Object$entries = Object.entries(validFilters); _i < _Object$entries.length; _i++) {
           var _Object$entries$_i = _slicedToArray(_Object$entries[_i], 2),
@@ -71,9 +76,6 @@ var SankeyAdapter = /*#__PURE__*/function () {
               var v = _step.value;
               if (validValues.includes(v.toLowerCase())) {
                 var group = [v];
-                if (col === organCol) {
-                  group = _toConsumableArray(ctx.organsDictByCategory[v]);
-                }
                 group.forEach(function (item) {
                   return values.add(item);
                 });
@@ -108,7 +110,7 @@ var SankeyAdapter = /*#__PURE__*/function () {
   }, {
     key: "getEnv",
     value: function getEnv() {
-      return SankeyAdapter.isLocal() || this.ops.isDev ? 'getDevEnv' : 'getProdEnv';
+      return SankeyAdapter.isLocal() && !this.ops.isProd ? 'getDevEnv' : 'getProdEnv';
     }
 
     /**

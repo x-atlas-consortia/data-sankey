@@ -1,5 +1,12 @@
 class Util {
 
+    /**
+     * Compares two string values for equality
+     * @param {string} s1
+     * @param {string} s2
+     * @param {boolean} insensitive
+     * @returns {boolean}
+     */
     static eq(s1, s2, insensitive = true) {
         let res = s1 === s2
         if (insensitive && s1 !== undefined && s2 !== undefined) {

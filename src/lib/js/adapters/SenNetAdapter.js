@@ -29,7 +29,7 @@ class SenNetAdapter extends SankeyAdapter {
             properFacetName = this.ctx.filters[f]
             let nameFromData = this.getDataValueByColumn(f, this.ctx.filters[f])
             properFacetName = nameFromData.length ? nameFromData : properFacetName
-            if (this.eq(f, 'organ')) {
+            if (this.isOrganColumn(f)) {
                 properFacetName = Array.from(this.ctx.organsDictByCategory[properFacetName])
             }
             additionalFilters += `;${facet}=${format(properFacetName)}`

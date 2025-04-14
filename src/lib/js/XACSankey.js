@@ -274,7 +274,7 @@ class XACSankey extends HTMLElement {
                             }
                         }
 
-                        // take valid values and readjusted the row[field]
+                        // take valid values and readjust the row[field]
                         if (res.length) {
                             row[field] = []
                             for (let i = 0; i < res.length; i++) {
@@ -337,6 +337,7 @@ class XACSankey extends HTMLElement {
 
                     // Because we can have data values that are arrays with strings, we could end up with many
                     // sources & targets on a particular row/column.
+                    // So we need to put these in buckets to later create the links
                     let sources = []
                     let targets = []
                     const setSourcesTargets = (bucket, current) => {

@@ -20,6 +20,15 @@ class SankeyAdapter {
     }
 
     /**
+     * Checks if current column is organ column
+     * @param col
+     * @returns {boolean}
+     */
+    isOrganColumn(col) {
+        return this.eq(col, 'organ')
+    }
+
+    /**
      * Returns the actual value from the data with proper casing
      * @param col
      * @param needles
@@ -32,10 +41,6 @@ class SankeyAdapter {
             [this.ctx.validFilterMap[col]] : needles
         }
 
-        const organCol = this.ctx.validFilterMap.organ
-        const ctx = this.ctx
-
-
         this.ctx.filteredData.forEach((row, index) => {
 
             for (const [field, validValues] of Object.entries(validFilters)) {
@@ -43,11 +48,7 @@ class SankeyAdapter {
                 for (let v of rowValues) {
                     if (validValues.includes(v.toLowerCase())) {
                         let group = [v]
-                        if (col === organCol) {
-                            group = [...ctx.organsDictByCategory[v]]
-                        }
                         group.forEach(item => values.add(item))
-
                     }
                 }
             }
@@ -71,7 +72,7 @@ class SankeyAdapter {
      * @returns {string}
      */
     getEnv() {
-       return SankeyAdapter.isLocal() || this.ops.isDev  ? 'getDevEnv' : 'getProdEnv'
+       return SankeyAdapter.isLocal() && !this.ops.isProd  ? 'getDevEnv' : 'getProdEnv'
     }
 
     /**

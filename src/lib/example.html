@@ -33,8 +33,7 @@
 
     const i = setInterval(()=> {
         if (el.setOptions) {
-            //  {urls: {portal: 'https://data.sennetconsortium.org/'}}
-            const adapter = new SenNetAdapter(el, {env: 'getProdEnv'})
+            const adapter = new SenNetAdapter(el, {isProd: true})
 
             clearInterval(i)
             el.setOptions(

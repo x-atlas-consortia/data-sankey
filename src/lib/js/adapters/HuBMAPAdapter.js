@@ -100,7 +100,7 @@ class HuBMAPAdapter extends SankeyAdapter {
     getFilterValues(col, name) {
         let values = Array.isArray(name) ? name : name.split(',')
 
-        if (this.eq(col, 'organ')) {
+        if (this.isOrganColumn(col)) {
             let names = Array.from(values)
             values = []
             for (let n of names) {

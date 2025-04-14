@@ -1,6 +1,6 @@
 /**
 * 
-* 4/14/2025, 4:43:53 PM | X Atlas Consortia Sankey 1.0.4 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/14/2025, 6:58:53 PM | X Atlas Consortia Sankey 1.0.4 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
@@ -32,7 +32,7 @@ var HuBMAPAdapter = /*#__PURE__*/function (_SankeyAdapter) {
     _classCallCheck(this, HuBMAPAdapter);
     _this = _callSuper(this, HuBMAPAdapter, [context, ops]);
     _this.checkDependencies();
-    _this.facetMap = {
+    _this.facetsMap = {
       organ: 'origin_samples_unique_mapped_organs'
     };
     return _this;
@@ -152,7 +152,7 @@ var HuBMAPAdapter = /*#__PURE__*/function (_SankeyAdapter) {
     key: "getFilterValues",
     value: function getFilterValues(col, name) {
       var values = Array.isArray(name) ? name : name.split(',');
-      if (this.eq(col, 'organ')) {
+      if (this.isOrganColumn(col)) {
         var names = Array.from(values);
         values = [];
         for (var _i = 0, _names = names; _i < _names.length; _i++) {
@@ -171,14 +171,14 @@ var HuBMAPAdapter = /*#__PURE__*/function (_SankeyAdapter) {
     key: "goTo",
     value: function goTo(d) {
       var col = this.filterMap[d.columnName];
-      var field = this.facetMap[col] || col;
+      var field = this.facetsMap[col] || col;
       var values = this.getFilterValues(col, d.name);
       var filters = _defineProperty({}, field, {
         values: values,
         type: 'TERM'
       });
       var urlFilters = this.urlFilters || {};
-      filters = _objectSpread(_objectSpread({}, filters), urlFilters);
+      filters = _objectSpread(_objectSpread({}, urlFilters), filters);
       var url = this.buildSearchLink({
         entityType: 'Dataset',
         filters: filters
