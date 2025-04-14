@@ -1,6 +1,6 @@
 /**
 * 
-* 4/14/2025, 9:32:29 AM | X Atlas Consortia Sankey 1.0.4 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/14/2025, 11:05:05 AM | X Atlas Consortia Sankey 1.0.4 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
@@ -26,6 +26,11 @@ var HuBMAPAdapter = /*#__PURE__*/function (_SankeyAdapter) {
     _this.checkDependencies();
     return _this;
   }
+
+  /**
+   * Returns urls for production.
+   * @returns {{portal: string, api: {sankey: string}}}
+   */
   _inherits(HuBMAPAdapter, _SankeyAdapter);
   return _createClass(HuBMAPAdapter, [{
     key: "getProdEnv",
@@ -37,6 +42,11 @@ var HuBMAPAdapter = /*#__PURE__*/function (_SankeyAdapter) {
         }
       };
     }
+
+    /**
+     * Returns urls for dev.
+     * @returns {{portal: string, api: {sankey: string}}}
+     */
   }, {
     key: "getDevEnv",
     value: function getDevEnv() {
@@ -47,6 +57,10 @@ var HuBMAPAdapter = /*#__PURE__*/function (_SankeyAdapter) {
         }
       };
     }
+
+    /**
+     * Checks if required dependency is loaded.
+     */
   }, {
     key: "checkDependencies",
     value: function checkDependencies() {

@@ -19,9 +19,7 @@
         groupByOrganCategoryKey: 'term',
         api: {
             sankey: 'https://entity-api.dev.hubmapconsortium.org/datasets/sankey_data',
-            ubkg: {
-                sap: 'hubmap'
-            }
+            context: 'hubmap'
         }
     }
     el.setAttribute('options', btoa(JSON.stringify(ops)))

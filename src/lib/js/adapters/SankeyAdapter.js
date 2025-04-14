@@ -8,14 +8,28 @@ class SankeyAdapter {
         this.filterMap = context.flipObj(context.validFilterMap)
     }
 
+    /**
+     * Will capture data from particular dictionary given matching keys and values.
+     * @param {object} keys The keys and values to match against
+     * @param {array} data List of data to filter through
+     * @returns {*}
+     */
     captureByKeysValue(keys, data) {
         return Util.captureByKeysValue(keys, data)
     }
-    
+
+    /**
+     * Gets the env function.
+     * @returns {string}
+     */
     getEnv() {
        return SankeyAdapter.isLocal() || this.ops.isDev  ? 'getDevEnv' : 'getProdEnv'
     }
 
+    /**
+     * Opens a given url in blank tab.
+     * @param {string} url
+     */
     openUrl(url) {
         const a = document.createElement('a')
         a.href = url
@@ -25,8 +39,12 @@ class SankeyAdapter {
         a.remove()
     }
 
+    /**
+     * Gets urls required for viewing sankey
+     * @returns {*}
+     */
     getUrls() {
-        const envFn = this.getEnv()
+        const envFn = this.ops.env || this.getEnv()
         this.ops.urls = this.ops.urls || {}
         let urls = this[envFn]()
         Object.assign(urls, this.ops.urls)

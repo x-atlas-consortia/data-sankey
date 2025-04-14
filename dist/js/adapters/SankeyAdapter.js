@@ -1,6 +1,6 @@
 /**
 * 
-* 4/14/2025, 9:32:29 AM | X Atlas Consortia Sankey 1.0.4 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/14/2025, 11:05:05 AM | X Atlas Consortia Sankey 1.0.4 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
@@ -17,16 +17,33 @@ var SankeyAdapter = /*#__PURE__*/function () {
     this.ctx = context;
     this.filterMap = context.flipObj(context.validFilterMap);
   }
+
+  /**
+   * Will capture data from particular dictionary given matching keys and values.
+   * @param {object} keys The keys and values to match against
+   * @param {array} data List of data to filter through
+   * @returns {*}
+   */
   return _createClass(SankeyAdapter, [{
     key: "captureByKeysValue",
     value: function captureByKeysValue(keys, data) {
       return Util.captureByKeysValue(keys, data);
     }
+
+    /**
+     * Gets the env function.
+     * @returns {string}
+     */
   }, {
     key: "getEnv",
     value: function getEnv() {
       return SankeyAdapter.isLocal() || this.ops.isDev ? 'getDevEnv' : 'getProdEnv';
     }
+
+    /**
+     * Opens a given url in blank tab.
+     * @param {string} url
+     */
   }, {
     key: "openUrl",
     value: function openUrl(url) {
@@ -37,10 +54,15 @@ var SankeyAdapter = /*#__PURE__*/function () {
       a.click();
       a.remove();
     }
+
+    /**
+     * Gets urls required for viewing sankey
+     * @returns {*}
+     */
   }, {
     key: "getUrls",
     value: function getUrls() {
-      var envFn = this.getEnv();
+      var envFn = this.ops.env || this.getEnv();
       this.ops.urls = this.ops.urls || {};
       var urls = this[envFn]();
       Object.assign(urls, this.ops.urls);

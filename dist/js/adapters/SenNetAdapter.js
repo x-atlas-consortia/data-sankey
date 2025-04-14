@@ -1,6 +1,6 @@
 /**
 * 
-* 4/14/2025, 9:32:29 AM | X Atlas Consortia Sankey 1.0.4 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/14/2025, 11:05:05 AM | X Atlas Consortia Sankey 1.0.4 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
@@ -22,6 +22,11 @@ var SenNetAdapter = /*#__PURE__*/function (_SankeyAdapter) {
     _classCallCheck(this, SenNetAdapter);
     return _callSuper(this, SenNetAdapter, [context, ops]);
   }
+
+  /**
+   * Returns urls for production.
+   * @returns {{portal: string, api: {sankey: string}}}
+   */
   _inherits(SenNetAdapter, _SankeyAdapter);
   return _createClass(SenNetAdapter, [{
     key: "getProdEnv",
@@ -33,6 +38,11 @@ var SenNetAdapter = /*#__PURE__*/function (_SankeyAdapter) {
         }
       };
     }
+
+    /**
+     * Returns urls for dev.
+     * @returns {{portal: string, api: {sankey: string}}}
+     */
   }, {
     key: "getDevEnv",
     value: function getDevEnv() {

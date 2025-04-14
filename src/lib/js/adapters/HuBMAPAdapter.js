@@ -7,6 +7,10 @@ class HuBMAPAdapter extends SankeyAdapter {
         this.checkDependencies()
     }
 
+    /**
+     * Returns urls for production.
+     * @returns {{portal: string, api: {sankey: string}}}
+     */
     getProdEnv() {
         return {
             portal: 'https://portal.hubmapconsortium.org/',
@@ -16,6 +20,10 @@ class HuBMAPAdapter extends SankeyAdapter {
         }
     }
 
+    /**
+     * Returns urls for dev.
+     * @returns {{portal: string, api: {sankey: string}}}
+     */
     getDevEnv() {
         return {
             portal: 'https://portal.dev.hubmapconsortium.org/',
@@ -25,6 +33,9 @@ class HuBMAPAdapter extends SankeyAdapter {
         }
     }
 
+    /**
+     * Checks if required dependency is loaded.
+     */
     checkDependencies() {
         try {
             const dep = LZString?.compressToEncodedURIComponent || LZString

@@ -6,6 +6,10 @@ class SenNetAdapter extends SankeyAdapter {
         super(context, ops);
     }
 
+    /**
+     * Returns urls for production.
+     * @returns {{portal: string, api: {sankey: string}}}
+     */
     getProdEnv() {
         return {
             portal: 'https://data.sennetconsortium.org/',
@@ -15,6 +19,10 @@ class SenNetAdapter extends SankeyAdapter {
         }
     }
 
+    /**
+     * Returns urls for dev.
+     * @returns {{portal: string, api: {sankey: string}}}
+     */
     getDevEnv() {
         return {
             portal: 'https://data.dev.sennetconsortium.org/',

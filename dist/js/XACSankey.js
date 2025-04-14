@@ -1,6 +1,6 @@
 /**
 * 
-* 4/14/2025, 9:32:29 AM | X Atlas Consortia Sankey 1.0.4 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/14/2025, 11:05:05 AM | X Atlas Consortia Sankey 1.0.4 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
@@ -208,7 +208,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
 
     /**
      * Removes null values from obj.
-     * @param obj
+     * @param {object} obj The object to perform the purge against
      */
   }, {
     key: "purgeObject",
@@ -268,7 +268,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
 
     /**
      * Modifies the component attr so that attributeChangedCallback can be triggered.
-     * @param {string} attr Name of a watche attribute.
+     * @param {string} attr Name of a watched attribute.
      */
   }, {
     key: "useEffect",
@@ -453,6 +453,9 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
                       }
                       link.value = link.value + 1;
                     };
+
+                    // Because we can have data values that are arrays with strings, we could end up with many
+                    // sources & targets on a particular row/column.
                     var sources = [];
                     var targets = [];
                     var setSourcesTargets = function setSourcesTargets(bucket, current) {
@@ -489,29 +492,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
                         _iterator6.f();
                       }
                     } else {
-                      var _iterator7 = _createForOfIteratorHelper(sources),
-                        _step7;
-                      try {
-                        for (_iterator7.s(); !(_step7 = _iterator7.n()).done;) {
-                          var s = _step7.value;
-                          var _iterator8 = _createForOfIteratorHelper(targets),
-                            _step8;
-                          try {
-                            for (_iterator8.s(); !(_step8 = _iterator8.n()).done;) {
-                              var _t = _step8.value;
-                              buildLink(s, _t);
-                            }
-                          } catch (err) {
-                            _iterator8.e(err);
-                          } finally {
-                            _iterator8.f();
-                          }
-                        }
-                      } catch (err) {
-                        _iterator7.e(err);
-                      } finally {
-                        _iterator7.f();
-                      }
+                      buildLink(sources[0], targets[0]);
                     }
                   }
                 });

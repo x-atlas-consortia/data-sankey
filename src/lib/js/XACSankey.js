@@ -125,7 +125,7 @@ class XACSankey extends HTMLElement {
 
     /**
      * Removes null values from obj.
-     * @param obj
+     * @param {object} obj The object to perform the purge against
      */
     purgeObject(obj) {
         for (let i in obj) {
@@ -181,7 +181,7 @@ class XACSankey extends HTMLElement {
 
     /**
      * Modifies the component attr so that attributeChangedCallback can be triggered.
-     * @param {string} attr Name of a watche attribute.
+     * @param {string} attr Name of a watched attribute.
      */
     useEffect(attr = 'data') {
         this.setAttribute(attr, `${Date.now()}`)
@@ -309,6 +309,8 @@ class XACSankey extends HTMLElement {
                         link.value = link.value + 1
                     }
 
+                    // Because we can have data values that are arrays with strings, we could end up with many
+                    // sources & targets on a particular row/column.
                     let sources = []
                     let targets = []
                     const setSourcesTargets = (bucket, current) => {
@@ -329,13 +331,8 @@ class XACSankey extends HTMLElement {
                             buildLink(sources[0], t)
                         }
                     } else {
-                        for (let s of sources) {
-                            for (let t of targets) {
-                                buildLink(s, t)
-                            }
-                        }
+                        buildLink(sources[0], targets[0])
                     }
-
                 }
             })
         })

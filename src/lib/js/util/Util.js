@@ -1,10 +1,10 @@
 class Util {
 
     /**
-     *
-     * @param keys
-     * @param data
-     * @returns {any[string]}
+     * Will capture data from particular dictionary given matching keys and values.
+     * @param {object} keys The keys and values to match against {matchKey[string], matchValue[string], keepKey[string]}
+     * @param {array} data List of data to filter through
+     * @returns {array[string]}
      */
     static captureByKeysValue(keys, data) {
         let result = new Set()
