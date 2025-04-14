@@ -1,9 +1,15 @@
 /**
 * 
-* 4/14/2025, 11:05:05 AM | X Atlas Consortia Sankey 1.0.4 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/14/2025, 2:59:09 PM | X Atlas Consortia Sankey 1.0.4 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
+function _toConsumableArray(r) { return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread(); }
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
+function _iterableToArray(r) { if ("undefined" != typeof Symbol && null != r[Symbol.iterator] || null != r["@@iterator"]) return Array.from(r); }
+function _arrayWithoutHoles(r) { if (Array.isArray(r)) return _arrayLikeToArray(r); }
+function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
 function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
 function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
 function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
@@ -17,6 +23,7 @@ function _getPrototypeOf(t) { return _getPrototypeOf = Object.setPrototypeOf ? O
 function _inherits(t, e) { if ("function" != typeof e && null !== e) throw new TypeError("Super expression must either be null or a function"); t.prototype = Object.create(e && e.prototype, { constructor: { value: t, writable: !0, configurable: !0 } }), Object.defineProperty(t, "prototype", { writable: !1 }), e && _setPrototypeOf(t, e); }
 function _setPrototypeOf(t, e) { return _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function (t, e) { return t.__proto__ = e, t; }, _setPrototypeOf(t, e); }
 import SankeyAdapter from './SankeyAdapter.js';
+import SenNetAdapter from "./SenNetAdapter";
 var HuBMAPAdapter = /*#__PURE__*/function (_SankeyAdapter) {
   function HuBMAPAdapter(context) {
     var _this;
@@ -24,15 +31,45 @@ var HuBMAPAdapter = /*#__PURE__*/function (_SankeyAdapter) {
     _classCallCheck(this, HuBMAPAdapter);
     _this = _callSuper(this, HuBMAPAdapter, [context, ops]);
     _this.checkDependencies();
+    _this.facetMap = {
+      organ: 'origin_samples_unique_mapped_organs'
+    };
     return _this;
   }
-
-  /**
-   * Returns urls for production.
-   * @returns {{portal: string, api: {sankey: string}}}
-   */
   _inherits(HuBMAPAdapter, _SankeyAdapter);
   return _createClass(HuBMAPAdapter, [{
+    key: "onDataBuildCallback",
+    value: function onDataBuildCallback() {
+      this.urlFilters = this.getSankeyFilters(this.facetsMap);
+    }
+  }, {
+    key: "getSankeyFilters",
+    value: function getSankeyFilters() {
+      var facetsMap = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+      var additionalFilters = {};
+      var facet;
+      for (var f in this.ctx.filters) {
+        facet = facetsMap[f] || f;
+        additionalFilters[facet] = {
+          values: this.getFilterValues(f, this.ctx.filters[f]),
+          type: 'TERM'
+        };
+      }
+      SankeyAdapter.log('getSankeyFilters', {
+        color: 'purple',
+        data: {
+          facetsMap: facetsMap,
+          additionalFilters: additionalFilters
+        }
+      });
+      return additionalFilters;
+    }
+
+    /**
+     * Returns urls for production.
+     * @returns {{portal: string, api: {sankey: string}}}
+     */
+  }, {
     key: "getProdEnv",
     value: function getProdEnv() {
       return {
@@ -90,6 +127,20 @@ var HuBMAPAdapter = /*#__PURE__*/function (_SankeyAdapter) {
       }))) : "";
       return "search/".concat(entityType.toLowerCase(), "s").concat(search);
     }
+  }, {
+    key: "getFilterValues",
+    value: function getFilterValues(col, name) {
+      var values = name.split(',');
+      if (this.eq(col, this.ctx.validFilterMap.organ)) {
+        var names = Array.from(values);
+        values = [];
+        for (var _i = 0, _names = names; _i < _names.length; _i++) {
+          var n = _names[_i];
+          values = [].concat(_toConsumableArray(values), _toConsumableArray(Array.from(this.ctx.organsDictByCategory[n])));
+        }
+      }
+      return values;
+    }
 
     /**
      * Opens a new tab/window based on data
@@ -99,14 +150,8 @@ var HuBMAPAdapter = /*#__PURE__*/function (_SankeyAdapter) {
     key: "goTo",
     value: function goTo(d) {
       var col = this.filterMap[d.columnName];
-      var facetMap = {
-        organ: 'origin_samples_unique_mapped_organs'
-      };
-      var field = facetMap[col] || col;
-      var values = [d.name];
-      if (col === 'organ') {
-        values = Array.from(this.ctx.organsDictByCategory[d.name]);
-      }
+      var field = this.facetMap[col] || col;
+      var values = this.getFilterValues(col, d.name);
       var filters = _defineProperty({}, field, {
         values: values,
         type: 'TERM'
@@ -119,5 +164,7 @@ var HuBMAPAdapter = /*#__PURE__*/function (_SankeyAdapter) {
     }
   }]);
 }(SankeyAdapter);
-window.HuBMAPAdapter = HuBMAPAdapter;
+try {
+  window.HuBMAPAdapter = HuBMAPAdapter;
+} catch (e) {}
 export default HuBMAPAdapter;

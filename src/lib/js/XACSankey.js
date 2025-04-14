@@ -155,6 +155,9 @@ class XACSankey extends HTMLElement {
         if (ops.dataCallback) {
             this.dataCallback = ops.dataCallback
         }
+        if (ops.onDataBuildCallback) {
+            this.onDataBuildCallback = ops.onDataBuildCallback
+        }
         if (ops.onNodeClickCallback) {
             this.onNodeClickCallback = ops.onNodeClickCallback
         }
@@ -252,28 +255,35 @@ class XACSankey extends HTMLElement {
 
         // filter the data if there are valid filters
         const validFilters = this.getValidFilters()
-        let filteredData = data
+        this.filteredData = data
         if (Object.keys(validFilters).length > 0) {
+
+            const isValidFilter = (validValues, val)=> !(!validValues.includes(val.toLowerCase()))
+
             // Filter the data based on the valid filters
-            filteredData = data.filter((row) => {
+            this.filteredData = data.filter((row) => {
                 // this acts as an AND filter
                 for (const [field, validValues] of Object.entries(validFilters)) {
-                    if (!validValues.includes(row[field].toLowerCase())) {
-                        return false
+                    if (Array.isArray(row[field])) {
+                        for (const v of row[field]) {
+                            return isValidFilter(validValues, v)
+                        }
+                    } else {
+                        return isValidFilter(validValues, row[field])
                     }
                 }
                 return true
             })
         }
 
-        XACSankey.log('filteredData', {data: filteredData, color: 'orange'})
+        XACSankey.log('filteredData', {data: this.filteredData, color: 'orange'})
 
         const columnNames = Object.values(this.validFilterMap)
         const graphMap = {nodes: {}, links: {}}
         let i = 0;
 
         // First build the nodes using a dictionary for faster access time
-        filteredData.forEach((row, rowIndex) => {
+        this.filteredData.forEach((row, rowIndex) => {
             columnNames.forEach((columnName, columnIndex) => {
                 const buildNode = (colName, val) => {
                     let node = graphMap.nodes[val]
@@ -294,7 +304,7 @@ class XACSankey extends HTMLElement {
             })
         })
 
-        filteredData.forEach((row) => {
+        this.filteredData.forEach((row) => {
             columnNames.forEach((columnName, columnIndex) => {
                 if (columnIndex !== columnNames.length - 1) {
 
@@ -340,6 +350,9 @@ class XACSankey extends HTMLElement {
         XACSankey.log('graphMap', {data: graphMap, color: 'green'})
 
         this.graphData = {nodes: Object.values(graphMap.nodes), links: Object.values(graphMap.links)};
+        if (this.onDataBuildCallback) {
+            this.onDataBuildCallback(this)
+        }
         this.useEffect('fetch')
     }
 

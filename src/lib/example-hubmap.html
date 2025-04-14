@@ -17,6 +17,9 @@
         useShadow: true,
         styleSheetPath: './xac-sankey.css',
         groupByOrganCategoryKey: 'term',
+        filters: {
+            group_name: 'iec testing group'
+        },
         api: {
             sankey: 'https://entity-api.dev.hubmapconsortium.org/datasets/sankey_data',
             context: 'hubmap'
@@ -31,6 +34,9 @@
             clearInterval(i)
             el.setOptions(
                 {
+                    onDataBuildCallback: () => {
+                        adapter.onDataBuildCallback()
+                    },
                     onNodeClickCallback: (e, d) => {
                         console.log('node clicked', d)
                         adapter.goTo(d)

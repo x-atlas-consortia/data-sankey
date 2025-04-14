@@ -1,6 +1,6 @@
 /**
 * 
-* 4/14/2025, 11:05:05 AM | X Atlas Consortia Sankey 1.0.4 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/14/2025, 2:59:09 PM | X Atlas Consortia Sankey 1.0.4 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
@@ -18,17 +18,53 @@ function _setPrototypeOf(t, e) { return _setPrototypeOf = Object.setPrototypeOf 
 import SankeyAdapter from './SankeyAdapter.js';
 var SenNetAdapter = /*#__PURE__*/function (_SankeyAdapter) {
   function SenNetAdapter(context) {
+    var _this;
     var ops = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
     _classCallCheck(this, SenNetAdapter);
-    return _callSuper(this, SenNetAdapter, [context, ops]);
+    _this = _callSuper(this, SenNetAdapter, [context, ops]);
+    _this.facetsMap = {
+      organ: 'origin_samples.organ',
+      source_type: 'sources.source_type'
+    };
+    return _this;
   }
-
-  /**
-   * Returns urls for production.
-   * @returns {{portal: string, api: {sankey: string}}}
-   */
   _inherits(SenNetAdapter, _SankeyAdapter);
   return _createClass(SenNetAdapter, [{
+    key: "onDataBuildCallback",
+    value: function onDataBuildCallback() {
+      this.urlFilters = this.getSankeyFilters(this.facetsMap);
+    }
+  }, {
+    key: "getSankeyFilters",
+    value: function getSankeyFilters() {
+      var facetsMap = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+      var additionalFilters = '';
+      var facet;
+      var properFacetName;
+      var format = function format(f) {
+        return Array.isArray(f) ? f.join(',') : f.toString();
+      };
+      for (var f in this.ctx.filters) {
+        facet = facetsMap[f] || f;
+        properFacetName = this.ctx.filters[f];
+        properFacetName = this.getDataValueByColumn(f, this.ctx.filters[f]);
+        additionalFilters += ";".concat(facet, "=").concat(format(properFacetName));
+      }
+      SankeyAdapter.log('getSankeyFilters', {
+        color: 'purple',
+        data: {
+          facetsMap: facetsMap,
+          additionalFilters: additionalFilters
+        }
+      });
+      return additionalFilters;
+    }
+
+    /**
+     * Returns urls for production.
+     * @returns {{portal: string, api: {sankey: string}}}
+     */
+  }, {
     key: "getProdEnv",
     value: function getProdEnv() {
       return {
@@ -62,10 +98,6 @@ var SenNetAdapter = /*#__PURE__*/function (_SankeyAdapter) {
     key: "goTo",
     value: function goTo(d) {
       var col = this.filterMap[d.columnName];
-      var facetsMap = {
-        organ: 'origin_samples.organ',
-        source_type: 'sources.source_type'
-      };
       var values = [d.name];
       if (col === 'organ') {
         values = this.ctx.organsDictByCategory[d.name];
@@ -77,8 +109,8 @@ var SenNetAdapter = /*#__PURE__*/function (_SankeyAdapter) {
           keepKey: 'dataset_type_description'
         }, this.ctx.rawData);
       }
-      var facet = facetsMap[col] || col;
-      var addFilters = ";data_class=Create Dataset Activity;entity_type=Dataset";
+      var facet = this.facetsMap[col] || col;
+      var addFilters = ";data_class=Create Dataset Activity;entity_type=Dataset".concat(this.urlFilters);
       if (values && (values.length || values.size)) {
         values = Array.from(values);
         var filters = encodeURIComponent("".concat(facet, "=").concat(values.join(',')).concat(addFilters));
@@ -88,5 +120,7 @@ var SenNetAdapter = /*#__PURE__*/function (_SankeyAdapter) {
     }
   }]);
 }(SankeyAdapter);
-window.SenNetAdapter = SenNetAdapter;
+try {
+  window.SenNetAdapter = SenNetAdapter;
+} catch (e) {}
 export default SenNetAdapter;

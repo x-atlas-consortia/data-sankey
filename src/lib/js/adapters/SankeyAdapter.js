@@ -9,6 +9,54 @@ class SankeyAdapter {
     }
 
     /**
+     * Checks equality.
+     * @param s1
+     * @param s2
+     * @param insensitive
+     * @returns {boolean}
+     */
+    eq(s1, s2, insensitive = true) {
+       return Util.eq(s1, s2, insensitive)
+    }
+
+    /**
+     * Returns the actual value from the data with proper casing
+     * @param col
+     * @param needles
+     * @returns {any[]}
+     */
+    getDataValueByColumn(col, needles) {
+        needles = needles.split(',')
+        let values = new Set()
+        const validFilters = {
+            [this.ctx.validFilterMap[col]] : needles
+        }
+
+        const organCol = this.ctx.validFilterMap.organ
+        const ctx = this.ctx
+
+
+        this.ctx.filteredData.forEach((row, index) => {
+
+            for (const [field, validValues] of Object.entries(validFilters)) {
+                let rowValues = Array.isArray(row[field]) ? row[field] : [row[field]]
+                for (let v of rowValues) {
+                    if (validValues.includes(v.toLowerCase())) {
+                        let group = [v]
+                        if (col === organCol) {
+                            group = [...ctx.organsDictByCategory[v]]
+                        }
+                        group.forEach(item => values.add(item))
+
+                    }
+                }
+            }
+
+        })
+        return Array.from(values)
+    }
+
+    /**
      * Will capture data from particular dictionary given matching keys and values.
      * @param {object} keys The keys and values to match against
      * @param {array} data List of data to filter through

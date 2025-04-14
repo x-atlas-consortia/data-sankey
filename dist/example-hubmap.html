@@ -31,6 +31,9 @@
             clearInterval(i)
             el.setOptions(
                 {
+                    onDataBuildCallback: () => {
+                        adapter.onDataBuildCallback()
+                    },
                     onNodeClickCallback: (e, d) => {
                         console.log('node clicked', d)
                         adapter.goTo(d)

@@ -15,6 +15,9 @@
     const ops = {
         useShadow: true,
         styleSheetPath: './xac-sankey.css',
+        filters: {
+            group_name: 'codcc testing group'
+        },
         api: {
             sankey: 'https://ingest-api.dev.sennetconsortium.org/datasets/sankey_data',
             token: 'AgW5xXYdNyY6bQGOQOeBWrVPlXPj8JODPDBm9BeExYd42Y5rrMHgCD1kkd72lDbegx2GO5n35kPpdBil81QDQsGP8WG'
@@ -35,6 +38,9 @@
             clearInterval(i)
             el.setOptions(
                 {
+                    onDataBuildCallback: () => {
+                        adapter.onDataBuildCallback()
+                    },
                     onNodeClickCallback: (e, d) => {
                         console.log('node clicked', d)
                         adapter.goTo(d)

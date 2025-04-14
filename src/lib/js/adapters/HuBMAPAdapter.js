@@ -5,6 +5,38 @@ class HuBMAPAdapter extends SankeyAdapter {
     constructor(context, ops = {}) {
         super(context, ops);
         this.checkDependencies()
+        this.facetMap = {
+            organ: 'origin_samples_unique_mapped_organs',
+        }
+    }
+
+    /**
+     * Callback to run after the data has been built
+     */
+    onDataBuildCallback() {
+        this.urlFilters = this.getSankeyFilters(this.facetsMap)
+    }
+
+    /**
+     * Get additional pre-filters that were passed to the sankey
+     * @param facetsMap
+     * @returns {{}}
+     */
+    getSankeyFilters(facetsMap = {}) {
+        let additionalFilters = {}
+        let facet
+        let properFacetName
+        for (let f in this.ctx.filters) {
+            facet = facetsMap[f] || f
+            properFacetName = this.ctx.filters[f]
+            properFacetName = this.getDataValueByColumn(f, this.ctx.filters[f])
+            additionalFilters[facet] = {
+                values: this.getFilterValues(f, properFacetName),
+                type: 'TERM',
+            }
+        }
+        SankeyAdapter.log('getSankeyFilters', {color: 'purple', data: {facetsMap, additionalFilters}})
+        return additionalFilters
     }
 
     /**
@@ -60,24 +92,34 @@ class HuBMAPAdapter extends SankeyAdapter {
     }
 
     /**
+     * Return properly formed values to be passed as query parameters using the LZString library
+     * @param col
+     * @param name
+     * @returns {*}
+     */
+    getFilterValues(col, name) {
+        let values = Array.isArray(name) ? name : name.split(',')
+
+        if (this.eq(col, 'organ')) {
+            let names = Array.from(values)
+            values = []
+            for (let n of names) {
+                values = [...values, ...Array.from(this.ctx.organsDictByCategory[n])]
+            }
+        }
+        return values
+    }
+
+    /**
      * Opens a new tab/window based on data
      * @param {object} d - The current data node
      */
     goTo(d) {
         const col = this.filterMap[d.columnName]
-        
-        let facetMap = {
-            organ: 'origin_samples_unique_mapped_organs',
-        }
 
-        const field = facetMap[col] || col
+        const field = this.facetMap[col] || col
 
-        let values = [d.name]
-
-
-        if (col === 'organ') {
-            values = Array.from(this.ctx.organsDictByCategory[d.name])
-        }
+        const values = this.getFilterValues(col, d.name)
 
         let filters = {
             [field]: {
@@ -85,10 +127,14 @@ class HuBMAPAdapter extends SankeyAdapter {
                 type: 'TERM',
             }
         }
+        filters = {...filters, ...this.urlFilters}
         const url = this.buildSearchLink({entityType: 'Dataset', filters})
         this.openUrl(`${this.getUrls().portal}${url}`)
     }
 }
 
-window.HuBMAPAdapter = HuBMAPAdapter
+try {
+    window.HuBMAPAdapter = HuBMAPAdapter
+} catch (e) {}
+
 export default HuBMAPAdapter

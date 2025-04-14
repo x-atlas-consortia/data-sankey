@@ -1,5 +1,13 @@
 class Util {
 
+    static eq(s1, s2, insensitive = true) {
+        let res = s1 === s2
+        if (insensitive && s1 !== undefined && s2 !== undefined) {
+            res = s1?.toLowerCase() === s2?.toLowerCase()
+        }
+        return res
+    }
+
     /**
      * Will capture data from particular dictionary given matching keys and values.
      * @param {object} keys The keys and values to match against {matchKey[string], matchValue[string], keepKey[string]}
@@ -9,7 +17,7 @@ class Util {
     static captureByKeysValue(keys, data) {
         let result = new Set()
         for (let d of data) {
-            if (d[keys.matchKey] === keys.matchValue) {
+            if (Util.eq(d[keys.matchKey], keys.matchValue)) {
                 if (d[keys.keepKey]) {
                     result.add(d[keys.keepKey])
                 }

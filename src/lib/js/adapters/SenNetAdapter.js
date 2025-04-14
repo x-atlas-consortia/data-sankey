@@ -4,6 +4,34 @@ class SenNetAdapter extends SankeyAdapter {
     
     constructor(context, ops = {}) {
         super(context, ops);
+        this.facetsMap = {
+            organ: 'origin_samples.organ',
+            source_type: 'sources.source_type'
+        }
+    }
+
+    onDataBuildCallback() {
+        this.urlFilters = this.getSankeyFilters(this.facetsMap)
+    }
+
+    /**
+     * Get additional filters that were passed to the sankey
+     * @param facetsMap
+     * @returns {{}}
+     */
+    getSankeyFilters(facetsMap = {}) {
+        let additionalFilters = ''
+        let facet
+        let properFacetName
+        const format = (f) => Array.isArray(f) ? f.join(',') : f.toString()
+        for (let f in this.ctx.filters) {
+            facet = facetsMap[f] || f
+            properFacetName = this.ctx.filters[f]
+            properFacetName = this.getDataValueByColumn(f, this.ctx.filters[f])
+            additionalFilters += `;${facet}=${format(properFacetName)}`
+        }
+        SankeyAdapter.log('getSankeyFilters', {color: 'purple', data: {facetsMap, additionalFilters}})
+        return additionalFilters
     }
 
     /**
@@ -38,11 +66,6 @@ class SenNetAdapter extends SankeyAdapter {
      */
     goTo(d) {
         const col = this.filterMap[d.columnName]
-
-        const facetsMap = {
-            organ: 'origin_samples.organ',
-            source_type: 'sources.source_type'
-        }
         
         let values = [d.name]
         
@@ -54,8 +77,8 @@ class SenNetAdapter extends SankeyAdapter {
             values = this.captureByKeysValue({matchKey: d.columnName, matchValue: d.name, keepKey: 'dataset_type_description'}, this.ctx.rawData)
         }
 
-        const facet = facetsMap[col] || col
-        const addFilters = `;data_class=Create Dataset Activity;entity_type=Dataset`
+        const facet = this.facetsMap[col] || col
+        const addFilters = `;data_class=Create Dataset Activity;entity_type=Dataset${this.urlFilters}`
         if (values && (values.length || values.size)) {
             values = Array.from(values)
             const filters = encodeURIComponent(`${facet}=${values.join(',')}${addFilters}`)
@@ -65,5 +88,8 @@ class SenNetAdapter extends SankeyAdapter {
     }
 }
 
-window.SenNetAdapter = SenNetAdapter
+try {
+    window.SenNetAdapter = SenNetAdapter
+} catch (e) {}
+
 export default SenNetAdapter

@@ -1,6 +1,6 @@
 /**
 * 
-* 4/14/2025, 11:05:05 AM | X Atlas Consortia Sankey 1.0.4 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/14/2025, 2:59:09 PM | X Atlas Consortia Sankey 1.0.4 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
@@ -241,6 +241,9 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
       if (ops.dataCallback) {
         this.dataCallback = ops.dataCallback;
       }
+      if (ops.onDataBuildCallback) {
+        this.onDataBuildCallback = ops.onDataBuildCallback;
+      }
       if (ops.onNodeClickCallback) {
         this.onNodeClickCallback = ops.onNodeClickCallback;
       }
@@ -302,7 +305,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
     key: "fetchData",
     value: (function () {
       var _fetchData = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
-        var res, data, _iterator2, _step2, row, groups, _iterator3, _step3, g, validFilters, filteredData, columnNames, graphMap, i;
+        var res, data, _iterator2, _step2, row, groups, _iterator3, _step3, g, validFilters, isValidFilter, columnNames, graphMap, i;
         return _regeneratorRuntime().wrap(function _callee2$(_context2) {
           while (1) switch (_context2.prev = _context2.next) {
             case 0:
@@ -375,24 +378,39 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
 
               // filter the data if there are valid filters
               validFilters = this.getValidFilters();
-              filteredData = data;
+              this.filteredData = data;
               if (Object.keys(validFilters).length > 0) {
-                // Filter the data based on the valid filters
-                filteredData = data.filter(function (row) {
+                isValidFilter = function isValidFilter(validValues, val) {
+                  return !!validValues.includes(val.toLowerCase());
+                }; // Filter the data based on the valid filters
+                this.filteredData = data.filter(function (row) {
                   // this acts as an AND filter
                   for (var _i = 0, _Object$entries = Object.entries(validFilters); _i < _Object$entries.length; _i++) {
                     var _Object$entries$_i = _slicedToArray(_Object$entries[_i], 2),
                       field = _Object$entries$_i[0],
                       validValues = _Object$entries$_i[1];
-                    if (!validValues.includes(row[field].toLowerCase())) {
-                      return false;
+                    if (Array.isArray(row[field])) {
+                      var _iterator4 = _createForOfIteratorHelper(row[field]),
+                        _step4;
+                      try {
+                        for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
+                          var v = _step4.value;
+                          return isValidFilter(validValues, v);
+                        }
+                      } catch (err) {
+                        _iterator4.e(err);
+                      } finally {
+                        _iterator4.f();
+                      }
+                    } else {
+                      return isValidFilter(validValues, row[field]);
                     }
                   }
                   return true;
                 });
               }
               XACSankey.log('filteredData', {
-                data: filteredData,
+                data: this.filteredData,
                 color: 'orange'
               });
               columnNames = Object.values(this.validFilterMap);
@@ -401,7 +419,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
                 links: {}
               };
               i = 0; // First build the nodes using a dictionary for faster access time
-              filteredData.forEach(function (row, rowIndex) {
+              this.filteredData.forEach(function (row, rowIndex) {
                 columnNames.forEach(function (columnName, columnIndex) {
                   var buildNode = function buildNode(colName, val) {
                     var node = graphMap.nodes[val];
@@ -419,24 +437,24 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
                     node.weight = node.weight + 1;
                   };
                   if (Array.isArray(row[columnName])) {
-                    var _iterator4 = _createForOfIteratorHelper(row[columnName]),
-                      _step4;
+                    var _iterator5 = _createForOfIteratorHelper(row[columnName]),
+                      _step5;
                     try {
-                      for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
-                        var v = _step4.value;
+                      for (_iterator5.s(); !(_step5 = _iterator5.n()).done;) {
+                        var v = _step5.value;
                         buildNode(columnName, v);
                       }
                     } catch (err) {
-                      _iterator4.e(err);
+                      _iterator5.e(err);
                     } finally {
-                      _iterator4.f();
+                      _iterator5.f();
                     }
                   } else {
                     buildNode(columnName, row[columnName]);
                   }
                 });
               });
-              filteredData.forEach(function (row) {
+              this.filteredData.forEach(function (row) {
                 columnNames.forEach(function (columnName, columnIndex) {
                   if (columnIndex !== columnNames.length - 1) {
                     var buildLink = function buildLink(source, target) {
@@ -460,17 +478,17 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
                     var targets = [];
                     var setSourcesTargets = function setSourcesTargets(bucket, current) {
                       if (Array.isArray(current)) {
-                        var _iterator5 = _createForOfIteratorHelper(current),
-                          _step5;
+                        var _iterator6 = _createForOfIteratorHelper(current),
+                          _step6;
                         try {
-                          for (_iterator5.s(); !(_step5 = _iterator5.n()).done;) {
-                            var v = _step5.value;
+                          for (_iterator6.s(); !(_step6 = _iterator6.n()).done;) {
+                            var v = _step6.value;
                             bucket.push(graphMap.nodes[v]);
                           }
                         } catch (err) {
-                          _iterator5.e(err);
+                          _iterator6.e(err);
                         } finally {
-                          _iterator5.f();
+                          _iterator6.f();
                         }
                       } else {
                         bucket.push(graphMap.nodes[current]);
@@ -479,17 +497,17 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
                     setSourcesTargets(sources, row[columnName]);
                     setSourcesTargets(targets, row[columnNames[columnIndex + 1]]);
                     if (sources.length > 1) {
-                      var _iterator6 = _createForOfIteratorHelper(targets),
-                        _step6;
+                      var _iterator7 = _createForOfIteratorHelper(targets),
+                        _step7;
                       try {
-                        for (_iterator6.s(); !(_step6 = _iterator6.n()).done;) {
-                          var t = _step6.value;
+                        for (_iterator7.s(); !(_step7 = _iterator7.n()).done;) {
+                          var t = _step7.value;
                           buildLink(sources[0], t);
                         }
                       } catch (err) {
-                        _iterator6.e(err);
+                        _iterator7.e(err);
                       } finally {
-                        _iterator6.f();
+                        _iterator7.f();
                       }
                     } else {
                       buildLink(sources[0], targets[0]);
@@ -505,8 +523,11 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
                 nodes: Object.values(graphMap.nodes),
                 links: Object.values(graphMap.links)
               };
+              if (this.onDataBuildCallback) {
+                this.onDataBuildCallback(this);
+              }
               this.useEffect('fetch');
-            case 31:
+            case 32:
             case "end":
               return _context2.stop();
           }
