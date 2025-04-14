@@ -69,6 +69,9 @@ el.setOptions({
     api[obj], // {context[str], sankey[str], token[str], ubkgOrgans[str]}
     filters[obj], // {column_name: str}, key-value pair to filter data on
     dataCallback[function(row)] -> list[obj], // returns list of objects of filtered data
+    onNodeBuildCssCallback[function(row)] -> str, // the callback when building the node class css, should return a string class name to append
+    onNodeClickCallback[function(event, row)], // the callback when a node is clicked
+    onLabelClickCallback[function(event, row)], // the callback when a label or name is clicked
     validFilterMap[obj], // {column_name: str}
     d3[obj], // {d3, d3sankey, sankeyLinkHorizontal } // the d3 library and related functions for building the graph
     loading[obj], // {html[str], callback[function(ctx)]} // loading html and callback
