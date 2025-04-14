@@ -5,7 +5,7 @@ class HuBMAPAdapter extends SankeyAdapter {
     constructor(context, ops = {}) {
         super(context, ops);
         this.checkDependencies()
-        this.facetMap = {
+        this.facetsMap = {
             organ: 'origin_samples_unique_mapped_organs',
         }
     }
@@ -117,7 +117,7 @@ class HuBMAPAdapter extends SankeyAdapter {
     goTo(d) {
         const col = this.filterMap[d.columnName]
 
-        const field = this.facetMap[col] || col
+        const field = this.facetsMap[col] || col
 
         const values = this.getFilterValues(col, d.name)
 
@@ -128,7 +128,7 @@ class HuBMAPAdapter extends SankeyAdapter {
             }
         }
         const urlFilters = this.urlFilters || {}
-        filters = {...filters, ...urlFilters}
+        filters = {...urlFilters, ...filters}
         const url = this.buildSearchLink({entityType: 'Dataset', filters})
         this.openUrl(`${this.getUrls().portal}${url}`)
     }
