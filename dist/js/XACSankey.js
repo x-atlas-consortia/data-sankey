@@ -1,6 +1,6 @@
 /**
 * 
-* 4/14/2025, 3:25:26 PM | X Atlas Consortia Sankey 1.0.4 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/14/2025, 4:43:53 PM | X Atlas Consortia Sankey 1.0.4 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
@@ -390,18 +390,25 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
                       field = _Object$entries$_i[0],
                       validValues = _Object$entries$_i[1];
                     if (Array.isArray(row[field])) {
-                      var _iterator4 = _createForOfIteratorHelper(row[field]),
-                        _step4;
-                      try {
-                        for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
-                          var v = _step4.value;
-                          return isValidFilter(validValues, v);
+                      var _res = [];
+
+                      // find out which values in array are valid
+                      for (var _i2 = 0; _i2 < row[field].length; _i2++) {
+                        if (isValidFilter(validValues, row[field][_i2])) {
+                          _res.push(row[field][_i2]);
                         }
-                      } catch (err) {
-                        _iterator4.e(err);
-                      } finally {
-                        _iterator4.f();
                       }
+
+                      // take valid values and readjusted the row[field]
+                      if (_res.length) {
+                        row[field] = [];
+                        for (var _i3 = 0; _i3 < _res.length; _i3++) {
+                          row[field].push(_res[_i3]);
+                        }
+                      }
+
+                      // tell the filter if to include row with boolean result
+                      return _res.length > 0;
                     } else {
                       return isValidFilter(validValues, row[field]);
                     }
@@ -437,17 +444,17 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
                     node.weight = node.weight + 1;
                   };
                   if (Array.isArray(row[columnName])) {
-                    var _iterator5 = _createForOfIteratorHelper(row[columnName]),
-                      _step5;
+                    var _iterator4 = _createForOfIteratorHelper(row[columnName]),
+                      _step4;
                     try {
-                      for (_iterator5.s(); !(_step5 = _iterator5.n()).done;) {
-                        var v = _step5.value;
+                      for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
+                        var v = _step4.value;
                         buildNode(columnName, v);
                       }
                     } catch (err) {
-                      _iterator5.e(err);
+                      _iterator4.e(err);
                     } finally {
-                      _iterator5.f();
+                      _iterator4.f();
                     }
                   } else {
                     buildNode(columnName, row[columnName]);
@@ -478,17 +485,17 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
                     var targets = [];
                     var setSourcesTargets = function setSourcesTargets(bucket, current) {
                       if (Array.isArray(current)) {
-                        var _iterator6 = _createForOfIteratorHelper(current),
-                          _step6;
+                        var _iterator5 = _createForOfIteratorHelper(current),
+                          _step5;
                         try {
-                          for (_iterator6.s(); !(_step6 = _iterator6.n()).done;) {
-                            var v = _step6.value;
+                          for (_iterator5.s(); !(_step5 = _iterator5.n()).done;) {
+                            var v = _step5.value;
                             bucket.push(graphMap.nodes[v]);
                           }
                         } catch (err) {
-                          _iterator6.e(err);
+                          _iterator5.e(err);
                         } finally {
-                          _iterator6.f();
+                          _iterator5.f();
                         }
                       } else {
                         bucket.push(graphMap.nodes[current]);
@@ -497,17 +504,17 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
                     setSourcesTargets(sources, row[columnName]);
                     setSourcesTargets(targets, row[columnNames[columnIndex + 1]]);
                     if (sources.length > 1) {
-                      var _iterator7 = _createForOfIteratorHelper(targets),
-                        _step7;
+                      var _iterator6 = _createForOfIteratorHelper(targets),
+                        _step6;
                       try {
-                        for (_iterator7.s(); !(_step7 = _iterator7.n()).done;) {
-                          var t = _step7.value;
+                        for (_iterator6.s(); !(_step6 = _iterator6.n()).done;) {
+                          var t = _step6.value;
                           buildLink(sources[0], t);
                         }
                       } catch (err) {
-                        _iterator7.e(err);
+                        _iterator6.e(err);
                       } finally {
-                        _iterator7.f();
+                        _iterator6.f();
                       }
                     } else {
                       buildLink(sources[0], targets[0]);
@@ -526,7 +533,12 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
               if (this.onDataBuildCallback) {
                 this.onDataBuildCallback(this);
               }
-              this.useEffect('fetch');
+              if (Object.values(graphMap.nodes).length) {
+                this.useEffect('fetch');
+              } else {
+                this.isLoading = false;
+                this.handleLoader('No data from filters');
+              }
             case 32:
             case "end":
               return _context2.stop();
@@ -559,7 +571,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
       if (!this.d3) {
         console.error('No D3 library loaded.');
       }
-      if (!this.graphData || !this.containerDimensions.width || !this.containerDimensions.height || !this.d3) return;
+      if (!this.graphData || !this.graphData.nodes.length || !this.containerDimensions.width || !this.containerDimensions.height || !this.d3) return;
       var _this$d = _objectSpread({}, this.d3),
         d3 = _this$d.d3,
         d3sankey = _this$d.d3sankey,
@@ -728,7 +740,7 @@ var XACSankey = /*#__PURE__*/function (_HTMLElement) {
       if (this.isLoading || msg) {
         if (!this.loading.callback) {
           var loader = document.createElement("div");
-          loader.innerHTML = this.loading.html + (msg ? "<span class=\"c-sankey__msg\">".concat(msg, "</span>") : '');
+          loader.innerHTML = (this.isLoading ? this.loading.html : '') + (msg ? "<span class=\"c-sankey__msg\">".concat(msg, "</span>") : '');
           loader.className = this.classes.loader;
           ctx.appendChild(loader);
         }

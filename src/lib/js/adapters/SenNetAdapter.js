@@ -27,7 +27,8 @@ class SenNetAdapter extends SankeyAdapter {
         for (let f in this.ctx.filters) {
             facet = facetsMap[f] || f
             properFacetName = this.ctx.filters[f]
-            properFacetName = this.getDataValueByColumn(f, this.ctx.filters[f])
+            let nameFromData = this.getDataValueByColumn(f, this.ctx.filters[f])
+            properFacetName = nameFromData.length ? nameFromData : properFacetName
             additionalFilters += `;${facet}=${format(properFacetName)}`
         }
         SankeyAdapter.log('getSankeyFilters', {color: 'purple', data: {facetsMap, additionalFilters}})

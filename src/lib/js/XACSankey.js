@@ -265,9 +265,25 @@ class XACSankey extends HTMLElement {
                 // this acts as an AND filter
                 for (const [field, validValues] of Object.entries(validFilters)) {
                     if (Array.isArray(row[field])) {
-                        for (const v of row[field]) {
-                            return isValidFilter(validValues, v)
+                        let res = []
+
+                        // find out which values in array are valid
+                        for (let i = 0; i < row[field].length; i++) {
+                            if (isValidFilter(validValues, row[field][i])) {
+                                res.push(row[field][i])
+                            }
                         }
+
+                        // take valid values and readjusted the row[field]
+                        if (res.length) {
+                            row[field] = []
+                            for (let i = 0; i < res.length; i++) {
+                                row[field].push(res[i])
+                            }
+                        }
+
+                        // tell the filter if to include row with boolean result
+                        return res.length > 0
                     } else {
                         return isValidFilter(validValues, row[field])
                     }
@@ -353,7 +369,13 @@ class XACSankey extends HTMLElement {
         if (this.onDataBuildCallback) {
             this.onDataBuildCallback(this)
         }
-        this.useEffect('fetch')
+
+        if (Object.values(graphMap.nodes).length) {
+            this.useEffect('fetch')
+        } else {
+            this.isLoading = false;
+            this.handleLoader('No data from filters')
+        }
     }
 
     /**
@@ -371,7 +393,7 @@ class XACSankey extends HTMLElement {
         if (!this.d3) {
             console.error('No D3 library loaded.')
         }
-        if (!this.graphData || !this.containerDimensions.width || !this.containerDimensions.height || !this.d3) return
+        if (!this.graphData || !this.graphData.nodes.length || !this.containerDimensions.width || !this.containerDimensions.height || !this.d3) return
         const {d3, d3sankey, sankeyLinkHorizontal} = {...this.d3}
 
 
@@ -553,7 +575,7 @@ class XACSankey extends HTMLElement {
         if (this.isLoading || msg) {
             if (!this.loading.callback) {
                 const loader = document.createElement("div")
-                loader.innerHTML = this.loading.html + (msg ? `<span class="c-sankey__msg">${msg}</span>` : '')
+                loader.innerHTML = (this.isLoading ? this.loading.html : '') + (msg ? `<span class="c-sankey__msg">${msg}</span>` : '')
                 loader.className = this.classes.loader
                 ctx.appendChild(loader)
             }
