@@ -127,7 +127,8 @@ class HuBMAPAdapter extends SankeyAdapter {
                 type: 'TERM',
             }
         }
-        filters = {...filters, ...this.urlFilters}
+        const urlFilters = this.urlFilters || {}
+        filters = {...filters, ...urlFilters}
         const url = this.buildSearchLink({entityType: 'Dataset', filters})
         this.openUrl(`${this.getUrls().portal}${url}`)
     }

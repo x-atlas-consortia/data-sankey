@@ -1,8 +1,10 @@
 /**
 * 
-* 4/14/2025, 2:59:09 PM | X Atlas Consortia Sankey 1.0.4 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/14/2025, 3:25:26 PM | X Atlas Consortia Sankey 1.0.4 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
 function _toConsumableArray(r) { return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread(); }
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -23,7 +25,6 @@ function _getPrototypeOf(t) { return _getPrototypeOf = Object.setPrototypeOf ? O
 function _inherits(t, e) { if ("function" != typeof e && null !== e) throw new TypeError("Super expression must either be null or a function"); t.prototype = Object.create(e && e.prototype, { constructor: { value: t, writable: !0, configurable: !0 } }), Object.defineProperty(t, "prototype", { writable: !1 }), e && _setPrototypeOf(t, e); }
 function _setPrototypeOf(t, e) { return _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function (t, e) { return t.__proto__ = e, t; }, _setPrototypeOf(t, e); }
 import SankeyAdapter from './SankeyAdapter.js';
-import SenNetAdapter from "./SenNetAdapter";
 var HuBMAPAdapter = /*#__PURE__*/function (_SankeyAdapter) {
   function HuBMAPAdapter(context) {
     var _this;
@@ -36,22 +37,35 @@ var HuBMAPAdapter = /*#__PURE__*/function (_SankeyAdapter) {
     };
     return _this;
   }
+
+  /**
+   * Callback to run after the data has been built
+   */
   _inherits(HuBMAPAdapter, _SankeyAdapter);
   return _createClass(HuBMAPAdapter, [{
     key: "onDataBuildCallback",
     value: function onDataBuildCallback() {
       this.urlFilters = this.getSankeyFilters(this.facetsMap);
     }
+
+    /**
+     * Get additional pre-filters that were passed to the sankey
+     * @param facetsMap
+     * @returns {{}}
+     */
   }, {
     key: "getSankeyFilters",
     value: function getSankeyFilters() {
       var facetsMap = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
       var additionalFilters = {};
       var facet;
+      var properFacetName;
       for (var f in this.ctx.filters) {
         facet = facetsMap[f] || f;
+        properFacetName = this.ctx.filters[f];
+        properFacetName = this.getDataValueByColumn(f, this.ctx.filters[f]);
         additionalFilters[facet] = {
-          values: this.getFilterValues(f, this.ctx.filters[f]),
+          values: this.getFilterValues(f, properFacetName),
           type: 'TERM'
         };
       }
@@ -127,11 +141,18 @@ var HuBMAPAdapter = /*#__PURE__*/function (_SankeyAdapter) {
       }))) : "";
       return "search/".concat(entityType.toLowerCase(), "s").concat(search);
     }
+
+    /**
+     * Return properly formed values to be passed as query parameters using the LZString library
+     * @param col
+     * @param name
+     * @returns {*}
+     */
   }, {
     key: "getFilterValues",
     value: function getFilterValues(col, name) {
-      var values = name.split(',');
-      if (this.eq(col, this.ctx.validFilterMap.organ)) {
+      var values = Array.isArray(name) ? name : name.split(',');
+      if (this.eq(col, 'organ')) {
         var names = Array.from(values);
         values = [];
         for (var _i = 0, _names = names; _i < _names.length; _i++) {
@@ -156,6 +177,8 @@ var HuBMAPAdapter = /*#__PURE__*/function (_SankeyAdapter) {
         values: values,
         type: 'TERM'
       });
+      var urlFilters = this.urlFilters || {};
+      filters = _objectSpread(_objectSpread({}, filters), urlFilters);
       var url = this.buildSearchLink({
         entityType: 'Dataset',
         filters: filters

@@ -1,6 +1,6 @@
 /**
 * 
-* 4/14/2025, 2:59:09 PM | X Atlas Consortia Sankey 1.0.4 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/14/2025, 3:25:26 PM | X Atlas Consortia Sankey 1.0.4 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _toConsumableArray(r) { return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread(); }
@@ -29,12 +29,27 @@ var SankeyAdapter = /*#__PURE__*/function () {
     this.ctx = context;
     this.filterMap = context.flipObj(context.validFilterMap);
   }
+
+  /**
+   * Checks equality.
+   * @param s1
+   * @param s2
+   * @param insensitive
+   * @returns {boolean}
+   */
   return _createClass(SankeyAdapter, [{
     key: "eq",
     value: function eq(s1, s2) {
       var insensitive = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
       return Util.eq(s1, s2, insensitive);
     }
+
+    /**
+     * Returns the actual value from the data with proper casing
+     * @param col
+     * @param needles
+     * @returns {any[]}
+     */
   }, {
     key: "getDataValueByColumn",
     value: function getDataValueByColumn(col, needles) {

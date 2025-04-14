@@ -1,6 +1,6 @@
 /**
 * 
-* 4/14/2025, 2:59:09 PM | X Atlas Consortia Sankey 1.0.4 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/14/2025, 3:25:26 PM | X Atlas Consortia Sankey 1.0.4 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
@@ -34,6 +34,12 @@ var SenNetAdapter = /*#__PURE__*/function (_SankeyAdapter) {
     value: function onDataBuildCallback() {
       this.urlFilters = this.getSankeyFilters(this.facetsMap);
     }
+
+    /**
+     * Get additional filters that were passed to the sankey
+     * @param facetsMap
+     * @returns {{}}
+     */
   }, {
     key: "getSankeyFilters",
     value: function getSankeyFilters() {
@@ -110,7 +116,8 @@ var SenNetAdapter = /*#__PURE__*/function (_SankeyAdapter) {
         }, this.ctx.rawData);
       }
       var facet = this.facetsMap[col] || col;
-      var addFilters = ";data_class=Create Dataset Activity;entity_type=Dataset".concat(this.urlFilters);
+      var urlFilters = this.urlFilters || '';
+      var addFilters = ";data_class=Create Dataset Activity;entity_type=Dataset".concat(urlFilters);
       if (values && (values.length || values.size)) {
         values = Array.from(values);
         var filters = encodeURIComponent("".concat(facet, "=").concat(values.join(',')).concat(addFilters));
