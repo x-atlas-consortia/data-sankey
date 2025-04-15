@@ -1,6 +1,6 @@
 /**
 * 
-* 4/15/2025, 9:56:33 AM | X Atlas Consortia Sankey 1.0.4 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/15/2025, 10:09:55 AM | X Atlas Consortia Sankey 1.0.4 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 "use strict";
 
@@ -8,12 +8,10 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.default = void 0;
-require("core-js/modules/es.regexp.to-string.js");
 var _SankeyAdapter = _interopRequireDefault(require("./SankeyAdapter.js"));
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
 class SenNetAdapter extends _SankeyAdapter.default {
-  constructor(context) {
-    let ops = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  constructor(context, ops = {}) {
     super(context, ops);
     this.facetsMap = {
       organ: 'origin_samples.organ',
@@ -29,8 +27,7 @@ class SenNetAdapter extends _SankeyAdapter.default {
    * @param facetsMap
    * @returns {{}}
    */
-  getSankeyFilters() {
-    let facetsMap = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  getSankeyFilters(facetsMap = {}) {
     let additionalFilters = '';
     let facet;
     let properFacetName;
@@ -43,7 +40,7 @@ class SenNetAdapter extends _SankeyAdapter.default {
       if (this.isOrganColumn(f)) {
         properFacetName = Array.from(this.ctx.organsDictByCategory[properFacetName]);
       }
-      additionalFilters += ";".concat(facet, "=").concat(format(properFacetName));
+      additionalFilters += `;${facet}=${format(properFacetName)}`;
     }
     _SankeyAdapter.default.log('getSankeyFilters', {
       color: 'purple',
@@ -100,11 +97,11 @@ class SenNetAdapter extends _SankeyAdapter.default {
     }
     const facet = this.facetsMap[col] || col;
     const urlFilters = this.urlFilters || '';
-    const addFilters = ";data_class=Create Dataset Activity;entity_type=Dataset".concat(urlFilters);
+    const addFilters = `;data_class=Create Dataset Activity;entity_type=Dataset${urlFilters}`;
     if (values && (values.length || values.size)) {
       values = Array.from(values);
-      const filters = encodeURIComponent("".concat(facet, "=").concat(values.join(',')).concat(addFilters));
-      const url = "".concat(this.getUrls().portal, "search?addFilters=").concat(filters);
+      const filters = encodeURIComponent(`${facet}=${values.join(',')}${addFilters}`);
+      const url = `${this.getUrls().portal}search?addFilters=${filters}`;
       this.openUrl(url);
     }
   }

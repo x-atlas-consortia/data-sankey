@@ -1,18 +1,13 @@
 /**
 * 
-* 4/15/2025, 9:56:33 AM | X Atlas Consortia Sankey 1.0.4 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/15/2025, 10:09:55 AM | X Atlas Consortia Sankey 1.0.4 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 "use strict";
 
-require("core-js/modules/esnext.iterator.constructor.js");
-require("core-js/modules/esnext.iterator.filter.js");
-require("core-js/modules/esnext.iterator.for-each.js");
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.default = void 0;
-require("core-js/modules/es.json.stringify.js");
-require("core-js/modules/web.dom-collections.iterator.js");
 var _SankeyAdapter = _interopRequireDefault(require("./SankeyAdapter.js"));
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
 function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
@@ -21,8 +16,7 @@ function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
 class HuBMAPAdapter extends _SankeyAdapter.default {
-  constructor(context) {
-    let ops = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  constructor(context, ops = {}) {
     super(context, ops);
     this.checkDependencies();
     this.facetsMap = {
@@ -42,8 +36,7 @@ class HuBMAPAdapter extends _SankeyAdapter.default {
    * @param facetsMap
    * @returns {{}}
    */
-  getSankeyFilters() {
-    let facetsMap = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  getSankeyFilters(facetsMap = {}) {
     let additionalFilters = {};
     let facet;
     let properFacetName;
@@ -97,8 +90,7 @@ class HuBMAPAdapter extends _SankeyAdapter.default {
    */
   checkDependencies() {
     try {
-      var _LZString;
-      const dep = ((_LZString = LZString) === null || _LZString === void 0 ? void 0 : _LZString.compressToEncodedURIComponent) || LZString;
+      const dep = LZString?.compressToEncodedURIComponent || LZString;
     } catch (e) {
       console.error('HuBMAPAdapter > LZString library not loaded. Please include the script at src: https://unpkg.com/lz-string@1.5.0/libs/lz-string.js');
     }
@@ -111,16 +103,15 @@ class HuBMAPAdapter extends _SankeyAdapter.default {
    * @param {object} filters
    * @returns {string}
    */
-  buildSearchLink(_ref) {
-    let {
-      entityType,
-      filters
-    } = _ref;
+  buildSearchLink({
+    entityType,
+    filters
+  }) {
     this.checkDependencies();
-    const search = filters ? "?".concat(LZString.compressToEncodedURIComponent(JSON.stringify({
+    const search = filters ? `?${LZString.compressToEncodedURIComponent(JSON.stringify({
       filters
-    }))) : "";
-    return "search/".concat(entityType.toLowerCase(), "s").concat(search);
+    }))}` : "";
+    return `search/${entityType.toLowerCase()}s${search}`;
   }
 
   /**
@@ -161,7 +152,7 @@ class HuBMAPAdapter extends _SankeyAdapter.default {
       entityType: 'Dataset',
       filters
     });
-    this.openUrl("".concat(this.getUrls().portal).concat(url));
+    this.openUrl(`${this.getUrls().portal}${url}`);
   }
 }
 try {

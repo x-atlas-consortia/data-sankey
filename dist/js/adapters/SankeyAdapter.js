@@ -1,6 +1,6 @@
 /**
 * 
-* 4/15/2025, 9:56:33 AM | X Atlas Consortia Sankey 1.0.4 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/15/2025, 10:09:55 AM | X Atlas Consortia Sankey 1.0.4 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 "use strict";
 
@@ -8,17 +8,10 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.default = void 0;
-require("core-js/modules/es.array.includes.js");
-require("core-js/modules/es.object.assign.js");
-require("core-js/modules/es.string.includes.js");
-require("core-js/modules/esnext.iterator.constructor.js");
-require("core-js/modules/esnext.iterator.for-each.js");
-require("core-js/modules/web.dom-collections.iterator.js");
 var _Util = _interopRequireDefault(require("../util/Util.js"));
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
 class SankeyAdapter {
-  constructor(context) {
-    let ops = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  constructor(context, ops = {}) {
     this.ops = ops || {};
     this.ctx = context;
     this.filterMap = context.flipObj(context.validFilterMap);
@@ -31,8 +24,7 @@ class SankeyAdapter {
    * @param insensitive
    * @returns {boolean}
    */
-  eq(s1, s2) {
-    let insensitive = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
+  eq(s1, s2, insensitive = true) {
     return _Util.default.eq(s1, s2, insensitive);
   }
 
@@ -136,8 +128,7 @@ class SankeyAdapter {
    * @param {string} msg The message to display
    * @param {string} fn The type of message {log|warn|error}
    */
-  log(msg) {
-    let fn = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'log';
+  log(msg, fn = 'log') {
     SankeyAdapter.log(msg, {
       fn
     });

@@ -1,6 +1,6 @@
 /**
 * 
-* 4/15/2025, 9:56:33 AM | X Atlas Consortia Sankey 1.0.4 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/15/2025, 10:09:55 AM | X Atlas Consortia Sankey 1.0.4 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 "use strict";
 
@@ -8,7 +8,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.default = void 0;
-require("core-js/modules/web.dom-collections.iterator.js");
 class Util {
   /**
    * Compares two string values for equality
@@ -17,11 +16,10 @@ class Util {
    * @param {boolean} insensitive
    * @returns {boolean}
    */
-  static eq(s1, s2) {
-    let insensitive = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
+  static eq(s1, s2, insensitive = true) {
     let res = s1 === s2;
     if (insensitive && s1 !== undefined && s2 !== undefined) {
-      res = (s1 === null || s1 === void 0 ? void 0 : s1.toLowerCase()) === (s2 === null || s2 === void 0 ? void 0 : s2.toLowerCase());
+      res = s1?.toLowerCase() === s2?.toLowerCase();
     }
     return res;
   }
@@ -68,7 +66,7 @@ class Util {
     color = color || '#bada55';
     data = data || '';
     if (Util.isLocal()) {
-      console[fn]("%c ".concat(msg), "background: #222; color: ".concat(color), data);
+      console[fn](`%c ${msg}`, `background: #222; color: ${color}`, data);
     }
   }
 
@@ -77,8 +75,7 @@ class Util {
    * @param {string} msg The message to display
    * @param {string} fn The type of message {log|warn|error}
    */
-  log(msg) {
-    let fn = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'log';
+  log(msg, fn = 'log') {
     Util.log(msg, {
       fn
     });

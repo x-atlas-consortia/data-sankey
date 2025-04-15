@@ -1,6 +1,6 @@
 /**
 * 
-* 4/15/2025, 9:56:33 AM | X Atlas Consortia Sankey 1.0.4 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/15/2025, 10:09:55 AM | X Atlas Consortia Sankey 1.0.4 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 "use strict";
 
@@ -8,23 +8,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.default = void 0;
-require("core-js/modules/es.array.includes.js");
-require("core-js/modules/es.array.reduce.js");
-require("core-js/modules/es.object.assign.js");
-require("core-js/modules/es.promise.js");
-require("core-js/modules/es.regexp.constructor.js");
-require("core-js/modules/es.regexp.exec.js");
-require("core-js/modules/es.regexp.to-string.js");
-require("core-js/modules/es.string.includes.js");
-require("core-js/modules/es.string.match.js");
-require("core-js/modules/es.string.trim.js");
-require("core-js/modules/es.weak-map.js");
-require("core-js/modules/esnext.iterator.constructor.js");
-require("core-js/modules/esnext.iterator.filter.js");
-require("core-js/modules/esnext.iterator.for-each.js");
-require("core-js/modules/esnext.iterator.map.js");
-require("core-js/modules/esnext.iterator.reduce.js");
-require("core-js/modules/web.dom-collections.iterator.js");
 var _Util = _interopRequireDefault(require("./util/Util.js"));
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
 function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
@@ -40,7 +23,6 @@ function _assertClassBrand(e, t, n) { if ("function" == typeof e ? e === t : e.h
 var _shadow = /*#__PURE__*/new WeakMap();
 class XACSankey extends HTMLElement {
   constructor() {
-    var _this$ops;
     super();
     _classPrivateFieldInitSpec(this, _shadow, void 0);
     this.classes = {
@@ -72,7 +54,7 @@ class XACSankey extends HTMLElement {
       callback: null
     };
     this.handleOptions();
-    if ((_this$ops = this.ops) !== null && _this$ops !== void 0 && _this$ops.useShadow) {
+    if (this.ops?.useShadow) {
       _classPrivateFieldSet(_shadow, this, this.attachShadow({
         mode: "open"
       }));
@@ -89,11 +71,10 @@ class XACSankey extends HTMLElement {
     const res = await fetch(this.api.ubkgOrgans + this.api.context);
     const organs = await res.json();
     for (let o of organs) {
-      var _o$category, _o$term, _o$category2, _o$this$groupByOrganC;
-      this.organsDict[o.term.trim().toLowerCase()] = ((_o$category = o.category) === null || _o$category === void 0 || (_o$category = _o$category.term) === null || _o$category === void 0 ? void 0 : _o$category.trim()) || ((_o$term = o.term) === null || _o$term === void 0 ? void 0 : _o$term.trim());
-      const cat = ((_o$category2 = o.category) === null || _o$category2 === void 0 || (_o$category2 = _o$category2.term) === null || _o$category2 === void 0 ? void 0 : _o$category2.trim()) || o.term.trim();
+      this.organsDict[o.term.trim().toLowerCase()] = o.category?.term?.trim() || o.term?.trim();
+      const cat = o.category?.term?.trim() || o.term.trim();
       this.organsDictByCategory[cat] = this.organsDictByCategory[cat] || new Set();
-      this.organsDictByCategory[cat].add((_o$this$groupByOrganC = o[this.groupByOrganCategoryKey]) === null || _o$this$groupByOrganC === void 0 ? void 0 : _o$this$groupByOrganC.trim());
+      this.organsDictByCategory[cat].add(o[this.groupByOrganCategoryKey]?.trim());
     }
   }
 
@@ -118,7 +99,6 @@ class XACSankey extends HTMLElement {
    * Appends stylesheet to exposed shadow dom.
    */
   applyStyles() {
-    var _classPrivateFieldGet2;
     if (!this.styleSheetPath) {
       console.warn('XACSankey.applyStyles No stylesheet provided.');
       return;
@@ -128,7 +108,7 @@ class XACSankey extends HTMLElement {
     s.type = 'text/css';
     s.rel = 'stylesheet';
     s.href = this.styleSheetPath;
-    (_classPrivateFieldGet2 = _classPrivateFieldGet(_shadow, this)) === null || _classPrivateFieldGet2 === void 0 || _classPrivateFieldGet2.appendChild(s);
+    _classPrivateFieldGet(_shadow, this)?.appendChild(s);
   }
 
   /**
@@ -159,7 +139,7 @@ class XACSankey extends HTMLElement {
       }
     };
     if (this.api.token) {
-      h.headers.Authorization = "Bearer ".concat(this.api.token);
+      h.headers.Authorization = `Bearer ${this.api.token}`;
     }
     return h;
   }
@@ -215,9 +195,8 @@ class XACSankey extends HTMLElement {
       this.d3 = ops.d3;
     }
     if (ops.styleSheetPath) {
-      var _classPrivateFieldGet3;
       this.styleSheetPath = ops.styleSheetPath;
-      (_classPrivateFieldGet3 = _classPrivateFieldGet(_shadow, this)) === null || _classPrivateFieldGet3 === void 0 || (_classPrivateFieldGet3 = _classPrivateFieldGet3.querySelector(".".concat(this.classes.style))) === null || _classPrivateFieldGet3 === void 0 || _classPrivateFieldGet3.remove();
+      _classPrivateFieldGet(_shadow, this)?.querySelector(`.${this.classes.style}`)?.remove();
       this.applyStyles();
     }
     this.useEffect();
@@ -227,9 +206,8 @@ class XACSankey extends HTMLElement {
    * Modifies the component attr so that attributeChangedCallback can be triggered.
    * @param {string} attr Name of a watched attribute.
    */
-  useEffect() {
-    let attr = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'data';
-    this.setAttribute(attr, "".concat(Date.now()));
+  useEffect(attr = 'data') {
+    this.setAttribute(attr, `${Date.now()}`);
   }
 
   /**
@@ -372,7 +350,7 @@ class XACSankey extends HTMLElement {
       columnNames.forEach((columnName, columnIndex) => {
         if (columnIndex !== columnNames.length - 1) {
           const buildLink = (source, target) => {
-            const key = "".concat(source.name, "_").concat(target.name);
+            const key = `${source.name}_${target.name}`;
             // Find a link O(1)
             let link = graphMap.links[key];
             if (link === undefined) {
@@ -466,7 +444,7 @@ class XACSankey extends HTMLElement {
 
     // Layout the svg element
     const container = this.ops.useShadow ? d3.select(_classPrivateFieldGet(_shadow, this)) : d3.select(_classPrivateFieldGet(_shadow, this));
-    const svg = container.append('svg').attr('width', width).attr('height', height).attr('transform', "translate(".concat(margin.left, ",").concat(margin.top, ")"));
+    const svg = container.append('svg').attr('width', width).attr('height', height).attr('transform', `translate(${margin.left},${margin.top})`);
 
     // Set up the Sankey generator
     const sankey = d3sankey().nodeWidth(30).nodePadding(15).extent([[0, margin.top], [width, height - margin.bottom]]);
@@ -492,7 +470,7 @@ class XACSankey extends HTMLElement {
       d.y0 = Math.max(0, Math.min(height - d.y1 + d.y0, event.y - d.dragging.offsetY));
       d.x1 = d.x0 + sankey.nodeWidth();
       d.y1 = d.y0 + (d.y1 - d.y0);
-      d3.select(this).attr('transform', "translate(".concat(d.x0, ",").concat(d.y0, ")"));
+      d3.select(this).attr('transform', `translate(${d.x0},${d.y0})`);
       svg.selectAll('.c-sankey__link').attr('d', sankeyLinkHorizontal());
       sankey.update({
         nodes,
@@ -504,22 +482,22 @@ class XACSankey extends HTMLElement {
     });
 
     // Links
-    const link = svg.append('g').selectAll('.link').data(links).join('path').attr('class', 'c-sankey__link').attr('d', sankeyLinkHorizontal()).attr('stroke-width', d => Math.max(2, d.width)).append('title').text(d => "".concat(d.source.name, " \u2192 ").concat(d.target.name, "\n").concat(d.value, " Datasets")); // Tooltip
+    const link = svg.append('g').selectAll('.link').data(links).join('path').attr('class', 'c-sankey__link').attr('d', sankeyLinkHorizontal()).attr('stroke-width', d => Math.max(2, d.width)).append('title').text(d => `${d.source.name} → ${d.target.name}\n${d.value} Datasets`); // Tooltip
 
     // Nodes
     const node = svg.append('g').selectAll('.node').data(nodes).join('g').attr('class', d => {
-      let classes = "c-sankey__node c-sankey__node--".concat(d.columnName);
+      let classes = `c-sankey__node c-sankey__node--${d.columnName}`;
       if (this.onNodeBuildCssCallback) {
         classes = classes + ' ' + this.onNodeBuildCssCallback(d);
       }
       return classes;
-    }).attr('transform', d => "translate(".concat(d.x0, ",").concat(d.y0, ")")).call(drag).on('click', ((e, d) => {
+    }).attr('transform', d => `translate(${d.x0},${d.y0})`).call(drag).on('click', ((e, d) => {
       if (e.defaultPrevented) return;
       if (this.onNodeClickCallback) {
         this.onNodeClickCallback(e, d);
       }
     }).bind(this));
-    node.append('rect').attr('height', d => Math.max(5, d.y1 - d.y0)).attr('width', sankey.nodeWidth()).attr('fill', d => color(d.name)).attr('stroke-width', 0).append('title').text(d => "".concat(d.name, "\n").concat(d.value, " Datasets")); // Tooltip
+    node.append('rect').attr('height', d => Math.max(5, d.y1 - d.y0)).attr('width', sankey.nodeWidth()).attr('fill', d => color(d.name)).attr('stroke-width', 0).append('title').text(d => `${d.name}\n${d.value} Datasets`); // Tooltip
 
     node.append('text').attr('class', 'c-sankey__label').attr('x', -6).attr('y', d => (d.y1 - d.y0) / 2).attr('dy', '0.35em').attr('text-anchor', 'end').text(d => d.name).filter(d => d.x0 < width / 2).attr('x', 6 + sankey.nodeWidth()).attr('text-anchor', 'start').on('click', ((e, d) => {
       if (e.defaultPrevented) return;
@@ -580,13 +558,13 @@ class XACSankey extends HTMLElement {
    */
   handleLoader(msg) {
     const ctx = this.ops.useShadow ? _classPrivateFieldGet(_shadow, this) : this;
-    ctx.querySelectorAll(".".concat(this.classes.loader)).forEach(el => {
+    ctx.querySelectorAll(`.${this.classes.loader}`).forEach(el => {
       el.remove();
     });
     if (this.isLoading || msg) {
       if (!this.loading.callback) {
         const loader = document.createElement("div");
-        loader.innerHTML = (this.isLoading ? this.loading.html : '') + (msg ? "<span class=\"c-sankey__msg\">".concat(msg, "</span>") : '');
+        loader.innerHTML = (this.isLoading ? this.loading.html : '') + (msg ? `<span class="c-sankey__msg">${msg}</span>` : '');
         loader.className = this.classes.loader;
         ctx.appendChild(loader);
       }
@@ -603,7 +581,7 @@ class XACSankey extends HTMLElement {
    * @param newValue
    */
   attributeChangedCallback(property, oldValue, newValue) {
-    this.log("XACSankey.attributeChangedCallback: ".concat(property, " ").concat(newValue));
+    this.log(`XACSankey.attributeChangedCallback: ${property} ${newValue}`);
     if (oldValue === newValue) return;
     this.handleLoader();
     if (property !== 'graph') {
@@ -654,8 +632,7 @@ class XACSankey extends HTMLElement {
    * @param {string} msg The message to display
    * @param {string} fn The type of message {log|warn|error}
    */
-  log(msg) {
-    let fn = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'log';
+  log(msg, fn = 'log') {
     XACSankey.log(msg, {
       fn
     });

@@ -1,6 +1,6 @@
 /**
 * 
-* 4/15/2025, 9:56:33 AM | X Atlas Consortia Sankey 1.0.4 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/15/2025, 10:09:55 AM | X Atlas Consortia Sankey 1.0.4 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 "use strict";
 
@@ -9,25 +9,25 @@ Object.defineProperty(exports, "__esModule", {
 });
 Object.defineProperty(exports, "HuBMAPAdapter", {
   enumerable: true,
-  get: function get() {
+  get: function () {
     return _HuBMAPAdapter.default;
   }
 });
 Object.defineProperty(exports, "ReactConsortiaSankey", {
   enumerable: true,
-  get: function get() {
+  get: function () {
     return _ReactConsortiaSankey.default;
   }
 });
 Object.defineProperty(exports, "SenNetAdapter", {
   enumerable: true,
-  get: function get() {
+  get: function () {
     return _SenNetAdapter.default;
   }
 });
 Object.defineProperty(exports, "XACSankey", {
   enumerable: true,
-  get: function get() {
+  get: function () {
     return _XACSankey.default;
   }
 });
