@@ -35,6 +35,7 @@ class SankeyAdapter {
      * @returns {any[]}
      */
     getDataValueByColumn(col, needles) {
+        if (this.ctx.validFilterMap[col] === undefined) return []
         needles = needles.split(',')
         let values = new Set()
         const validFilters = {
