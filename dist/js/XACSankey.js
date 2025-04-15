@@ -1,6 +1,6 @@
 /**
 * 
-* 4/15/2025, 1:52:24 PM | X Atlas Consortia Sankey 1.0.5 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/15/2025, 2:38:05 PM | X Atlas Consortia Sankey 1.0.5 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 "use strict";
 
@@ -35,7 +35,7 @@ class XACSankey extends HTMLElement {
     this.organsDictByCategory = {};
     this.api = {
       context: 'sennet',
-      sankey: 'https://ingest.api.sennetconsortium.org/datasets/sankey_data',
+      sankey: 'https://ingest.api.{context}consortium.org/datasets/sankey_data',
       token: null,
       ubkgOrgans: 'https://ontology.api.hubmapconsortium.org/organs?application_context='
     };
@@ -187,6 +187,9 @@ class XACSankey extends HTMLElement {
     if (ops.onLabelClickCallback) {
       this.onLabelClickCallback = ops.onLabelClickCallback;
     }
+    if (ops.onLinkClickCallback) {
+      this.onLinkClickCallback = ops.onLinkClickCallback;
+    }
     if (ops.validFilterMap) {
       Object.assign(this.validFilterMap, ops.validFilterMap);
       this.purgeObject(this.validFilterMap);
@@ -223,6 +226,12 @@ class XACSankey extends HTMLElement {
       return acc;
     }, {});
   }
+  getUrl() {
+    if (this.ops.api?.sankey) return this.ops.api?.sankey;
+    let url = this.api.sankey;
+    url = url.replace('{context}', this.api.context);
+    return _Util.default.isLocal() && !this.ops.isProd ? url.replace('.api.', '-api.dev.') : url;
+  }
 
   /**
    * Gets and handles main sankey data to be visualized.
@@ -234,7 +243,7 @@ class XACSankey extends HTMLElement {
     }
 
     // call the sankey endpoint
-    const res = await fetch(this.api.sankey, this.getHeaders());
+    const res = await fetch(this.getUrl(), this.getHeaders());
     this.rawData = await res.json();
     if (this.rawData.message || res.status === 202) {
       this.handleLoader(this.rawData.message);
@@ -481,7 +490,12 @@ class XACSankey extends HTMLElement {
     });
 
     // Links
-    const link = svg.append('g').selectAll('.link').data(links).join('path').attr('class', 'c-sankey__link').attr('d', sankeyLinkHorizontal()).attr('stroke-width', d => Math.max(2, d.width)).append('title').text(d => `${d.source.name} → ${d.target.name}\n${d.value} Datasets`); // Tooltip
+    const link = svg.append('g').selectAll('.link').data(links).join('path').attr('class', 'c-sankey__link').attr('d', sankeyLinkHorizontal()).attr('stroke-width', d => Math.max(2, d.width)).on('click', ((e, d) => {
+      if (e.defaultPrevented) return;
+      if (this.onLinkClickCallback) {
+        this.onLinkClickCallback(e, d);
+      }
+    }).bind(this)).append('title').text(d => `${d.source.name} → ${d.target.name}\n${d.value} Datasets`); // Tooltip
 
     // Nodes
     const node = svg.append('g').selectAll('.node').data(nodes).join('g').attr('class', d => {

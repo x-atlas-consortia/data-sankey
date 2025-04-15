@@ -1,6 +1,6 @@
 /**
 * 
-* 4/15/2025, 1:52:24 PM | X Atlas Consortia Sankey 1.0.5 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/15/2025, 2:38:05 PM | X Atlas Consortia Sankey 1.0.5 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 "use strict";
 
@@ -58,10 +58,7 @@ class SenNetAdapter extends _SankeyAdapter.default {
    */
   getProdEnv() {
     return {
-      portal: 'https://data.sennetconsortium.org/',
-      api: {
-        sankey: 'https://ingest.api.sennetconsortium.org/datasets/sankey_data'
-      }
+      portal: 'https://data.sennetconsortium.org/'
     };
   }
 
@@ -71,10 +68,7 @@ class SenNetAdapter extends _SankeyAdapter.default {
    */
   getDevEnv() {
     return {
-      portal: 'https://data.dev.sennetconsortium.org/',
-      api: {
-        sankey: 'https://ingest-api.dev.sennetconsortium.org/datasets/sankey_data'
-      }
+      portal: 'https://data.dev.sennetconsortium.org/'
     };
   }
 

@@ -15,11 +15,11 @@
     const ops = {
         useShadow: true,
         styleSheetPath: './xac-sankey.css',
-        filters: {
-            assigned_to_group_name: 'codcc'
-            // organ: 'lung',
-            // source_type: "human"
-        },
+        // filters: {
+        //     assigned_to_group_name: 'codcc'
+        //     // organ: 'lung',
+        //     // source_type: "human"
+        // },
         // api: {
         //     sankey: 'https://ingest-api.dev.sennetconsortium.org/datasets/sankey_data',
         //     token: ''
@@ -42,13 +42,17 @@
                     onDataBuildCallback: () => {
                         adapter.onDataBuildCallback()
                     },
+                    onLinkClickCallback: (e, d) => {
+                        console.log('link clicked', d)
+                        adapter.goToFromLink(d)
+                    },
                     onNodeClickCallback: (e, d) => {
                         console.log('node clicked', d)
-                        adapter.goTo(d)
+                        adapter.goToFromNode(d)
                     },
                     onLabelClickCallback: (e, d) => {
                         console.log('label clicked', d)
-                        adapter.goTo(d)
+                        adapter.goToFromNode(d)
                     },
                 }
             )

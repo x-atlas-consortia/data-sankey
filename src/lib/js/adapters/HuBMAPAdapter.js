@@ -45,10 +45,7 @@ class HuBMAPAdapter extends SankeyAdapter {
      */
     getProdEnv() {
         return {
-            portal: 'https://portal.hubmapconsortium.org/',
-            api: {
-                sankey: 'https://entity.api.hubmapconsortium.org/datasets/sankey_data'
-            }
+            portal: 'https://portal.hubmapconsortium.org/'
         }
     }
 
@@ -58,10 +55,7 @@ class HuBMAPAdapter extends SankeyAdapter {
      */
     getDevEnv() {
         return {
-            portal: 'https://portal.dev.hubmapconsortium.org/',
-            api: {
-                sankey: 'https://entity-api.dev.hubmapconsortium.org/datasets/sankey_data'
-            }
+            portal: 'https://portal.dev.hubmapconsortium.org/'
         }
     }
 
@@ -111,6 +105,28 @@ class HuBMAPAdapter extends SankeyAdapter {
     }
 
     /**
+     * Callback from click a link
+     * @param {object} d
+     */
+    goToFromLink(d) {
+        const source= this.goTo(d.source)
+        const target = this.goTo(d.target)
+        const filters = {...source.filters, ...target.filters}
+        SankeyAdapter.log('goToFromLink', {data: filters, color: 'lime'})
+        const url = this.buildSearchLink({entityType: 'Dataset', filters})
+        this.openUrl(`${this.getUrls().portal}${url}`)
+    }
+
+    /**
+     * Callback from clicking a node
+     * @param {object} d
+     */
+    goToFromNode(d) {
+        const {url} = this.goTo(d)
+        this.openUrl(`${this.getUrls().portal}${url}`)
+    }
+
+    /**
      * Opens a new tab/window based on data
      * @param {object} d - The current data node
      */
@@ -129,8 +145,7 @@ class HuBMAPAdapter extends SankeyAdapter {
         }
         const urlFilters = this.urlFilters || {}
         filters = {...urlFilters, ...filters}
-        const url = this.buildSearchLink({entityType: 'Dataset', filters})
-        this.openUrl(`${this.getUrls().portal}${url}`)
+        return {url: this.buildSearchLink({entityType: 'Dataset', filters}), filters}
     }
 }
 
