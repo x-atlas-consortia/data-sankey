@@ -1,6 +1,6 @@
 /**
 * 
-* 4/15/2025, 11:01:38 AM | X Atlas Consortia Sankey 1.0.4 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/15/2025, 1:26:26 PM | X Atlas Consortia Sankey 1.0.4 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 "use strict";
 
@@ -276,36 +276,35 @@ class XACSankey extends HTMLElement {
     this.filteredData = data;
     if (Object.keys(validFilters).length > 0) {
       const isValidFilter = (validValues, val) => !!validValues.includes(val.toLowerCase());
-
+      let validRows;
+      let points = 0;
       // Filter the data based on the valid filters
       this.filteredData = data.filter(row => {
-        // this acts as an AND filter
+        validRows = [];
+        points = 0;
         for (const [field, validValues] of Object.entries(validFilters)) {
           if (Array.isArray(row[field])) {
-            let res = [];
-
             // find out which values in array are valid
             for (let i = 0; i < row[field].length; i++) {
               if (isValidFilter(validValues, row[field][i])) {
-                res.push(row[field][i]);
+                validRows.push(row[field][i]);
               }
             }
-
             // take valid values and readjust the row[field]
-            if (res.length) {
+            if (validRows.length) {
               row[field] = [];
-              for (let i = 0; i < res.length; i++) {
-                row[field].push(res[i]);
+              for (let i = 0; i < validRows.length; i++) {
+                row[field].push(validRows[i]);
               }
+              points++;
             }
-
-            // tell the filter if to include row with boolean result
-            return res.length > 0;
           } else {
-            return isValidFilter(validValues, row[field]);
+            if (isValidFilter(validValues, row[field])) {
+              points++;
+            }
           }
         }
-        return true;
+        return Object.keys(validFilters).length === points;
       });
     }
     XACSankey.log('filteredData', {
