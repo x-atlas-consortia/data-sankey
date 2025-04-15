@@ -8,6 +8,7 @@
     "medical",
     "dbmi"
   ],
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/x-atlas-consortia/data-sankey.git"
