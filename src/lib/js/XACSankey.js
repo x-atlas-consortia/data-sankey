@@ -41,6 +41,44 @@ class XACSankey extends HTMLElement {
         this.fetchData()
     }
 
+    greenColors() {
+        return ['#8ecb93', '#195905', '#18453b', '#1b4d3e', '#006600', '#1e4d2b', '#006b3c', '#006a4e', '#00703c', '#087830', '#2a8000', '#008000', '#177245', '#306030', '#138808', '#009150', '#355e3b', '#059033', '#009900', '#009f6b', '#009e60', '#00a550', '#507d2a', '#00a877', '#228b22', '#00ab66', '#2e8b57', '#8db600', '#4f7942', '#03c03c', '#1cac78', '#4cbb17']
+    }
+
+    pinkColors() {
+        return ['#FBA0E3', '#DA70D6', '#F49AC2', '#FFA6C9', '#F78FA7', '#F08080', '#FF91A4', '#FF9899', '#E18E96', '#FC8EAC', '#FE8C68', '#F88379', '#FF69B4', '#FF69B4', '#FC6C85', '#DCAE96']
+    }
+
+    setTheme(theme = {}) {
+        const d3 = this.d3.d3
+        this.theme = {
+            byScheme: {
+                dataset_type_hierarchy: d3.scaleOrdinal(this.greenColors()),
+                organ_type: d3.scaleOrdinal(this.pinkColors()),
+            },
+            byValues: {
+                human: '#ffc255',
+                mouse: '#b97f17',
+                unpublished: 'grey',
+                published: '#198754',
+                qa: '#0dcaf0:#000000',
+                error: '#dc3545',
+                invalid: '#dc3545',
+                new: '#6f42c1',
+                processing: '#6c757d',
+                submitted: '#0dcaf0:#000000',
+                hold: '#6c757d',
+                reopened: '#6f42c1',
+                reorganized: '#0dcaf0:#000000',
+                valid: '#198754',
+                incomplete: '#ffc107:#212529',
+            }
+        }
+
+        Object.assign(this.theme, theme)
+        this.purgeObject(this.theme)
+    }
+
     /**
      * Sets the organTypes from UBKG.
      * @returns {Promise<void>}
@@ -502,7 +540,16 @@ class XACSankey extends HTMLElement {
         node.append('rect')
             .attr('height', (d) => Math.max(5, d.y1 - d.y0))
             .attr('width', sankey.nodeWidth())
-            .attr('fill', (d) => color(d.name))
+            .attr('fill', (d) => {
+                if (this.theme?.byValues && this.theme.byValues[d.name.toLowerCase()]) {
+                    const color = this.theme.byValues[d.name.toLowerCase()].split(':')
+                    return color[0]
+                }
+                if (this.theme?.byScheme && this.theme.byScheme[d.columnName]) {
+                    return this.theme.byScheme[d.columnName](d.name)
+                }
+                return color(d.name)
+            })
             .attr('stroke-width', 0)
             .append('title')
             .text((d) => `${d.name}\n${d.value} Datasets`) // Tooltip
@@ -554,6 +601,7 @@ class XACSankey extends HTMLElement {
      * Runs when the element is connected to the DOM.
      */
     connectedCallback() {
+        this.setTheme()
         this.handleWindowResize()
         window.addEventListener('resize', this.onWindowResize.bind(this))
     }
