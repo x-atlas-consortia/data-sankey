@@ -37,6 +37,9 @@ class XACSankey extends HTMLElement {
             html: '<div class="c-sankey__loader"></div>',
             callback: null
         }
+    }
+
+    init() {
         this.handleOptions()
         if (this.useShadow) {
             this.#shadow = this.attachShadow({ mode: "open" })
@@ -626,6 +629,7 @@ class XACSankey extends HTMLElement {
      * Runs when the element is connected to the DOM.
      */
     connectedCallback() {
+        this.init()
         this.setTheme()
         this.handleWindowResize()
         window.addEventListener('resize', this.onWindowResize.bind(this))

@@ -1,6 +1,6 @@
 /**
 * 
-* 4/17/2025, 4:58:55 PM | X Atlas Consortia Sankey 1.0.6 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/17/2025, 5:54:00 PM | X Atlas Consortia Sankey 1.0.6 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 "use strict";
 
@@ -57,6 +57,8 @@ class XACSankey extends HTMLElement {
       html: '<div class="c-sankey__loader"></div>',
       callback: null
     };
+  }
+  init() {
     this.handleOptions();
     if (this.useShadow) {
       _classPrivateFieldSet(_shadow, this, this.attachShadow({
@@ -611,6 +613,7 @@ class XACSankey extends HTMLElement {
    * Runs when the element is connected to the DOM.
    */
   connectedCallback() {
+    this.init();
     this.setTheme();
     this.handleWindowResize();
     window.addEventListener('resize', this.onWindowResize.bind(this));
