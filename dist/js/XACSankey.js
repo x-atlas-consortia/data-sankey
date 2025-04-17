@@ -1,6 +1,6 @@
 /**
 * 
-* 4/17/2025, 2:44:21 PM | X Atlas Consortia Sankey 1.0.6 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/17/2025, 4:58:00 PM | X Atlas Consortia Sankey 1.0.5 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 "use strict";
 
@@ -29,7 +29,11 @@ class XACSankey extends HTMLElement {
       style: 'xac-style',
       loader: 'xac-loader'
     };
+    if (XACSankey.isLocal()) {
+      console.log('XACSankey', this);
+    }
     this.filters = {};
+    this.useShadow = true;
     this.dataCallback = null;
     this.organsDict = {};
     this.organsDictByCategory = {};
@@ -54,7 +58,7 @@ class XACSankey extends HTMLElement {
       callback: null
     };
     this.handleOptions();
-    if (this.ops?.useShadow) {
+    if (this.useShadow) {
       _classPrivateFieldSet(_shadow, this, this.attachShadow({
         mode: "open"
       }));
@@ -210,6 +214,9 @@ class XACSankey extends HTMLElement {
    * @param {object} ops
    */
   setOptions(ops) {
+    if (XACSankey.isLocal()) {
+      console.log('XACSankey', ops);
+    }
     if (ops.filters) {
       this.filters = ops.filters;
       this.purgeObject(this.filters);
@@ -220,6 +227,9 @@ class XACSankey extends HTMLElement {
     }
     if (ops.api) {
       Object.assign(this.api, ops.api);
+    }
+    if (ops.useShadow) {
+      this.useShadow = ops.useShadow;
     }
     if (ops.dataCallback) {
       this.dataCallback = ops.dataCallback;
@@ -503,7 +513,7 @@ class XACSankey extends HTMLElement {
     const color = d3.scaleOrdinal(d3.schemeCategory10);
 
     // Layout the svg element
-    const container = this.ops.useShadow ? d3.select(_classPrivateFieldGet(_shadow, this)) : d3.select(_classPrivateFieldGet(_shadow, this));
+    const container = this.useShadow ? d3.select(_classPrivateFieldGet(_shadow, this)) : d3.select(_classPrivateFieldGet(_shadow, this));
     const svg = container.append('svg').attr('width', width).attr('height', height).attr('transform', `translate(${margin.left},${margin.top})`);
 
     // Set up the Sankey generator
@@ -618,7 +628,7 @@ class XACSankey extends HTMLElement {
    * Clears viewport of svgs.
    */
   clearCanvas() {
-    if (this.ops.useShadow) {
+    if (this.useShadow) {
       const l = _classPrivateFieldGet(_shadow, this).querySelectorAll('svg');
       l.forEach(el => {
         el.remove();
@@ -632,7 +642,7 @@ class XACSankey extends HTMLElement {
    * Displays or removes loading spinner.
    */
   handleLoader(msg) {
-    const ctx = this.ops.useShadow ? _classPrivateFieldGet(_shadow, this) : this;
+    const ctx = this.useShadow ? _classPrivateFieldGet(_shadow, this) : this;
     ctx.querySelectorAll(`.${this.classes.loader}`).forEach(el => {
       el.remove();
     });
@@ -690,7 +700,7 @@ class XACSankey extends HTMLElement {
    * @returns {boolean}
    */
   static isLocal() {
-    _Util.default.isLocal();
+    return _Util.default.isLocal();
   }
 
   /**

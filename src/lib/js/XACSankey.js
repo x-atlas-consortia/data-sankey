@@ -9,7 +9,11 @@ class XACSankey extends HTMLElement {
             style: 'xac-style',
             loader: 'xac-loader'
         }
+        if (XACSankey.isLocal()) {
+            console.log('XACSankey', this)
+        }
         this.filters = {}
+        this.useShadow = true
         this.dataCallback = null
         this.organsDict = {}
         this.organsDictByCategory = {}
@@ -34,7 +38,7 @@ class XACSankey extends HTMLElement {
             callback: null
         }
         this.handleOptions()
-        if (this.ops?.useShadow) {
+        if (this.useShadow) {
             this.#shadow = this.attachShadow({ mode: "open" })
             this.applyStyles()
         }
@@ -190,6 +194,9 @@ class XACSankey extends HTMLElement {
      * @param {object} ops
      */
     setOptions(ops) {
+        if (XACSankey.isLocal()) {
+            console.log('XACSankey', ops)
+        }
         if (ops.filters) {
             this.filters = ops.filters
             this.purgeObject(this.filters)
@@ -201,6 +208,9 @@ class XACSankey extends HTMLElement {
         }
         if (ops.api) {
             Object.assign(this.api, ops.api)
+        }
+        if (ops.useShadow) {
+            this.useShadow = ops.useShadow
         }
         if (ops.dataCallback) {
             this.dataCallback = ops.dataCallback
@@ -470,7 +480,7 @@ class XACSankey extends HTMLElement {
         const color = d3.scaleOrdinal(d3.schemeCategory10)
 
         // Layout the svg element
-        const container = this.ops.useShadow ? d3.select(this.#shadow) : d3.select(this.#shadow)
+        const container = this.useShadow ? d3.select(this.#shadow) : d3.select(this.#shadow)
         const svg = container.append('svg').attr('width', width).attr('height', height).attr('transform', `translate(${margin.left},${margin.top})`)
 
         // Set up the Sankey generator
@@ -633,7 +643,7 @@ class XACSankey extends HTMLElement {
      * Clears viewport of svgs.
      */
     clearCanvas() {
-        if (this.ops.useShadow) {
+        if (this.useShadow) {
             const l = this.#shadow.querySelectorAll('svg')
             l.forEach((el)=> {
                 el.remove()
@@ -647,7 +657,7 @@ class XACSankey extends HTMLElement {
      * Displays or removes loading spinner.
      */
     handleLoader(msg) {
-        const ctx = this.ops.useShadow ? this.#shadow : this
+        const ctx = this.useShadow ? this.#shadow : this
         ctx.querySelectorAll(`.${this.classes.loader}`).forEach(
             (el) => {
                 el.remove()
@@ -708,7 +718,7 @@ class XACSankey extends HTMLElement {
      * @returns {boolean}
      */
     static isLocal() {
-        Util.isLocal()
+        return Util.isLocal()
     }
 
     /**
