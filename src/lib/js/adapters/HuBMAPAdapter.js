@@ -34,6 +34,9 @@ class HuBMAPAdapter extends SankeyAdapter {
                 values: this.getFilterValues(f, properFacetName),
                 type: 'TERM',
             }
+            if (this.isStatusColumn(f)) {
+                additionalFilters.mapped_status = this.buildStatusFacetQuery(properFacetName).mapped_status
+            }
         }
         SankeyAdapter.log('getSankeyFilters', {color: 'purple', data: {facetsMap, additionalFilters}})
         return additionalFilters
@@ -67,6 +70,24 @@ class HuBMAPAdapter extends SankeyAdapter {
             const dep = LZString?.compressToEncodedURIComponent || LZString
         } catch (e) {
             console.error('HuBMAPAdapter > LZString library not loaded. Please include the script at src: https://unpkg.com/lz-string@1.5.0/libs/lz-string.js')
+        }
+    }
+
+    /**
+     * Creates a HM Portal compatible status filter part
+     * @param status
+     * @returns {{mapped_status: {type: string, values: {}}}}
+     */
+    buildStatusFacetQuery(status) {
+        let values = {}
+        for (let s of status) {
+            values[s] = []
+        }
+        return {
+            mapped_status: {
+                type: 'HIERARCHICAL',
+                values,
+            }
         }
     }
 
@@ -142,6 +163,9 @@ class HuBMAPAdapter extends SankeyAdapter {
                 values,
                 type: 'TERM',
             }
+        }
+        if (this.isStatusColumn(col)) {
+            filters.mapped_status = this.buildStatusFacetQuery([d.name]).mapped_status
         }
         const urlFilters = this.urlFilters || {}
         filters = {...urlFilters, ...filters}

@@ -1,6 +1,14 @@
 /**
 * 
+<<<<<<< HEAD
 * 4/17/2025, 2:39:02 PM | X Atlas Consortia Sankey 1.0.5 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+=======
+<<<<<<< HEAD
+* 4/17/2025, 2:34:16 PM | X Atlas Consortia Sankey 1.0.5 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+=======
+* 4/17/2025, 2:22:05 PM | X Atlas Consortia Sankey 1.0.6 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+>>>>>>> cc8c814 (Add ability to select HM status checkbox)
+>>>>>>> f525602 (Add ability to select HM status checkbox)
 **/
 "use strict";
 
@@ -48,6 +56,9 @@ class HuBMAPAdapter extends _SankeyAdapter.default {
         values: this.getFilterValues(f, properFacetName),
         type: 'TERM'
       };
+      if (this.isStatusColumn(f)) {
+        additionalFilters.mapped_status = this.buildStatusFacetQuery(properFacetName).mapped_status;
+      }
     }
     _SankeyAdapter.default.log('getSankeyFilters', {
       color: 'purple',
@@ -88,6 +99,24 @@ class HuBMAPAdapter extends _SankeyAdapter.default {
     } catch (e) {
       console.error('HuBMAPAdapter > LZString library not loaded. Please include the script at src: https://unpkg.com/lz-string@1.5.0/libs/lz-string.js');
     }
+  }
+
+  /**
+   * Creates a HM Portal compatible status filter part
+   * @param status
+   * @returns {{mapped_status: {type: string, values: {}}}}
+   */
+  buildStatusFacetQuery(status) {
+    let values = {};
+    for (let s of status) {
+      values[s] = [];
+    }
+    return {
+      mapped_status: {
+        type: 'HIERARCHICAL',
+        values
+      }
+    };
   }
 
   /**
@@ -170,6 +199,9 @@ class HuBMAPAdapter extends _SankeyAdapter.default {
         type: 'TERM'
       }
     };
+    if (this.isStatusColumn(col)) {
+      filters.mapped_status = this.buildStatusFacetQuery([d.name]).mapped_status;
+    }
     const urlFilters = this.urlFilters || {};
     filters = _objectSpread(_objectSpread({}, urlFilters), filters);
     return {

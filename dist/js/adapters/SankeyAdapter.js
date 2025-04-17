@@ -1,6 +1,14 @@
 /**
 * 
+<<<<<<< HEAD
 * 4/17/2025, 2:39:02 PM | X Atlas Consortia Sankey 1.0.5 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+=======
+<<<<<<< HEAD
+* 4/17/2025, 2:34:16 PM | X Atlas Consortia Sankey 1.0.5 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+=======
+* 4/17/2025, 2:22:05 PM | X Atlas Consortia Sankey 1.0.6 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+>>>>>>> cc8c814 (Add ability to select HM status checkbox)
+>>>>>>> f525602 (Add ability to select HM status checkbox)
 **/
 "use strict";
 
@@ -35,6 +43,15 @@ class SankeyAdapter {
    */
   isOrganColumn(col) {
     return this.eq(col, 'organ');
+  }
+
+  /**
+   * Checks if current column is status column
+   * @param col
+   * @returns {boolean}
+   */
+  isStatusColumn(col) {
+    return this.eq(col, 'status');
   }
 
   /**

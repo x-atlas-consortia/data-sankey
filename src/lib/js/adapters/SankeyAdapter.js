@@ -29,6 +29,15 @@ class SankeyAdapter {
     }
 
     /**
+     * Checks if current column is status column
+     * @param col
+     * @returns {boolean}
+     */
+    isStatusColumn(col) {
+        return this.eq(col, 'status')
+    }
+
+    /**
      * Returns the actual value from the data with proper casing
      * @param col
      * @param needles
