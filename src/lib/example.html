@@ -1,6 +1,7 @@
 <html>
 <head>
     <title>DS</title>
+    <script type="module" src="./js/adapters/SenNetAdapter.js"></script>
     <script type="module" src="./js/ConsortiaSankey.js"></script>
     <link rel="stylesheet" href="./xac-sankey.css" />
 </head>
@@ -12,14 +13,18 @@
 
     const el = document.getElementById('js-sankey')
     const ops = {
-        useShadow: true,
         styleSheetPath: './xac-sankey.css',
+        // filters: {
+        //     assigned_to_group_name: 'codcc'
+        //     // organ: 'lung',
+        //     // source_type: "human"
+        // },
         api: {
-            sankey: 'https://entity-api.dev.sennetconsortium.org/datasets/sankey_data',
-            token: 'AgaMgW0VpjqEEaQjQzWdp8jzN5PO50NkBqzEz5QwMN9B85xz7Qh9C6l45DnmJ4kdO2aMqn1mXJEnrESnQDo7BUqBnno'
+            //sankey: 'https://ingest-api.dev.sennetconsortium.org/datasets/sankey_data',
+            token: localStorage.getItem('token') // set your token in local storage
         },
         validFilterMap: {
-            status: null,
+            dataset_type: 'dataset_type_hierarchy',
             source_type: 'dataset_source_type'
         }
     }
@@ -27,33 +32,34 @@
 
     const i = setInterval(()=> {
         if (el.setOptions) {
-            let filterMap = el.flipObj(el.validFilterMap)
+            const adapter = new SenNetAdapter(el, {isProd: true})
 
-            const goTo = (d) => {
-                const col = filterMap[d.ref]
-                if (col === 'dataset_type') return
-                const facetsMap = {
-                    organ: 'origin_samples.organ',
-                    source_type: 'sources.source_type'
-                }
-                let values = col === 'organ' ? el.organsDictByCategory[d.name] : [d.name]
-                const facet = facetsMap[col] || col
-                const addFilters = ';data_class=Create Dataset Activity;entity_type=Dataset'
-                if (values) {
-                    values = Array.from(values)
-                    window.open(`http://localhost:3000/search?addFilters=${facet}=${values.join(',')}${addFilters}`, '_blank')
-                }
-            }
             clearInterval(i)
             el.setOptions(
                 {
+                    onDataBuildCallback: () => {
+                        adapter.onDataBuildCallback()
+                    },
+                    onNodeBuildCssCallback: (d) => {
+                        return adapter.onNodeBuildCssCallback(d)
+                    },
+                    onLinkBuildCssCallback: (d) => {
+                        return adapter.onLinkBuildCssCallback(d)
+                    },
+                    onLinkClickCallback: (e, d) => {
+                        console.log('link clicked', d)
+                        e.preventDefault()
+                        adapter.goToFromLink(d)
+                    },
                     onNodeClickCallback: (e, d) => {
                         console.log('node clicked', d)
-                        goTo(d)
+                        e.preventDefault()
+                        adapter.goToFromNode(d)
                     },
                     onLabelClickCallback: (e, d) => {
                         console.log('label clicked', d)
-                        goTo(d)
+                        e.preventDefault()
+                        adapter.goToFromNode(d)
                     },
                 }
             )

@@ -1,3 +1,5 @@
+import Util from "./util/Util.js"
+
 class XACSankey extends HTMLElement {
     #shadow;
 
@@ -7,17 +9,19 @@ class XACSankey extends HTMLElement {
             style: 'xac-style',
             loader: 'xac-loader'
         }
+        if (XACSankey.isLocal()) {
+            console.log('XACSankey', this)
+        }
         this.filters = {}
+        this.useShadow = true
         this.dataCallback = null
         this.organsDict = {}
         this.organsDictByCategory = {}
         this.api = {
-            sankey: 'https://entity.api.sennetconsortium.org/datasets/sankey_data',
+            context: 'sennet',
+            sankey: 'https://ingest.api.{context}consortium.org/datasets/sankey_data',
             token: null,
-            ubkg: {
-                sap: 'sennet',
-                organs: 'https://ontology.api.hubmapconsortium.org/organs?application_context='
-            }
+            ubkgOrgans: 'https://ontology.api.hubmapconsortium.org/organs?application_context='
         }
         this.containerDimensions = {}
         this.graphData = null
@@ -33,8 +37,11 @@ class XACSankey extends HTMLElement {
             html: '<div class="c-sankey__loader"></div>',
             callback: null
         }
+    }
+
+    init() {
         this.handleOptions()
-        if (this.ops?.useShadow) {
+        if (this.useShadow) {
             this.#shadow = this.attachShadow({ mode: "open" })
             this.applyStyles()
         }
@@ -42,11 +49,61 @@ class XACSankey extends HTMLElement {
     }
 
     /**
+     * Returns a list of green colors
+     * @returns {string[]}
+     */
+    greenColors() {
+        return ['#8ecb93', '#195905', '#18453b', '#1b4d3e', '#006600', '#1e4d2b', '#006b3c', '#006a4e', '#00703c', '#087830', '#2a8000', '#008000', '#177245', '#306030', '#138808', '#009150', '#355e3b', '#059033', '#009900', '#009f6b', '#009e60', '#00a550', '#507d2a', '#00a877', '#228b22', '#00ab66', '#2e8b57', '#8db600', '#4f7942', '#03c03c', '#1cac78', '#4cbb17']
+    }
+
+    /**
+     * Returns a list of pink colors
+     * @returns {string[]}
+     */
+    pinkColors() {
+        return ['#FBA0E3', '#DA70D6', '#F49AC2', '#FFA6C9', '#F78FA7', '#F08080', '#FF91A4', '#FF9899', '#E18E96', '#FC8EAC', '#FE8C68', '#F88379', '#FF69B4', '#FF69B4', '#FC6C85', '#DCAE96']
+    }
+
+    /**
+     * Sets a color theme for sankey rect bars
+     * @param {object} theme
+     */
+    setTheme(theme = {}) {
+        const d3 = this.d3.d3
+        this.theme = {
+            byScheme: {
+                dataset_type_hierarchy: d3.scaleOrdinal(this.greenColors()),
+                organ_type: d3.scaleOrdinal(this.pinkColors()),
+            },
+            byValues: {
+                human: '#ffc255',
+                mouse: '#b97f17',
+                unpublished: 'grey',
+                published: '#198754',
+                qa: '#0dcaf0:#000000',
+                error: '#dc3545',
+                invalid: '#dc3545',
+                new: '#6f42c1',
+                processing: '#6c757d',
+                submitted: '#0dcaf0:#000000',
+                hold: '#6c757d',
+                reopened: '#6f42c1',
+                reorganized: '#0dcaf0:#000000',
+                valid: '#198754',
+                incomplete: '#ffc107:#212529',
+            }
+        }
+
+        Object.assign(this.theme, theme)
+        this.purgeObject(this.theme)
+    }
+
+    /**
      * Sets the organTypes from UBKG.
      * @returns {Promise<void>}
      */
     async setOrganTypes() {
-        const res = await fetch(this.api.ubkg.organs + this.api.ubkg.sap);
+        const res = await fetch(this.api.ubkgOrgans + this.api.context);
         const organs = await res.json()
         for (let o of organs) {
             this.organsDict[o.term.trim().toLowerCase()] = o.category?.term?.trim() || o.term?.trim()
@@ -125,7 +182,7 @@ class XACSankey extends HTMLElement {
 
     /**
      * Removes null values from obj.
-     * @param obj
+     * @param {object} obj The object to perform the purge against
      */
     purgeObject(obj) {
         for (let i in obj) {
@@ -140,6 +197,9 @@ class XACSankey extends HTMLElement {
      * @param {object} ops
      */
     setOptions(ops) {
+        if (XACSankey.isLocal()) {
+            console.log('XACSankey', ops)
+        }
         if (ops.filters) {
             this.filters = ops.filters
             this.purgeObject(this.filters)
@@ -152,14 +212,29 @@ class XACSankey extends HTMLElement {
         if (ops.api) {
             Object.assign(this.api, ops.api)
         }
+        if (ops.useShadow) {
+            this.useShadow = ops.useShadow
+        }
         if (ops.dataCallback) {
             this.dataCallback = ops.dataCallback
+        }
+        if (ops.onDataBuildCallback) {
+            this.onDataBuildCallback = ops.onDataBuildCallback
         }
         if (ops.onNodeClickCallback) {
             this.onNodeClickCallback = ops.onNodeClickCallback
         }
+        if (ops.onNodeBuildCssCallback) {
+            this.onNodeBuildCssCallback = ops.onNodeBuildCssCallback
+        }
+        if (ops.onLinkBuildCssCallback) {
+            this.onLinkBuildCssCallback = ops.onLinkBuildCssCallback
+        }
         if (ops.onLabelClickCallback) {
             this.onLabelClickCallback = ops.onLabelClickCallback
+        }
+        if (ops.onLinkClickCallback) {
+            this.onLinkClickCallback = ops.onLinkClickCallback
         }
         if (ops.validFilterMap) {
             Object.assign(this.validFilterMap, ops.validFilterMap)
@@ -167,6 +242,9 @@ class XACSankey extends HTMLElement {
         }
         if (ops.d3) {
             this.d3 = ops.d3
+        }
+        if(ops.theme) {
+            this.setTheme(ops.theme)
         }
         if (ops.styleSheetPath) {
             this.styleSheetPath = ops.styleSheetPath
@@ -178,7 +256,7 @@ class XACSankey extends HTMLElement {
 
     /**
      * Modifies the component attr so that attributeChangedCallback can be triggered.
-     * @param {string} attr Name of a watche attribute.
+     * @param {string} attr Name of a watched attribute.
      */
     useEffect(attr = 'data') {
         this.setAttribute(attr, `${Date.now()}`)
@@ -199,6 +277,13 @@ class XACSankey extends HTMLElement {
         }, {})
     }
 
+    getUrl() {
+        if (this.ops.api?.sankey) return this.ops.api?.sankey
+        let url = this.api.sankey
+        url = url.replace('{context}', this.api.context)
+        return Util.isLocal() && !this.ops.isProd ? url.replace('.api.', '-api.dev.') : url
+    }
+
     /**
      * Gets and handles main sankey data to be visualized.
      * @returns {Promise<void>}
@@ -209,17 +294,37 @@ class XACSankey extends HTMLElement {
         }
 
         // call the sankey endpoint
-        const res = await fetch(this.api.sankey, this.getHeaders())
-        let rawData = await res.json()
+        const res = await fetch(this.getUrl(), this.getHeaders())
+        this.rawData = await res.json()
+
+        if (this.rawData.message || res.status === 202) {
+            this.handleLoader(this.rawData.message)
+            return
+        }
+
+        // Check if actual data has data property
+        if (Array.isArray(this.rawData.data)) {
+            this.rawData = this.rawData.data
+        }
+
+        if (!Array.isArray(this.rawData)) {
+            console.error('XACSankey > Incorrectly formatted data. Data must be in array of dictionaries')
+            return
+        }
 
         let data = []
         if (this.validFilterMap.organ) {
-            for (let row of rawData) {
-                let groups = new Set()
-                for (let g of row[this.validFilterMap.organ]) {
-                    groups.add(this.getOrganHierarchy(g))
+            for (let row of this.rawData) {
+                if (Array.isArray(row[this.validFilterMap.organ])) {
+                    let groups = new Set()
+                    for (let g of row[this.validFilterMap.organ]) {
+                        groups.add(this.getOrganHierarchy(g))
+                    }
+                    data.push({...row, [this.validFilterMap.organ]: Array.from(groups)})
+                } else {
+                    data.push({...row, [this.validFilterMap.organ]: this.getOrganHierarchy(row[this.validFilterMap.organ])})
                 }
-                data.push({...row, [this.validFilterMap.organ]: Array.from(groups)})
+                
             }
         }
         
@@ -229,33 +334,57 @@ class XACSankey extends HTMLElement {
 
         // filter the data if there are valid filters
         const validFilters = this.getValidFilters()
-        let filteredData = data
+        this.filteredData = data
         if (Object.keys(validFilters).length > 0) {
+
+            const isValidFilter = (validValues, val)=> !(!validValues.includes(val.toLowerCase()))
+            let validRows
+            let points = 0
             // Filter the data based on the valid filters
-            filteredData = data.filter((row) => {
-                // this acts as an AND filter
+            this.filteredData = data.filter((row) => {
+                validRows = []
+                points = 0;
                 for (const [field, validValues] of Object.entries(validFilters)) {
-                    if (!validValues.includes(row[field].toLowerCase())) {
-                        return false
+
+                    if (Array.isArray(row[field])) {
+                        // find out which values in array are valid
+                        for (let i = 0; i < row[field].length; i++) {
+                            if (isValidFilter(validValues, row[field][i])) {
+                                validRows.push(row[field][i])
+                            }
+                        }
+                        // take valid values and readjust the row[field]
+                        if (validRows.length) {
+                            row[field] = []
+                            for (let i = 0; i < validRows.length; i++) {
+                                row[field].push(validRows[i])
+                            }
+                            points++;
+                        }
+
+                    } else {
+                        if (isValidFilter(validValues, row[field])) {
+                            points++
+                        }
                     }
                 }
-                return true
+                return Object.keys(validFilters).length === points
             })
         }
 
-        XACSankey.log('filteredData', {data: filteredData, color: 'orange'})
+        XACSankey.log('filteredData', {data: this.filteredData, color: 'orange'})
 
         const columnNames = Object.values(this.validFilterMap)
         const graphMap = {nodes: {}, links: {}}
         let i = 0;
 
         // First build the nodes using a dictionary for faster access time
-        filteredData.forEach((row, rowIndex) => {
+        this.filteredData.forEach((row, rowIndex) => {
             columnNames.forEach((columnName, columnIndex) => {
                 const buildNode = (colName, val) => {
                     let node = graphMap.nodes[val]
                     if (node === undefined) {
-                        graphMap.nodes[val] = {node: i, name: val, ref: colName, columnIndex, weight: 0}
+                        graphMap.nodes[val] = {node: i, name: val, columnName: colName, columnIndex, weight: 0}
                         node = graphMap.nodes[val]
                         i++
                     }
@@ -271,7 +400,7 @@ class XACSankey extends HTMLElement {
             })
         })
 
-        filteredData.forEach((row) => {
+        this.filteredData.forEach((row) => {
             columnNames.forEach((columnName, columnIndex) => {
                 if (columnIndex !== columnNames.length - 1) {
 
@@ -286,6 +415,9 @@ class XACSankey extends HTMLElement {
                         link.value = link.value + 1
                     }
 
+                    // Because we can have data values that are arrays with strings, we could end up with many
+                    // sources & targets on a particular row/column.
+                    // So we need to put these in buckets to later create the links
                     let sources = []
                     let targets = []
                     const setSourcesTargets = (bucket, current) => {
@@ -306,13 +438,8 @@ class XACSankey extends HTMLElement {
                             buildLink(sources[0], t)
                         }
                     } else {
-                        for (let s of sources) {
-                            for (let t of targets) {
-                                buildLink(s, t)
-                            }
-                        }
+                        buildLink(sources[0], targets[0])
                     }
-
                 }
             })
         })
@@ -320,7 +447,16 @@ class XACSankey extends HTMLElement {
         XACSankey.log('graphMap', {data: graphMap, color: 'green'})
 
         this.graphData = {nodes: Object.values(graphMap.nodes), links: Object.values(graphMap.links)};
-        this.useEffect('fetch')
+        if (this.onDataBuildCallback) {
+            this.onDataBuildCallback(this)
+        }
+
+        if (Object.values(graphMap.nodes).length) {
+            this.useEffect('fetch')
+        } else {
+            this.isLoading = false;
+            this.handleLoader('No data from filters')
+        }
     }
 
     /**
@@ -338,7 +474,7 @@ class XACSankey extends HTMLElement {
         if (!this.d3) {
             console.error('No D3 library loaded.')
         }
-        if (!this.graphData || !this.containerDimensions.width || !this.containerDimensions.height || !this.d3) return
+        if (!this.graphData || !this.graphData.nodes.length || !this.containerDimensions.width || !this.containerDimensions.height || !this.d3) return
         const {d3, d3sankey, sankeyLinkHorizontal} = {...this.d3}
 
 
@@ -350,7 +486,7 @@ class XACSankey extends HTMLElement {
         const color = d3.scaleOrdinal(d3.schemeCategory10)
 
         // Layout the svg element
-        const container = this.ops.useShadow ? d3.select(this.#shadow) : d3.select(this.#shadow)
+        const container = this.useShadow ? d3.select(this.#shadow) : d3.select(this.#shadow)
         const svg = container.append('svg').attr('width', width).attr('height', height).attr('transform', `translate(${margin.left},${margin.top})`)
 
         // Set up the Sankey generator
@@ -398,9 +534,21 @@ class XACSankey extends HTMLElement {
             .selectAll('.link')
             .data(links)
             .join('path')
-            .attr('class', 'c-sankey__link')
+            .attr('class', (d) => {
+                let classes = 'c-sankey__link'
+                if (this.onLinkBuildCssCallback) {
+                    classes = classes +' '+ this.onLinkBuildCssCallback(d)
+                }
+                return classes
+            })
             .attr('d', sankeyLinkHorizontal())
             .attr('stroke-width', (d) => Math.max(2, d.width))
+            .on('click', ((e, d) => {
+                if (e.defaultPrevented) return;
+                if (this.onLinkClickCallback) {
+                    this.onLinkClickCallback(e, d)
+                }
+            }).bind(this))
             .append('title')
             .text((d) => `${d.source.name} → ${d.target.name}\n${d.value} Datasets`) // Tooltip
 
@@ -410,7 +558,13 @@ class XACSankey extends HTMLElement {
             .selectAll('.node')
             .data(nodes)
             .join('g')
-            .attr('class', (d) => `c-sankey__node c-sankey__node--${d.ref}`)
+            .attr('class', (d) => {
+                let classes = `c-sankey__node c-sankey__node--${d.columnName}`
+                if (this.onNodeBuildCssCallback) {
+                    classes = classes +' '+ this.onNodeBuildCssCallback(d)
+                }
+                return classes
+            })
             .attr('transform', (d) => `translate(${d.x0},${d.y0})`)
             .call(drag)
             .on('click', ((e, d) => {
@@ -423,7 +577,16 @@ class XACSankey extends HTMLElement {
         node.append('rect')
             .attr('height', (d) => Math.max(5, d.y1 - d.y0))
             .attr('width', sankey.nodeWidth())
-            .attr('fill', (d) => color(d.name))
+            .attr('fill', (d) => {
+                if (this.theme?.byValues && this.theme.byValues[d.name.toLowerCase()]) {
+                    const color = this.theme.byValues[d.name.toLowerCase()].split(':')
+                    return color[0]
+                }
+                if (this.theme?.byScheme && this.theme.byScheme[d.columnName]) {
+                    return this.theme.byScheme[d.columnName](d.name)
+                }
+                return color(d.name)
+            })
             .attr('stroke-width', 0)
             .append('title')
             .text((d) => `${d.name}\n${d.value} Datasets`) // Tooltip
@@ -475,6 +638,8 @@ class XACSankey extends HTMLElement {
      * Runs when the element is connected to the DOM.
      */
     connectedCallback() {
+        this.init()
+        this.setTheme()
         this.handleWindowResize()
         window.addEventListener('resize', this.onWindowResize.bind(this))
     }
@@ -491,9 +656,9 @@ class XACSankey extends HTMLElement {
      * Clears viewport of svgs.
      */
     clearCanvas() {
-        if (this.ops.useShadow) {
-            const l = this.#shadow.querySelectorAll('svg')
-            l.forEach((el)=> {
+        if (this.useShadow) {
+            const l = this.#shadow?.querySelectorAll('svg')
+            l?.forEach((el)=> {
                 el.remove()
             })
         } else {
@@ -504,22 +669,25 @@ class XACSankey extends HTMLElement {
     /**
      * Displays or removes loading spinner.
      */
-    handleLoader() {
-        const ctx = this.ops.useShadow ? this.#shadow : this
-        ctx.querySelectorAll(`.${this.classes.loader}`).forEach(
-            (el) => {
-                el.remove()
+    handleLoader(msg) {
+        const ctx = this.useShadow ? this.#shadow : this
+        if (ctx) {
+            ctx.querySelectorAll(`.${this.classes.loader}`).forEach(
+                (el) => {
+                    el.remove()
+                }
+            )
+            if (this.isLoading || msg) {
+                if (!this.loading.callback) {
+                    const loader = document.createElement("div")
+                    loader.innerHTML = (this.isLoading ? this.loading.html : '') + (msg ? `<span class="c-sankey__msg">${msg}</span>` : '')
+                    loader.className = this.classes.loader
+                    ctx.appendChild(loader)
+                }
             }
-        )
-        if (this.isLoading) {
-            if (!this.loading.callback) {
-                const loader = document.createElement("div")
-                loader.innerHTML = this.loading.html
-                loader.className = this.classes.loader
-                ctx.appendChild(loader)
-            } else {
-                this.loading.callback(this)
-            }
+        }
+        if (this.loading.callback) {
+            this.loading.callback(this, msg)
         }
     }
 
@@ -565,7 +733,7 @@ class XACSankey extends HTMLElement {
      * @returns {boolean}
      */
     static isLocal() {
-        return (location.host.indexOf('localhost') !== -1) || (location.host.indexOf('.dev') !== -1)
+        return Util.isLocal()
     }
 
     /**
@@ -574,14 +742,7 @@ class XACSankey extends HTMLElement {
      * @param {object} ops Color options for console
      */
     static log(msg, ops) {
-        ops = ops || {}
-        let {fn, color, data} = ops
-        fn = fn || 'log'
-        color = color || '#bada55'
-        data = data || ''
-        if (XACSankey.isLocal()) {
-            console[fn](`%c ${msg}`, `background: #222; color: ${color}`, data)
-        }
+        Util.log(msg, ops)
     }
 
     /**

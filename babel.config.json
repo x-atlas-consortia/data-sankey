@@ -1,5 +1,7 @@
 {
   "plugins": [
+    "@babel/plugin-proposal-class-properties",
+    "@babel/plugin-proposal-object-rest-spread",
     ["add-header-comment", {
       "header": [
         "!node build.js",
@@ -8,11 +10,10 @@
     }]
   ],
   "presets": [
-    [
-      "@babel/env",
-      {
-        "modules": false
+    ["@babel/preset-env", {
+      "targets": {
+        "node": "current"
       }
-    ]
+    }]
   ]
 }

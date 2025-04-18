@@ -1,8 +1,9 @@
 <html>
 <head>
     <title>DS</title>
-    <script type="module" src="./js/adapters/SenNetAdapter.js"></script>
+    <script type="module" src="./js/adapters/HuBMAPAdapter.js"></script>
     <script type="module" src="./js/ConsortiaSankey.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/lz-string@1.5.0/libs/lz-string.js"></script>
     <link rel="stylesheet" href="./xac-sankey.css" />
 </head>
 <body>
@@ -13,38 +14,31 @@
 
     const el = document.getElementById('js-sankey')
     const ops = {
+        useShadow: true,
         styleSheetPath: './xac-sankey.css',
+        groupByOrganCategoryKey: 'term',
         // filters: {
-        //     assigned_to_group_name: 'codcc'
-        //     // organ: 'lung',
-        //     // source_type: "human"
+        //    //group_name: 'iec testing group',
+        //    organ: 'lung',
+        //    status: 'new,published'
         // },
         api: {
-            //sankey: 'https://ingest-api.dev.sennetconsortium.org/datasets/sankey_data',
+            sankey: 'https://entity.api.hubmapconsortium.org/datasets/sankey_data',
+            context: 'hubmap',
             token: localStorage.getItem('token') // set your token in local storage
-        },
-        validFilterMap: {
-            dataset_type: 'dataset_type_hierarchy',
-            source_type: 'dataset_source_type'
         }
     }
     el.setAttribute('options', btoa(JSON.stringify(ops)))
 
     const i = setInterval(()=> {
         if (el.setOptions) {
-            const adapter = new SenNetAdapter(el, {isProd: true})
+            const adapter = new HuBMAPAdapter(el)
 
             clearInterval(i)
             el.setOptions(
                 {
                     onDataBuildCallback: () => {
                         adapter.onDataBuildCallback()
-                    },
-                    onNodeBuildCssCallback: (d) => {
-                        return adapter.onNodeBuildCssCallback(d)
-                    },
-                    onLinkBuildCssCallback: (d) => {
-                        return adapter.onLinkBuildCssCallback(d)
                     },
                     onLinkClickCallback: (e, d) => {
                         console.log('link clicked', d)
