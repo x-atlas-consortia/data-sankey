@@ -86,6 +86,28 @@ class SenNetAdapter extends SankeyAdapter {
     }
 
     /**
+     * Callback when building css for nodes
+     * @param {object} d
+     * @returns {string|string}
+     */
+    onNodeBuildCssCallback(d, type = 'node'){
+        if (this.eq(d.columnName, this.ctx.validFilterMap.dataset_type)) {
+            const assay = this.captureByKeysValue({matchKey: d.columnName, matchValue: d.name, keepKey: 'dataset_type_description'}, this.ctx.rawData)
+            return assay.length <= 0 ? `c-sankey__entity--default c-sankey__${type}--default` : ''
+        }
+        return ''
+    }
+
+    /**
+     * Callback when building css for link
+     * @param {object} d
+     * @returns {string|string}
+     */
+    onLinkBuildCssCallback(d){
+        return this.onNodeBuildCssCallback(d.source, 'link')
+    }
+
+    /**
      * Callback from click a link
      * @param {object} d
      */
@@ -134,9 +156,7 @@ class SenNetAdapter extends SankeyAdapter {
         if (values && (values.length || values.size)) {
             values = Array.from(values)
             const filter = `${facet}=${values.join(',')}`
-            //const filters = encodeURIComponent(`${filter}${addFilters}`)
             const baseUrl = `${this.getUrls().portal}search?addFilters=`
-            //const url = `${baseUrl}${filters}`
             return {baseUrl, filter, addFilters}
         }
         return {}

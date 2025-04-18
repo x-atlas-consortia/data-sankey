@@ -227,6 +227,9 @@ class XACSankey extends HTMLElement {
         if (ops.onNodeBuildCssCallback) {
             this.onNodeBuildCssCallback = ops.onNodeBuildCssCallback
         }
+        if (ops.onLinkBuildCssCallback) {
+            this.onLinkBuildCssCallback = ops.onLinkBuildCssCallback
+        }
         if (ops.onLabelClickCallback) {
             this.onLabelClickCallback = ops.onLabelClickCallback
         }
@@ -531,7 +534,13 @@ class XACSankey extends HTMLElement {
             .selectAll('.link')
             .data(links)
             .join('path')
-            .attr('class', 'c-sankey__link')
+            .attr('class', (d) => {
+                let classes = 'c-sankey__link'
+                if (this.onLinkBuildCssCallback) {
+                    classes = classes +' '+ this.onLinkBuildCssCallback(d)
+                }
+                return classes
+            })
             .attr('d', sankeyLinkHorizontal())
             .attr('stroke-width', (d) => Math.max(2, d.width))
             .on('click', ((e, d) => {
@@ -648,8 +657,8 @@ class XACSankey extends HTMLElement {
      */
     clearCanvas() {
         if (this.useShadow) {
-            const l = this.#shadow.querySelectorAll('svg')
-            l.forEach((el)=> {
+            const l = this.#shadow?.querySelectorAll('svg')
+            l?.forEach((el)=> {
                 el.remove()
             })
         } else {
@@ -662,17 +671,19 @@ class XACSankey extends HTMLElement {
      */
     handleLoader(msg) {
         const ctx = this.useShadow ? this.#shadow : this
-        ctx.querySelectorAll(`.${this.classes.loader}`).forEach(
-            (el) => {
-                el.remove()
-            }
-        )
-        if (this.isLoading || msg) {
-            if (!this.loading.callback) {
-                const loader = document.createElement("div")
-                loader.innerHTML = (this.isLoading ? this.loading.html : '') + (msg ? `<span class="c-sankey__msg">${msg}</span>` : '')
-                loader.className = this.classes.loader
-                ctx.appendChild(loader)
+        if (ctx) {
+            ctx.querySelectorAll(`.${this.classes.loader}`).forEach(
+                (el) => {
+                    el.remove()
+                }
+            )
+            if (this.isLoading || msg) {
+                if (!this.loading.callback) {
+                    const loader = document.createElement("div")
+                    loader.innerHTML = (this.isLoading ? this.loading.html : '') + (msg ? `<span class="c-sankey__msg">${msg}</span>` : '')
+                    loader.className = this.classes.loader
+                    ctx.appendChild(loader)
+                }
             }
         }
         if (this.loading.callback) {

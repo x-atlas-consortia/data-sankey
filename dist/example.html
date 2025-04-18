@@ -21,7 +21,7 @@
         // },
         api: {
             //sankey: 'https://ingest-api.dev.sennetconsortium.org/datasets/sankey_data',
-            token: ''
+            token: localStorage.getItem('token') // set your token in local storage
         },
         validFilterMap: {
             dataset_type: 'dataset_type_hierarchy',
@@ -40,16 +40,25 @@
                     onDataBuildCallback: () => {
                         adapter.onDataBuildCallback()
                     },
+                    onNodeBuildCssCallback: (d) => {
+                        return adapter.onNodeBuildCssCallback(d)
+                    },
+                    onLinkBuildCssCallback: (d) => {
+                        return adapter.onLinkBuildCssCallback(d)
+                    },
                     onLinkClickCallback: (e, d) => {
                         console.log('link clicked', d)
+                        e.preventDefault()
                         adapter.goToFromLink(d)
                     },
                     onNodeClickCallback: (e, d) => {
                         console.log('node clicked', d)
+                        e.preventDefault()
                         adapter.goToFromNode(d)
                     },
                     onLabelClickCallback: (e, d) => {
                         console.log('label clicked', d)
+                        e.preventDefault()
                         adapter.goToFromNode(d)
                     },
                 }

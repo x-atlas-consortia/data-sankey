@@ -1,6 +1,6 @@
 /**
 * 
-* 4/17/2025, 5:54:00 PM | X Atlas Consortia Sankey 1.0.6 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/18/2025, 12:19:56 PM | X Atlas Consortia Sankey 1.0.7 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 "use strict";
 
@@ -244,6 +244,9 @@ class XACSankey extends HTMLElement {
     }
     if (ops.onNodeBuildCssCallback) {
       this.onNodeBuildCssCallback = ops.onNodeBuildCssCallback;
+    }
+    if (ops.onLinkBuildCssCallback) {
+      this.onLinkBuildCssCallback = ops.onLinkBuildCssCallback;
     }
     if (ops.onLabelClickCallback) {
       this.onLabelClickCallback = ops.onLabelClickCallback;
@@ -554,7 +557,13 @@ class XACSankey extends HTMLElement {
     });
 
     // Links
-    const link = svg.append('g').selectAll('.link').data(links).join('path').attr('class', 'c-sankey__link').attr('d', sankeyLinkHorizontal()).attr('stroke-width', d => Math.max(2, d.width)).on('click', ((e, d) => {
+    const link = svg.append('g').selectAll('.link').data(links).join('path').attr('class', d => {
+      let classes = 'c-sankey__link';
+      if (this.onLinkBuildCssCallback) {
+        classes = classes + ' ' + this.onLinkBuildCssCallback(d);
+      }
+      return classes;
+    }).attr('d', sankeyLinkHorizontal()).attr('stroke-width', d => Math.max(2, d.width)).on('click', ((e, d) => {
       if (e.defaultPrevented) return;
       if (this.onLinkClickCallback) {
         this.onLinkClickCallback(e, d);
@@ -632,8 +641,8 @@ class XACSankey extends HTMLElement {
    */
   clearCanvas() {
     if (this.useShadow) {
-      const l = _classPrivateFieldGet(_shadow, this).querySelectorAll('svg');
-      l.forEach(el => {
+      const l = _classPrivateFieldGet(_shadow, this)?.querySelectorAll('svg');
+      l?.forEach(el => {
         el.remove();
       });
     } else {
@@ -646,15 +655,17 @@ class XACSankey extends HTMLElement {
    */
   handleLoader(msg) {
     const ctx = this.useShadow ? _classPrivateFieldGet(_shadow, this) : this;
-    ctx.querySelectorAll(`.${this.classes.loader}`).forEach(el => {
-      el.remove();
-    });
-    if (this.isLoading || msg) {
-      if (!this.loading.callback) {
-        const loader = document.createElement("div");
-        loader.innerHTML = (this.isLoading ? this.loading.html : '') + (msg ? `<span class="c-sankey__msg">${msg}</span>` : '');
-        loader.className = this.classes.loader;
-        ctx.appendChild(loader);
+    if (ctx) {
+      ctx.querySelectorAll(`.${this.classes.loader}`).forEach(el => {
+        el.remove();
+      });
+      if (this.isLoading || msg) {
+        if (!this.loading.callback) {
+          const loader = document.createElement("div");
+          loader.innerHTML = (this.isLoading ? this.loading.html : '') + (msg ? `<span class="c-sankey__msg">${msg}</span>` : '');
+          loader.className = this.classes.loader;
+          ctx.appendChild(loader);
+        }
       }
     }
     if (this.loading.callback) {

@@ -16,7 +16,6 @@
           fill white
 
     &--default
-      cursor default
       &:hover
         .c-sankey
           &__value
@@ -26,8 +25,13 @@
     fill none
     stroke #000
     stroke-opacity .2
+    cursor pointer
     &:hover
       stroke-opacity .4
+
+  &__entity
+    &--default
+      cursor default
 
   &__loader
     border 5px solid #f3f3f3

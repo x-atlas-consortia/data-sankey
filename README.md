@@ -67,16 +67,18 @@ const ops = {
 const el = document.getElementById('js-sankey')
 el.setOptions({
     api[obj], // {context[str], sankey[str], token[str], ubkgOrgans[str]}
-    filters[obj], // {column_name: str}, key-value pair to filter data on
+    filters[obj], // {columnName: str}, key-value pair to filter data on
     dataCallback[function(row)] -> list[obj], // returns list of objects of filtered data
     onNodeBuildCssCallback[function(row)] -> str, // the callback when building the node class css, should return a string class name to append
+    onLinkBuildCssCallback[function(row)] -> str, // the callback when building the link class css, should return a string class name to append
     onNodeClickCallback[function(event, row)], // the callback when a node is clicked
     onLabelClickCallback[function(event, row)], // the callback when a label or name is clicked
-    validFilterMap[obj], // {column_name: str}
+    validFilterMap[obj], // {columnName: str}
     d3[obj], // {d3, d3sankey, sankeyLinkHorizontal } // the d3 library and related functions for building the graph
     loading[obj], // {html[str], callback[function(ctx)]} // loading html and callback
     styleSheetPath[str], // publicly accessible url to stylesheet
-    groupByOrganCategoryKey[str]: // the UBKG property name to use when building dictionary of organs category; default is rui_code
+    groupByOrganCategoryKey[str], // the UBKG property name to use when building dictionary of organs category; default is rui_code
+    theme[obj] // {byScheme: {columnName: d3ColorFunction}, byValue: {value: colorHexStr}}
 })
 
 ```
@@ -89,7 +91,8 @@ const ops = {
 }
 el.setAttribute('options', btoa(JSON.stringify(ops)))
 ```
-
+## Adapters
+There are two adapters available for easy implementation across projects, `SenNetAdapter` and `HuBMAPAdapter` adapters. For usage, see respective `example*.html` files.
 ## Other
 You may remove defaults from `validFilterMap` by setting the property to `null`.
 ```

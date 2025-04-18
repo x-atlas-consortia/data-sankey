@@ -17,22 +17,15 @@
         useShadow: true,
         styleSheetPath: './xac-sankey.css',
         groupByOrganCategoryKey: 'term',
-<<<<<<< HEAD
         // filters: {
-        //     //group_name: 'iec testing group',
+        //    //group_name: 'iec testing group',
         //    organ: 'lung',
-        //     status: 'new'
+        //    status: 'new,published'
         // },
-=======
-        filters: {
-            //group_name: 'iec testing group',
-            //organ: 'lung',
-            status: 'new,published'
-        },
->>>>>>> cc8c814 (Add ability to select HM status checkbox)
         api: {
             sankey: 'https://entity.api.hubmapconsortium.org/datasets/sankey_data',
-            context: 'hubmap'
+            context: 'hubmap',
+            token: localStorage.getItem('token') // set your token in local storage
         }
     }
     el.setAttribute('options', btoa(JSON.stringify(ops)))
@@ -49,14 +42,17 @@
                     },
                     onLinkClickCallback: (e, d) => {
                         console.log('link clicked', d)
+                        e.preventDefault()
                         adapter.goToFromLink(d)
                     },
                     onNodeClickCallback: (e, d) => {
                         console.log('node clicked', d)
+                        e.preventDefault()
                         adapter.goToFromNode(d)
                     },
                     onLabelClickCallback: (e, d) => {
                         console.log('label clicked', d)
+                        e.preventDefault()
                         adapter.goToFromNode(d)
                     },
                 }
