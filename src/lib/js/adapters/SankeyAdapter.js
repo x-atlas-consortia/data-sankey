@@ -38,6 +38,15 @@ class SankeyAdapter {
     }
 
     /**
+     * Checks if current column is dataset type column
+     * @param col
+     * @returns {boolean}
+     */
+    isDatasetTypeColumn(col) {
+        return this.eq(col, 'dataset_type')
+    }
+
+    /**
      * Returns the actual value from the data with proper casing
      * @param col
      * @param needles

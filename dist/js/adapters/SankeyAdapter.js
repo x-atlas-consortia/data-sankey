@@ -1,6 +1,6 @@
 /**
 * 
-* 4/18/2025, 12:25:03 PM | X Atlas Consortia Sankey 1.0.6 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/22/2025, 9:20:36 AM | X Atlas Consortia Sankey 1.0.6a | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 "use strict";
 
@@ -44,6 +44,15 @@ class SankeyAdapter {
    */
   isStatusColumn(col) {
     return this.eq(col, 'status');
+  }
+
+  /**
+   * Checks if current column is dataset type column
+   * @param col
+   * @returns {boolean}
+   */
+  isDatasetTypeColumn(col) {
+    return this.eq(col, 'dataset_type');
   }
 
   /**

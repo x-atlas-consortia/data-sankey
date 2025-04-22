@@ -7,6 +7,7 @@ class HuBMAPAdapter extends SankeyAdapter {
         this.checkDependencies()
         this.facetsMap = {
             organ: 'origin_samples_unique_mapped_organs',
+            dataset_type: 'mapped_data_types'
         }
     }
 

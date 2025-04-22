@@ -1,6 +1,6 @@
 /**
 * 
-* 4/18/2025, 12:25:03 PM | X Atlas Consortia Sankey 1.0.6 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/22/2025, 9:20:36 AM | X Atlas Consortia Sankey 1.0.6a | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 "use strict";
 
@@ -20,7 +20,8 @@ class HuBMAPAdapter extends _SankeyAdapter.default {
     super(context, ops);
     this.checkDependencies();
     this.facetsMap = {
-      organ: 'origin_samples_unique_mapped_organs'
+      organ: 'origin_samples_unique_mapped_organs',
+      dataset_type: 'mapped_data_types'
     };
   }
 
