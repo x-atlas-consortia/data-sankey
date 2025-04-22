@@ -1,6 +1,6 @@
 /**
 * 
-* 4/22/2025, 9:20:36 AM | X Atlas Consortia Sankey 1.0.6a | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/22/2025, 11:17:50 AM | X Atlas Consortia Sankey 1.0.6 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 "use strict";
 
@@ -20,8 +20,7 @@ class HuBMAPAdapter extends _SankeyAdapter.default {
     super(context, ops);
     this.checkDependencies();
     this.facetsMap = {
-      organ: 'origin_samples_unique_mapped_organs',
-      dataset_type: 'mapped_data_types'
+      organ: 'origin_samples_unique_mapped_organs'
     };
   }
 
@@ -50,7 +49,16 @@ class HuBMAPAdapter extends _SankeyAdapter.default {
         type: 'TERM'
       };
       if (this.isStatusColumn(f)) {
-        additionalFilters.mapped_status = this.buildStatusFacetQuery(properFacetName).mapped_status;
+        additionalFilters.mapped_status = this.buildHierarchicalFacetQuery({
+          fieldValues: properFacetName
+        }).mapped_status;
+      }
+      if (this.isDatasetTypeColumn(f)) {
+        delete additionalFilters.dataset_type;
+        additionalFilters.raw_dataset_type = this.buildHierarchicalFacetQuery({
+          fieldValues: properFacetName,
+          field: 'raw_dataset_type'
+        }).raw_dataset_type;
       }
     }
     _SankeyAdapter.default.log('getSankeyFilters', {
@@ -95,17 +103,23 @@ class HuBMAPAdapter extends _SankeyAdapter.default {
   }
 
   /**
-   * Creates a HM Portal compatible status filter part
-   * @param status
-   * @returns {{mapped_status: {type: string, values: {}}}}
+   * Creates a HM Portal compatible hierarchical filter part
+   * @param fieldValues
+   * @param field
+   * @param subFieldValues
+   * @returns {{}}
    */
-  buildStatusFacetQuery(status) {
+  buildHierarchicalFacetQuery({
+    fieldValues,
+    field = 'mapped_status',
+    subFieldValues = []
+  }) {
     let values = {};
-    for (let s of status) {
-      values[s] = [];
+    for (let f of fieldValues) {
+      values[f] = subFieldValues;
     }
     return {
-      mapped_status: {
+      [field]: {
         type: 'HIERARCHICAL',
         values
       }
@@ -193,7 +207,16 @@ class HuBMAPAdapter extends _SankeyAdapter.default {
       }
     };
     if (this.isStatusColumn(col)) {
-      filters.mapped_status = this.buildStatusFacetQuery([d.name]).mapped_status;
+      filters.mapped_status = this.buildHierarchicalFacetQuery({
+        fieldValues: [d.name]
+      }).mapped_status;
+    }
+    if (this.isDatasetTypeColumn(col)) {
+      delete filters.dataset_type;
+      filters.raw_dataset_type = this.buildHierarchicalFacetQuery({
+        fieldValues: [d.name],
+        field: 'raw_dataset_type'
+      }).raw_dataset_type;
     }
     const urlFilters = this.urlFilters || {};
     filters = _objectSpread(_objectSpread({}, urlFilters), filters);
