@@ -30,8 +30,7 @@ class XACSankey extends HTMLElement {
         this.validFilterMap = {
             group_name: 'dataset_group_name',
             dataset_type: 'dataset_dataset_type',
-            organ: 'organ_type',
-            status: 'dataset_status'
+            organ: 'organ_type'
         }
         this.loading = {
             html: '<div class="c-sankey__loader"></div>',
