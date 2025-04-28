@@ -1,6 +1,6 @@
 /**
 * 
-* 4/28/2025, 9:18:05 AM | X Atlas Consortia Sankey 1.0.7 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 4/28/2025, 12:14:06 PM | X Atlas Consortia Sankey 1.0.8 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 "use strict";
 
@@ -47,10 +47,12 @@ class XACSankey extends HTMLElement {
     this.graphData = null;
     this.isLoading = true;
     this.groupByOrganCategoryKey = 'rui_code';
+    this.displayableFilterMap = {};
     this.validFilterMap = {
       group_name: 'dataset_group_name',
       dataset_type: 'dataset_dataset_type',
-      organ: 'organ_type'
+      organ: 'organ_type',
+      status: 'dataset_status'
     };
     this.loading = {
       html: '<div class="c-sankey__loader"></div>',
@@ -257,6 +259,10 @@ class XACSankey extends HTMLElement {
       Object.assign(this.validFilterMap, ops.validFilterMap);
       this.purgeObject(this.validFilterMap);
     }
+    if (ops.displayableFilterMap) {
+      Object.assign(this.displayableFilterMap, ops.displayableFilterMap);
+      this.purgeObject(this.displayableFilterMap);
+    }
     if (ops.d3) {
       this.d3 = ops.d3;
     }
@@ -284,10 +290,10 @@ class XACSankey extends HTMLElement {
    * Also splits comma separated filter values into an array.
    * @returns {{}}
    */
-  getValidFilters() {
+  getValidFilters(filterMap) {
     return Object.keys(this.filters).reduce((acc, key) => {
-      if (this.validFilterMap[key.toLowerCase()] !== undefined) {
-        acc[this.validFilterMap[key].toLowerCase()] = this.filters[key].split(',');
+      if (filterMap[key.toLowerCase()] !== undefined) {
+        acc[filterMap[key].toLowerCase()] = this.filters[key].split(',');
       }
       return acc;
     }, {});
@@ -297,6 +303,48 @@ class XACSankey extends HTMLElement {
     let url = this.api.sankey;
     url = url.replace('{context}', this.api.context);
     return _Util.default.isLocal() && !this.ops.isProd ? url.replace('.api.', '-api.dev.') : url;
+  }
+  filterData(data, filterMap) {
+    // filter the data if there are valid filters
+    const validFilters = this.getValidFilters(filterMap);
+    this.filteredData = data;
+    if (Object.keys(validFilters).length > 0) {
+      const isValidFilter = (validValues, val) => !!validValues.includes(val.toLowerCase());
+      let validRows;
+      let points = 0;
+      // Filter the data based on the valid filters
+      this.filteredData = data.filter(row => {
+        validRows = [];
+        points = 0;
+        for (const [field, validValues] of Object.entries(validFilters)) {
+          if (Array.isArray(row[field])) {
+            // find out which values in array are valid
+            for (let i = 0; i < row[field].length; i++) {
+              if (isValidFilter(validValues, row[field][i])) {
+                validRows.push(row[field][i]);
+              }
+            }
+            // take valid values and readjust the row[field]
+            if (validRows.length) {
+              row[field] = [];
+              for (let i = 0; i < validRows.length; i++) {
+                row[field].push(validRows[i]);
+              }
+              points++;
+            }
+          } else {
+            if (isValidFilter(validValues, row[field])) {
+              points++;
+            }
+          }
+        }
+        return Object.keys(validFilters).length === points;
+      });
+    }
+    XACSankey.log('filteredData', {
+      data: this.filteredData,
+      color: 'orange'
+    });
   }
 
   /**
@@ -345,48 +393,12 @@ class XACSankey extends HTMLElement {
     if (this.dataCallback) {
       data = data.map(this.dataCallback);
     }
-
-    // filter the data if there are valid filters
-    const validFilters = this.getValidFilters();
-    this.filteredData = data;
-    if (Object.keys(validFilters).length > 0) {
-      const isValidFilter = (validValues, val) => !!validValues.includes(val.toLowerCase());
-      let validRows;
-      let points = 0;
-      // Filter the data based on the valid filters
-      this.filteredData = data.filter(row => {
-        validRows = [];
-        points = 0;
-        for (const [field, validValues] of Object.entries(validFilters)) {
-          if (Array.isArray(row[field])) {
-            // find out which values in array are valid
-            for (let i = 0; i < row[field].length; i++) {
-              if (isValidFilter(validValues, row[field][i])) {
-                validRows.push(row[field][i]);
-              }
-            }
-            // take valid values and readjust the row[field]
-            if (validRows.length) {
-              row[field] = [];
-              for (let i = 0; i < validRows.length; i++) {
-                row[field].push(validRows[i]);
-              }
-              points++;
-            }
-          } else {
-            if (isValidFilter(validValues, row[field])) {
-              points++;
-            }
-          }
-        }
-        return Object.keys(validFilters).length === points;
-      });
+    this.filterData(data, this.validFilterMap);
+    let columnsToShow = this.validFilterMap;
+    if (Object.keys(this.displayableFilterMap).length) {
+      columnsToShow = this.displayableFilterMap;
     }
-    XACSankey.log('filteredData', {
-      data: this.filteredData,
-      color: 'orange'
-    });
-    const columnNames = Object.values(this.validFilterMap);
+    const columnNames = Object.values(columnsToShow);
     const graphMap = {
       nodes: {},
       links: {}

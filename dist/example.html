@@ -14,14 +14,21 @@
     const el = document.getElementById('js-sankey')
     const ops = {
         styleSheetPath: './xac-sankey.css',
-        // filters: {
-        //     assigned_to_group_name: 'codcc'
-        //     // organ: 'lung',
-        //     // source_type: "human"
-        // },
+        filters: {
+            //assigned_to_group_name: 'codcc'
+            // organ: 'lung',
+            // source_type: "human"
+            status: 'published'
+        },
         api: {
             //sankey: 'https://ingest-api.dev.sennetconsortium.org/datasets/sankey_data',
             token: localStorage.getItem('token') // set your token in local storage
+        },
+        displayableFilterMap: {
+            group_name: 'dataset_group_name',
+            dataset_type: 'dataset_type_hierarchy',
+            organ: 'organ_type',
+            source_type: 'dataset_source_type'
         },
         validFilterMap: {
             dataset_type: 'dataset_type_hierarchy',
