@@ -79,7 +79,8 @@ el.setOptions({
     loading[obj], // {html[str], callback[function(ctx)]} // loading html and callback
     styleSheetPath[str], // publicly accessible url to stylesheet
     groupByOrganCategoryKey[str], // the UBKG property name to use when building dictionary of organs category; default is rui_code
-    theme[obj] // {byScheme: {columnName: d3ColorFunction}, byValue: {value: colorHexStr}}
+    theme[obj], // {byScheme: {columnName: d3ColorFunction}, byValue: {value: colorHexStr}}
+    dimensions[obj] // {breakpoint[int], mobileMaxWidth[int], desktopMaxHeight[int]}  defines sizing specifications
 })
 
 ```

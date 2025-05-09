@@ -38,6 +38,11 @@ class XACSankey extends HTMLElement {
             html: '<div class="c-sankey__loader"></div>',
             callback: null
         }
+        this.dimensions = {
+            breakpoint: 922,
+            mobileMaxWidth: 1200,
+            desktopMaxHeight: 1080
+        }
     }
 
     init() {
@@ -209,6 +214,9 @@ class XACSankey extends HTMLElement {
 
         if (ops.loading) {
             Object.assign(this.loading, ops.loading)
+        }
+        if (ops.dimensions) {
+            Object.assign(this.dimensions, ops.dimensions)
         }
         if (ops.api) {
             Object.assign(this.api, ops.api)
@@ -478,12 +486,12 @@ class XACSankey extends HTMLElement {
      * Grabs client size info.
      */
     handleWindowResize() {
-        if (this.clientWidth < 992) {
-            this.containerDimensions.width = 1200
+        if (this.clientWidth < this.dimensions.breakpoint) {
+            this.containerDimensions.width = this.dimensions.mobileMaxWidth
         } else {
             this.containerDimensions.width = this.clientWidth
         }
-        this.containerDimensions.height = Math.max(this.clientHeight, 1080)
+        this.containerDimensions.height = this.dimensions.desktopMaxHeight || this.clientHeight
     }
 
     /**

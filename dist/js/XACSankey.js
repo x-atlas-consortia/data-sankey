@@ -1,6 +1,6 @@
 /**
 * 
-* 5/9/2025, 1:37:45 PM | X Atlas Consortia Sankey 1.0.9 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 5/9/2025, 2:19:30 PM | X Atlas Consortia Sankey 1.0.9 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 "use strict";
 
@@ -57,6 +57,11 @@ class XACSankey extends HTMLElement {
     this.loading = {
       html: '<div class="c-sankey__loader"></div>',
       callback: null
+    };
+    this.dimensions = {
+      breakpoint: 922,
+      mobileMaxWidth: 1200,
+      desktopMaxHeight: 1080
     };
   }
   init() {
@@ -227,6 +232,9 @@ class XACSankey extends HTMLElement {
     this.groupByOrganCategoryKey = ops.groupByOrganCategoryKey || this.groupByOrganCategoryKey;
     if (ops.loading) {
       Object.assign(this.loading, ops.loading);
+    }
+    if (ops.dimensions) {
+      Object.assign(this.dimensions, ops.dimensions);
     }
     if (ops.api) {
       Object.assign(this.api, ops.api);
@@ -499,12 +507,12 @@ class XACSankey extends HTMLElement {
    * Grabs client size info.
    */
   handleWindowResize() {
-    if (this.clientWidth < 992) {
-      this.containerDimensions.width = 1200;
+    if (this.clientWidth < this.dimensions.breakpoint) {
+      this.containerDimensions.width = this.dimensions.mobileMaxWidth;
     } else {
       this.containerDimensions.width = this.clientWidth;
     }
-    this.containerDimensions.height = Math.max(this.clientHeight, 1080);
+    this.containerDimensions.height = this.dimensions.desktopMaxHeight || this.clientHeight;
   }
 
   /**
