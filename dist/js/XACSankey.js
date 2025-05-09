@@ -1,6 +1,6 @@
 /**
 * 
-* 5/9/2025, 1:32:48 PM | X Atlas Consortia Sankey 1.0.8 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 5/9/2025, 1:36:27 PM | X Atlas Consortia Sankey 1.0.8 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 "use strict";
 
@@ -499,7 +499,7 @@ class XACSankey extends HTMLElement {
    * Grabs client size info.
    */
   handleWindowResize() {
-    if (this.clientWidth < 930) {
+    if (this.clientWidth < 992) {
       this.containerDimensions.width = 1200;
     } else {
       this.containerDimensions.width = this.clientWidth;

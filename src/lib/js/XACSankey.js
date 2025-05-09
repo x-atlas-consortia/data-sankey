@@ -478,7 +478,7 @@ class XACSankey extends HTMLElement {
      * Grabs client size info.
      */
     handleWindowResize() {
-        if (this.clientWidth < 930) {
+        if (this.clientWidth < 992) {
             this.containerDimensions.width = 1200
         } else {
             this.containerDimensions.width = this.clientWidth
