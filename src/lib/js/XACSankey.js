@@ -250,6 +250,7 @@ class XACSankey extends HTMLElement {
             this.purgeObject(this.validFilterMap)
         }
         if (ops.displayableFilterMap) {
+            Object.assign(this.displayableFilterMap, this.validFilterMap)
             Object.assign(this.displayableFilterMap, ops.displayableFilterMap)
             this.purgeObject(this.displayableFilterMap)
         }
