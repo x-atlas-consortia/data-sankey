@@ -1,6 +1,6 @@
 /**
 * 
-* 5/9/2025, 3:27:39 PM | X Atlas Consortia Sankey 1.0.9 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 5/9/2025, 3:35:56 PM | X Atlas Consortia Sankey 1.0.9 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 "use strict";
 
@@ -76,10 +76,18 @@ class XACSankey extends HTMLElement {
   }
 
   /**
+   * Returns a list of yellow colors
+   * @returns {string[]}
+   */
+  static yellowColors() {
+    return ['#ffc255', '#b97f17', '#E4D00A', '#EEDC82'];
+  }
+
+  /**
    * Returns a list of green colors
    * @returns {string[]}
    */
-  greenColors() {
+  static greenColors() {
     return ['#8ecb93', '#195905', '#18453b', '#1b4d3e', '#006600', '#1e4d2b', '#006b3c', '#006a4e', '#00703c', '#087830', '#2a8000', '#008000', '#177245', '#306030', '#138808', '#009150', '#355e3b', '#059033', '#009900', '#009f6b', '#009e60', '#00a550', '#507d2a', '#00a877', '#228b22', '#00ab66', '#2e8b57', '#8db600', '#4f7942', '#03c03c', '#1cac78', '#4cbb17'];
   }
 
@@ -87,7 +95,7 @@ class XACSankey extends HTMLElement {
    * Returns a list of pink colors
    * @returns {string[]}
    */
-  pinkColors() {
+  static pinkColors() {
     return ['#FBA0E3', '#DA70D6', '#F49AC2', '#FFA6C9', '#F78FA7', '#F08080', '#FF91A4', '#FF9899', '#E18E96', '#FC8EAC', '#FE8C68', '#F88379', '#FF69B4', '#FF69B4', '#FC6C85', '#DCAE96'];
   }
 
@@ -99,12 +107,12 @@ class XACSankey extends HTMLElement {
     const d3 = this.d3.d3;
     this.theme = {
       byScheme: {
-        dataset_type_hierarchy: d3.scaleOrdinal(this.greenColors()),
-        organ_type: d3.scaleOrdinal(this.pinkColors())
+        dataset_type_hierarchy: d3.scaleOrdinal(XACSankey.greenColors()),
+        organ_type: d3.scaleOrdinal(XACSankey.pinkColors())
       },
       byValues: {
-        human: '#ffc255',
-        mouse: '#b97f17',
+        human: XACSankey.yellowColors()[0],
+        mouse: XACSankey.yellowColors()[1],
         unpublished: 'grey',
         published: '#198754',
         qa: '#0dcaf0:#000000',
