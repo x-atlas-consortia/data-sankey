@@ -254,7 +254,12 @@ class XACSankey extends HTMLElement {
             this.onLinkClickCallback = ops.onLinkClickCallback
         }
         if (ops.validFilterMap) {
-            Object.assign(this.validFilterMap, ops.validFilterMap)
+            if (ops.overwriteColumns) {
+                this.validFilterMap = ops.validFilterMap
+            } else {
+                Object.assign(this.validFilterMap, ops.validFilterMap)
+            }
+
             this.purgeObject(this.validFilterMap)
         }
         if (ops.displayableFilterMap) {
