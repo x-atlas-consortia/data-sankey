@@ -55,6 +55,14 @@ class XACSankey extends HTMLElement {
     }
 
     /**
+     * Returns a list of blue grey colors
+     * @returns {string[]}
+     */
+    static blueGreyColors() {
+        return ['#7492B9', '#8a9a9a', '#65737e', '#c0c8cf', '#a3aabe', '#9cadc7', '#7f92a0']
+    }
+
+    /**
      * Returns a list of yellow colors
      * @returns {string[]}
      */
