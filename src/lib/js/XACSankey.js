@@ -129,6 +129,12 @@ class XACSankey extends HTMLElement {
             }
         }
 
+        if (theme.palettes) {
+            for (let p of theme.palettes) {
+                this.theme.byScheme[p] = d3.scaleOrdinal(theme.palettes[p])
+            }
+        }
+
         Object.assign(this.theme, theme)
         this.purgeObject(this.theme)
     }
