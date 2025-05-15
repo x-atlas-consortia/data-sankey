@@ -1,4 +1,5 @@
 import Util from "./util/Util.js"
+import SenNetAdapter from "./adapters/SenNetAdapter";
 
 class XACSankey extends HTMLElement {
     #shadow;
@@ -823,6 +824,9 @@ class XACSankey extends HTMLElement {
     }
 }
 
-customElements.define('xac-sankey', XACSankey)
+try {
+    customElements.define('xac-sankey', XACSankey)
+    window.XACSankey = XACSankey
+} catch (e) {}
 
 export default  XACSankey
