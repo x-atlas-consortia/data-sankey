@@ -131,7 +131,7 @@ class XACSankey extends HTMLElement {
         }
 
         if (theme.palettes) {
-            for (let p of theme.palettes) {
+            for (let p in theme.palettes) {
                 this.theme.byScheme[p] = d3.scaleOrdinal(theme.palettes[p])
             }
         }

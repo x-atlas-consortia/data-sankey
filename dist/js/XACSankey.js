@@ -1,6 +1,6 @@
 /**
 * 
-* 5/15/2025, 11:41:04 AM | X Atlas Consortia Sankey 1.0.10 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 5/15/2025, 11:43:01 AM | X Atlas Consortia Sankey 1.0.10 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 "use strict";
 
@@ -151,7 +151,7 @@ class XACSankey extends HTMLElement {
       }
     };
     if (theme.palettes) {
-      for (let p of theme.palettes) {
+      for (let p in theme.palettes) {
         this.theme.byScheme[p] = d3.scaleOrdinal(theme.palettes[p]);
       }
     }
