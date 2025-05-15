@@ -1,6 +1,6 @@
 /**
 * 
-* 5/15/2025, 11:43:01 AM | X Atlas Consortia Sankey 1.0.10 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 5/15/2025, 11:58:37 AM | X Atlas Consortia Sankey 1.0.10 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 "use strict";
 
@@ -9,7 +9,6 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 var _Util = _interopRequireDefault(require("./util/Util.js"));
-var _SenNetAdapter = _interopRequireDefault(require("./adapters/SenNetAdapter"));
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
 function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
 function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }

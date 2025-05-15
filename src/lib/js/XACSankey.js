@@ -1,5 +1,4 @@
 import Util from "./util/Util.js"
-import SenNetAdapter from "./adapters/SenNetAdapter";
 
 class XACSankey extends HTMLElement {
     #shadow;
