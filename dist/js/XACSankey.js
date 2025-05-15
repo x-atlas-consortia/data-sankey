@@ -1,6 +1,6 @@
 /**
 * 
-* 5/15/2025, 1:43:26 PM | X Atlas Consortia Sankey 1.0.11 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 5/15/2025, 1:49:01 PM | X Atlas Consortia Sankey 1.0.11 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 "use strict";
 
@@ -778,8 +778,5 @@ class XACSankey extends HTMLElement {
     });
   }
 }
-try {
-  customElements.define('xac-sankey', XACSankey);
-  window.XACSankey = XACSankey;
-} catch (e) {}
+customElements.define('xac-sankey', XACSankey);
 var _default = exports.default = XACSankey;

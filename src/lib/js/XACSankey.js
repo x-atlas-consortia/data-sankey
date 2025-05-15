@@ -807,9 +807,6 @@ class XACSankey extends HTMLElement {
     }
 }
 
-try {
-    customElements.define('xac-sankey', XACSankey)
-    window.XACSankey = XACSankey
-} catch (e) {}
+customElements.define('xac-sankey', XACSankey)
 
 export default  XACSankey
