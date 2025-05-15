@@ -59,7 +59,7 @@ class XACSankey extends HTMLElement {
      * @returns {string[]}
      */
     static blueGreyColors() {
-        return ['#7492B9', '#8a9a9a', '#65737e', '#c0c8cf', '#a3aabe', '#9cadc7', '#7f92a0']
+        return ['#7492B9', '#759eae', '#7c99b1', '#c0c8cf', '#a3aabe', '#9cadc7', '#7f92a0']
     }
 
     /**

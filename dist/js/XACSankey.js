@@ -1,6 +1,6 @@
 /**
 * 
-* 5/13/2025, 1:12:13 PM | X Atlas Consortia Sankey 1.0.9 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 5/15/2025, 9:57:41 AM | X Atlas Consortia Sankey 1.0.10 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 "use strict";
 
@@ -80,7 +80,7 @@ class XACSankey extends HTMLElement {
    * @returns {string[]}
    */
   static blueGreyColors() {
-    return ['#7492B9', '#8a9a9a', '#65737e', '#c0c8cf', '#a3aabe', '#9cadc7', '#7f92a0'];
+    return ['#7492B9', '#759eae', '#7c99b1', '#c0c8cf', '#a3aabe', '#9cadc7', '#7f92a0'];
   }
 
   /**
