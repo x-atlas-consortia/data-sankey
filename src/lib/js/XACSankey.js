@@ -1,4 +1,5 @@
 import Util from "./util/Util.js"
+import Palette from "./util/Palette.js"
 
 class XACSankey extends HTMLElement {
     #shadow;
@@ -55,47 +56,15 @@ class XACSankey extends HTMLElement {
     }
 
     /**
-     * Returns a list of blue grey colors
-     * @returns {string[]}
-     */
-    static blueGreyColors() {
-        return ['#7492B9', '#759eae', '#7c99b1', '#c0c8cf', '#a3aabe', '#9cadc7', '#7f92a0']
-    }
-
-    /**
-     * Returns a list of yellow colors
-     * @returns {string[]}
-     */
-    static yellowColors() {
-        return ['#ffc255', '#b97f17', '#E4D00A', '#EEDC82']
-    }
-
-    /**
-     * Returns a list of green colors
-     * @returns {string[]}
-     */
-    static greenColors() {
-        return ['#8ecb93', '#195905', '#18453b', '#1b4d3e', '#006600', '#1e4d2b', '#006b3c', '#006a4e', '#00703c', '#087830', '#2a8000', '#008000', '#177245', '#306030', '#138808', '#009150', '#355e3b', '#059033', '#009900', '#009f6b', '#009e60', '#00a550', '#507d2a', '#00a877', '#228b22', '#00ab66', '#2e8b57', '#8db600', '#4f7942', '#03c03c', '#1cac78', '#4cbb17']
-    }
-
-    /**
-     * Returns a list of pink colors
-     * @returns {string[]}
-     */
-    static pinkColors() {
-        return ['#FBA0E3', '#DA70D6', '#F49AC2', '#FFA6C9', '#F78FA7', '#F08080', '#FF91A4', '#FF9899', '#E18E96', '#FC8EAC', '#FE8C68', '#F88379', '#FF69B4', '#FF69B4', '#FC6C85', '#DCAE96']
-    }
-
-    /**
      * Return various color palettes
      * @returns {{blueGrey: string[], pink: string[], green: string[], yellow: string[]}}
      */
     getColorPalettes() {
         return {
-            blueGrey: XACSankey.blueGreyColors(),
-            pink: XACSankey.pinkColors(),
-            green: XACSankey.greenColors(),
-            yellow: XACSankey.yellowColors()
+            blueGrey: Palette.blueGreyColors,
+            pink: Palette.pinkColors,
+            green: Palette.greenColors,
+            yellow: Palette.yellowColors
         }
     }
 
@@ -107,25 +76,13 @@ class XACSankey extends HTMLElement {
         const d3 = this.d3.d3
         this.theme = {
             byScheme: {
-                dataset_type_hierarchy: d3.scaleOrdinal(XACSankey.greenColors()),
-                organ_type: d3.scaleOrdinal(XACSankey.pinkColors()),
+                dataset_type_hierarchy: d3.scaleOrdinal(Palette.greenColors),
+                organ_type: d3.scaleOrdinal(Palette.pinkColors),
             },
             byValues: {
-                human: XACSankey.yellowColors()[0],
-                mouse: XACSankey.yellowColors()[1],
-                unpublished: 'grey',
-                published: '#198754',
-                qa: '#0dcaf0:#000000',
-                error: '#dc3545',
-                invalid: '#dc3545',
-                new: '#6f42c1',
-                processing: '#6c757d',
-                submitted: '#0dcaf0:#000000',
-                hold: '#6c757d',
-                reopened: '#6f42c1',
-                reorganized: '#0dcaf0:#000000',
-                valid: '#198754',
-                incomplete: '#ffc107:#212529',
+                human: Palette.yellowColors[0],
+                mouse: Palette.yellowColors[1],
+                ...Palette.statusColorMap
             }
         }
 
@@ -264,6 +221,9 @@ class XACSankey extends HTMLElement {
         }
         if (ops.onDataBuildCallback) {
             this.onDataBuildCallback = ops.onDataBuildCallback
+        }
+        if (ops.onSvgBuildCallback) {
+            this.onSvgBuildCallback = ops.onSvgBuildCallback
         }
         if (ops.onNodeClickCallback) {
             this.onNodeClickCallback = ops.onNodeClickCallback
@@ -536,6 +496,14 @@ class XACSankey extends HTMLElement {
     }
 
     /**
+     * Returns the shadow container
+     * @returns {*}
+     */
+    getContainer() {
+        return this.useShadow ? this.d3.d3.select(this.#shadow) : this.d3.d3.select(this)
+    }
+
+    /**
      * Builds the visualization.
      */
     buildGraph() {
@@ -554,8 +522,12 @@ class XACSankey extends HTMLElement {
         const color = d3.scaleOrdinal(d3.schemeCategory10)
 
         // Layout the svg element
-        const container = this.useShadow ? d3.select(this.#shadow) : d3.select(this.#shadow)
+        const container = this.getContainer()
         const svg = container.append('svg').attr('width', width).attr('height', height).attr('transform', `translate(${margin.left},${margin.top})`)
+
+        if (this.onSvgBuildCallback) {
+            svg.attr('class', 'xac--is-loading')
+        }
 
         // Set up the Sankey generator
         const sankey = d3sankey()
@@ -646,8 +618,8 @@ class XACSankey extends HTMLElement {
             .attr('height', (d) => Math.max(5, d.y1 - d.y0))
             .attr('width', sankey.nodeWidth())
             .attr('fill', (d) => {
-                if (this.theme?.byValues && this.theme.byValues[d.name.toLowerCase()]) {
-                    const color = this.theme.byValues[d.name.toLowerCase()].split(':')
+                if (this.theme?.byValues && this.theme.byValues[d.name?.toLowerCase()]) {
+                    const color = this.theme.byValues[d.name?.toLowerCase()].split(':')
                     return color[0]
                 }
                 if (this.theme?.byScheme && this.theme.byScheme[d.columnName]) {
@@ -690,6 +662,18 @@ class XACSankey extends HTMLElement {
                 }
             }).bind(this))
 
+
+        if (this.onSvgBuildCallback) {
+            if (Util.eq(typeof this.onSvgBuildCallback, 'function')) {
+                this.onSvgBuildCallback(this)
+            }
+        } else {
+            this.hideLoadingSpinner()
+        }
+
+    }
+
+    hideLoadingSpinner() {
         this.isLoading = false;
         this.useEffect('graph')
     }

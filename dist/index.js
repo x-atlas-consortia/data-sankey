@@ -1,6 +1,6 @@
 /**
 * 
-* 5/15/2025, 11:58:37 AM | X Atlas Consortia Sankey 1.0.10 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 5/15/2025, 1:40:13 PM | X Atlas Consortia Sankey 1.0.10 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 "use strict";
 
@@ -11,6 +11,12 @@ Object.defineProperty(exports, "HuBMAPAdapter", {
   enumerable: true,
   get: function () {
     return _HuBMAPAdapter.default;
+  }
+});
+Object.defineProperty(exports, "Palette", {
+  enumerable: true,
+  get: function () {
+    return _Palette.default;
   }
 });
 Object.defineProperty(exports, "ReactConsortiaSankey", {
@@ -25,6 +31,12 @@ Object.defineProperty(exports, "SenNetAdapter", {
     return _SenNetAdapter.default;
   }
 });
+Object.defineProperty(exports, "Util", {
+  enumerable: true,
+  get: function () {
+    return _Util.default;
+  }
+});
 Object.defineProperty(exports, "XACSankey", {
   enumerable: true,
   get: function () {
@@ -35,4 +47,6 @@ var _XACSankey = _interopRequireDefault(require("./js/XACSankey"));
 var _ReactConsortiaSankey = _interopRequireDefault(require("./js/ReactConsortiaSankey"));
 var _SenNetAdapter = _interopRequireDefault(require("./js/adapters/SenNetAdapter"));
 var _HuBMAPAdapter = _interopRequireDefault(require("./js/adapters/HuBMAPAdapter"));
+var _Palette = _interopRequireDefault(require("./js/util/Palette"));
+var _Util = _interopRequireDefault(require("./js/util/Util"));
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
