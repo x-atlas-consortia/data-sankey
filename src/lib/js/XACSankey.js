@@ -87,6 +87,19 @@ class XACSankey extends HTMLElement {
     }
 
     /**
+     * Return various color palettes
+     * @returns {{blueGrey: string[], pink: string[], green: string[], yellow: string[]}}
+     */
+    getColorPalettes() {
+        return {
+            blueGrey: XACSankey.blueGreyColors(),
+            pink: XACSankey.pinkColors(),
+            green: XACSankey.greenColors(),
+            yellow: XACSankey.yellowColors()
+        }
+    }
+
+    /**
      * Sets a color theme for sankey rect bars
      * @param {object} theme
      */

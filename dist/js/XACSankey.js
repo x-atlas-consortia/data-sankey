@@ -1,6 +1,6 @@
 /**
 * 
-* 5/15/2025, 9:57:41 AM | X Atlas Consortia Sankey 1.0.10 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 5/15/2025, 11:12:53 AM | X Atlas Consortia Sankey 1.0.10 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 "use strict";
 
@@ -105,6 +105,19 @@ class XACSankey extends HTMLElement {
    */
   static pinkColors() {
     return ['#FBA0E3', '#DA70D6', '#F49AC2', '#FFA6C9', '#F78FA7', '#F08080', '#FF91A4', '#FF9899', '#E18E96', '#FC8EAC', '#FE8C68', '#F88379', '#FF69B4', '#FF69B4', '#FC6C85', '#DCAE96'];
+  }
+
+  /**
+   * Return various color palettes
+   * @returns {{blueGrey: string[], pink: string[], green: string[], yellow: string[]}}
+   */
+  getColorPalettes() {
+    return {
+      blueGrey: XACSankey.blueGreyColors(),
+      pink: XACSankey.pinkColors(),
+      green: XACSankey.greenColors(),
+      yellow: XACSankey.yellowColors()
+    };
   }
 
   /**
