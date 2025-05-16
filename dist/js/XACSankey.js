@@ -1,6 +1,6 @@
 /**
 * 
-* 5/16/2025, 11:39:50 AM | X Atlas Consortia Sankey 1.0.11 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 5/16/2025, 11:47:44 AM | X Atlas Consortia Sankey 1.0.11 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 "use strict";
 
@@ -637,14 +637,16 @@ class XACSankey extends HTMLElement {
       }
     }).bind(this));
     node.append('rect').attr('height', d => Math.max(5, d.y1 - d.y0)).attr('width', sankey.nodeWidth()).attr('fill', d => {
-      const c = this.getFromUbkgColorPalette(d);
-      if (_Util.default.isLocal()) {
-        _Util.default.log(d.name, {
-          color: c,
-          data: c
-        });
+      if (!this.ops.disableUbkgColorPalettes) {
+        const c = this.getFromUbkgColorPalette(d);
+        if (_Util.default.isLocal()) {
+          _Util.default.log(d.name, {
+            color: c,
+            data: c
+          });
+        }
+        if (c) return c;
       }
-      if (c) return c;
       if (this.theme?.byValues && this.theme.byValues[d.name?.toLowerCase()]) {
         const c = this.theme.byValues[d.name?.toLowerCase()].split(':');
         return c[0];

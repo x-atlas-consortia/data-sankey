@@ -640,11 +640,13 @@ class XACSankey extends HTMLElement {
             .attr('height', (d) => Math.max(5, d.y1 - d.y0))
             .attr('width', sankey.nodeWidth())
             .attr('fill', (d) => {
-                const c = this.getFromUbkgColorPalette(d)
-                if (Util.isLocal()) {
-                    Util.log(d.name, {color: c, data: c})
+                if (!this.ops.disableUbkgColorPalettes) {
+                    const c = this.getFromUbkgColorPalette(d)
+                    if (Util.isLocal()) {
+                        Util.log(d.name, {color: c, data: c})
+                    }
+                    if (c) return c
                 }
-                if (c) return c
                 if (this.theme?.byValues && this.theme.byValues[d.name?.toLowerCase()]) {
                     const c = this.theme.byValues[d.name?.toLowerCase()].split(':')
                     return c[0]
