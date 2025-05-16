@@ -82,6 +82,7 @@ class XACSankey extends HTMLElement {
         const d3 = this.d3.d3
         this.theme = {
             byScheme: {
+                dataset_group_name: d3.scaleOrdinal(Palette.blueGreyColors),
                 dataset_type_hierarchy: d3.scaleOrdinal(Palette.greenColors),
                 organ_type: d3.scaleOrdinal(Palette.pinkColors),
             },

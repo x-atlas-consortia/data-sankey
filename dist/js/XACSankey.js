@@ -1,6 +1,6 @@
 /**
 * 
-* 5/16/2025, 11:47:44 AM | X Atlas Consortia Sankey 1.0.11 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 5/16/2025, 2:32:29 PM | X Atlas Consortia Sankey 1.0.11 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 "use strict";
 
@@ -102,6 +102,7 @@ class XACSankey extends HTMLElement {
     const d3 = this.d3.d3;
     this.theme = {
       byScheme: {
+        dataset_group_name: d3.scaleOrdinal(_Palette.default.blueGreyColors),
         dataset_type_hierarchy: d3.scaleOrdinal(_Palette.default.greenColors),
         organ_type: d3.scaleOrdinal(_Palette.default.pinkColors)
       },
