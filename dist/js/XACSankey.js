@@ -1,6 +1,6 @@
 /**
 * 
-* 5/15/2025, 1:49:01 PM | X Atlas Consortia Sankey 1.0.11 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 5/16/2025, 11:39:50 AM | X Atlas Consortia Sankey 1.0.11 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 "use strict";
 
@@ -73,7 +73,12 @@ class XACSankey extends HTMLElement {
       }));
       this.applyStyles();
     }
+    this.getUbkgColorPalettes();
     this.fetchData();
+  }
+  async getUbkgColorPalettes() {
+    const response = await fetch(`https://x-atlas-consortia.github.io/ubkg-palettes/${this.api.context}/palettes.json`);
+    this.ubkgColorPalettes = await response.json();
   }
 
   /**
@@ -522,6 +527,22 @@ class XACSankey extends HTMLElement {
   }
 
   /**
+   * Return a color hex for a given node value
+   * @param d
+   */
+  getFromUbkgColorPalette(d) {
+    const columns = {
+      dataset_type: 'datasetTypes',
+      organ: 'organs',
+      group_name: 'groups'
+    };
+    const filterMap = this.flipObj(this.validFilterMap);
+    const col = columns[filterMap[d.columnName]];
+    if (col) {
+      return this.ubkgColorPalettes[col] ? this.ubkgColorPalettes[col][d.name] : null;
+    }
+  }
+  /**
    * Builds the visualization.
    */
   buildGraph() {
@@ -616,9 +637,17 @@ class XACSankey extends HTMLElement {
       }
     }).bind(this));
     node.append('rect').attr('height', d => Math.max(5, d.y1 - d.y0)).attr('width', sankey.nodeWidth()).attr('fill', d => {
+      const c = this.getFromUbkgColorPalette(d);
+      if (_Util.default.isLocal()) {
+        _Util.default.log(d.name, {
+          color: c,
+          data: c
+        });
+      }
+      if (c) return c;
       if (this.theme?.byValues && this.theme.byValues[d.name?.toLowerCase()]) {
-        const color = this.theme.byValues[d.name?.toLowerCase()].split(':');
-        return color[0];
+        const c = this.theme.byValues[d.name?.toLowerCase()].split(':');
+        return c[0];
       }
       if (this.theme?.byScheme && this.theme.byScheme[d.columnName]) {
         return this.theme.byScheme[d.columnName](d.name);
