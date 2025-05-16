@@ -14,18 +14,29 @@
     const el = document.getElementById('js-sankey')
     const ops = {
         styleSheetPath: './xac-sankey.css',
-        // filters: {
-        //     assigned_to_group_name: 'codcc'
-        //     // organ: 'lung',
-        //     // source_type: "human"
-        // },
+        onSvgBuildCallback: true,
+        filters: {
+            //assigned_to_group_name: 'codcc'
+            // organ: 'lung',
+            // source_type: "human"
+            status: 'published'
+        },
         api: {
             //sankey: 'https://ingest-api.dev.sennetconsortium.org/datasets/sankey_data',
             token: localStorage.getItem('token') // set your token in local storage
         },
+        displayableFilterMap: {
+            status: null
+        },
+        overwriteColumns: true,
         validFilterMap: {
+            group_name: 'dataset_group_name',
+            source_type: 'dataset_source_type',
+            organ: 'organ_type',
             dataset_type: 'dataset_type_hierarchy',
-            source_type: 'dataset_source_type'
+        },
+        dimensions: {
+            desktopMaxHeight: 700
         }
     }
     el.setAttribute('options', btoa(JSON.stringify(ops)))
@@ -33,10 +44,18 @@
     const i = setInterval(()=> {
         if (el.setOptions) {
             const adapter = new SenNetAdapter(el, {isProd: true})
-
             clearInterval(i)
             el.setOptions(
                 {
+                    theme: {
+                        palettes: {
+                          dataset_group_name: el.getColorPalettes().blueGrey
+                      }
+                    },
+                    onSvgBuildCallback: () => {
+                        el.getContainer().select('svg').attr('class', '')
+                        el.hideLoadingSpinner()
+                    },
                     onDataBuildCallback: () => {
                         adapter.onDataBuildCallback()
                     },

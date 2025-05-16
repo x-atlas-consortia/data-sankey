@@ -1,4 +1,5 @@
 import Util from "./util/Util.js"
+import Palette from "./util/Palette.js"
 
 class XACSankey extends HTMLElement {
     #shadow;
@@ -27,6 +28,7 @@ class XACSankey extends HTMLElement {
         this.graphData = null
         this.isLoading = true
         this.groupByOrganCategoryKey = 'rui_code'
+        this.displayableFilterMap = {}
         this.validFilterMap = {
             group_name: 'dataset_group_name',
             dataset_type: 'dataset_dataset_type',
@@ -37,6 +39,11 @@ class XACSankey extends HTMLElement {
             html: '<div class="c-sankey__loader"></div>',
             callback: null
         }
+        this.dimensions = {
+            breakpoint: 922,
+            mobileMaxWidth: 1200,
+            desktopMaxHeight: 1080
+        }
     }
 
     init() {
@@ -45,23 +52,26 @@ class XACSankey extends HTMLElement {
             this.#shadow = this.attachShadow({ mode: "open" })
             this.applyStyles()
         }
+        this.getUbkgColorPalettes()
         this.fetchData()
     }
 
-    /**
-     * Returns a list of green colors
-     * @returns {string[]}
-     */
-    greenColors() {
-        return ['#8ecb93', '#195905', '#18453b', '#1b4d3e', '#006600', '#1e4d2b', '#006b3c', '#006a4e', '#00703c', '#087830', '#2a8000', '#008000', '#177245', '#306030', '#138808', '#009150', '#355e3b', '#059033', '#009900', '#009f6b', '#009e60', '#00a550', '#507d2a', '#00a877', '#228b22', '#00ab66', '#2e8b57', '#8db600', '#4f7942', '#03c03c', '#1cac78', '#4cbb17']
+    async getUbkgColorPalettes() {
+        const response = await fetch(`https://x-atlas-consortia.github.io/ubkg-palettes/${this.api.context}/palettes.json`)
+        this.ubkgColorPalettes = await response.json()
     }
 
     /**
-     * Returns a list of pink colors
-     * @returns {string[]}
+     * Return various color palettes
+     * @returns {{blueGrey: string[], pink: string[], green: string[], yellow: string[]}}
      */
-    pinkColors() {
-        return ['#FBA0E3', '#DA70D6', '#F49AC2', '#FFA6C9', '#F78FA7', '#F08080', '#FF91A4', '#FF9899', '#E18E96', '#FC8EAC', '#FE8C68', '#F88379', '#FF69B4', '#FF69B4', '#FC6C85', '#DCAE96']
+    getColorPalettes() {
+        return {
+            blueGrey: Palette.blueGreyColors,
+            pink: Palette.pinkColors,
+            green: Palette.greenColors,
+            yellow: Palette.yellowColors
+        }
     }
 
     /**
@@ -72,25 +82,20 @@ class XACSankey extends HTMLElement {
         const d3 = this.d3.d3
         this.theme = {
             byScheme: {
-                dataset_type_hierarchy: d3.scaleOrdinal(this.greenColors()),
-                organ_type: d3.scaleOrdinal(this.pinkColors()),
+                dataset_group_name: d3.scaleOrdinal(Palette.blueGreyColors),
+                dataset_type_hierarchy: d3.scaleOrdinal(Palette.greenColors),
+                organ_type: d3.scaleOrdinal(Palette.pinkColors),
             },
             byValues: {
-                human: '#ffc255',
-                mouse: '#b97f17',
-                unpublished: 'grey',
-                published: '#198754',
-                qa: '#0dcaf0:#000000',
-                error: '#dc3545',
-                invalid: '#dc3545',
-                new: '#6f42c1',
-                processing: '#6c757d',
-                submitted: '#0dcaf0:#000000',
-                hold: '#6c757d',
-                reopened: '#6f42c1',
-                reorganized: '#0dcaf0:#000000',
-                valid: '#198754',
-                incomplete: '#ffc107:#212529',
+                human: Palette.yellowColors[0],
+                mouse: Palette.yellowColors[1],
+                ...Palette.statusColorMap
+            }
+        }
+
+        if (theme.palettes) {
+            for (let p in theme.palettes) {
+                this.theme.byScheme[p] = d3.scaleOrdinal(theme.palettes[p])
             }
         }
 
@@ -209,6 +214,9 @@ class XACSankey extends HTMLElement {
         if (ops.loading) {
             Object.assign(this.loading, ops.loading)
         }
+        if (ops.dimensions) {
+            Object.assign(this.dimensions, ops.dimensions)
+        }
         if (ops.api) {
             Object.assign(this.api, ops.api)
         }
@@ -220,6 +228,9 @@ class XACSankey extends HTMLElement {
         }
         if (ops.onDataBuildCallback) {
             this.onDataBuildCallback = ops.onDataBuildCallback
+        }
+        if (ops.onSvgBuildCallback) {
+            this.onSvgBuildCallback = ops.onSvgBuildCallback
         }
         if (ops.onNodeClickCallback) {
             this.onNodeClickCallback = ops.onNodeClickCallback
@@ -237,8 +248,18 @@ class XACSankey extends HTMLElement {
             this.onLinkClickCallback = ops.onLinkClickCallback
         }
         if (ops.validFilterMap) {
-            Object.assign(this.validFilterMap, ops.validFilterMap)
+            if (ops.overwriteColumns) {
+                this.validFilterMap = ops.validFilterMap
+            } else {
+                Object.assign(this.validFilterMap, ops.validFilterMap)
+            }
+
             this.purgeObject(this.validFilterMap)
+        }
+        if (ops.displayableFilterMap) {
+            Object.assign(this.displayableFilterMap, this.validFilterMap)
+            Object.assign(this.displayableFilterMap, ops.displayableFilterMap)
+            this.purgeObject(this.displayableFilterMap)
         }
         if (ops.d3) {
             this.d3 = ops.d3
@@ -267,11 +288,11 @@ class XACSankey extends HTMLElement {
      * Also splits comma separated filter values into an array.
      * @returns {{}}
      */
-    getValidFilters() {
+    getValidFilters(filterMap) {
 
         return Object.keys(this.filters).reduce((acc, key) => {
-            if (this.validFilterMap[key.toLowerCase()] !== undefined) {
-                acc[this.validFilterMap[key].toLowerCase()] = this.filters[key].split(',')
+            if (filterMap[key.toLowerCase()] !== undefined) {
+                acc[filterMap[key].toLowerCase()] = this.filters[key].split(',')
             }
             return acc
         }, {})
@@ -282,6 +303,51 @@ class XACSankey extends HTMLElement {
         let url = this.api.sankey
         url = url.replace('{context}', this.api.context)
         return Util.isLocal() && !this.ops.isProd ? url.replace('.api.', '-api.dev.') : url
+    }
+
+    filterData(data, filterMap) {
+        // filter the data if there are valid filters
+        const validFilters = this.getValidFilters(filterMap)
+        this.filteredData = data
+
+        if (Object.keys(validFilters).length > 0) {
+            const isValidFilter = (validValues, val)=> !(!validValues.includes(val.toLowerCase()))
+            let validRows
+            let points = 0
+            // Filter the data based on the valid filters
+            this.filteredData = data.filter((row) => {
+                validRows = []
+                points = 0;
+                for (const [field, validValues] of Object.entries(validFilters)) {
+
+                    if (Array.isArray(row[field])) {
+                        // find out which values in array are valid
+                        for (let i = 0; i < row[field].length; i++) {
+                            if (isValidFilter(validValues, row[field][i])) {
+                                validRows.push(row[field][i])
+                            }
+                        }
+                        // take valid values and readjust the row[field]
+                        if (validRows.length) {
+                            row[field] = []
+                            for (let i = 0; i < validRows.length; i++) {
+                                row[field].push(validRows[i])
+                            }
+                            points++;
+                        }
+
+                    } else {
+                        if (isValidFilter(validValues, row[field])) {
+                            points++
+                        }
+                    }
+                }
+                return Object.keys(validFilters).length === points
+            })
+        }
+
+        XACSankey.log('filteredData', {data: this.filteredData, color: 'orange'})
+
     }
 
     /**
@@ -332,49 +398,14 @@ class XACSankey extends HTMLElement {
             data = data.map(this.dataCallback)
         }
 
-        // filter the data if there are valid filters
-        const validFilters = this.getValidFilters()
-        this.filteredData = data
-        if (Object.keys(validFilters).length > 0) {
+        this.filterData(data, this.validFilterMap)
+        let columnsToShow = this.validFilterMap
 
-            const isValidFilter = (validValues, val)=> !(!validValues.includes(val.toLowerCase()))
-            let validRows
-            let points = 0
-            // Filter the data based on the valid filters
-            this.filteredData = data.filter((row) => {
-                validRows = []
-                points = 0;
-                for (const [field, validValues] of Object.entries(validFilters)) {
-
-                    if (Array.isArray(row[field])) {
-                        // find out which values in array are valid
-                        for (let i = 0; i < row[field].length; i++) {
-                            if (isValidFilter(validValues, row[field][i])) {
-                                validRows.push(row[field][i])
-                            }
-                        }
-                        // take valid values and readjust the row[field]
-                        if (validRows.length) {
-                            row[field] = []
-                            for (let i = 0; i < validRows.length; i++) {
-                                row[field].push(validRows[i])
-                            }
-                            points++;
-                        }
-
-                    } else {
-                        if (isValidFilter(validValues, row[field])) {
-                            points++
-                        }
-                    }
-                }
-                return Object.keys(validFilters).length === points
-            })
+        if (Object.keys(this.displayableFilterMap).length) {
+            columnsToShow = this.displayableFilterMap
         }
 
-        XACSankey.log('filteredData', {data: this.filteredData, color: 'orange'})
-
-        const columnNames = Object.values(this.validFilterMap)
+        const columnNames = Object.values(columnsToShow)
         const graphMap = {nodes: {}, links: {}}
         let i = 0;
 
@@ -463,10 +494,38 @@ class XACSankey extends HTMLElement {
      * Grabs client size info.
      */
     handleWindowResize() {
-        this.containerDimensions.width = this.clientWidth
-        this.containerDimensions.height = Math.max(this.clientHeight, 1080)
+        if (this.clientWidth < this.dimensions.breakpoint) {
+            this.containerDimensions.width = this.dimensions.mobileMaxWidth
+        } else {
+            this.containerDimensions.width = this.clientWidth
+        }
+        this.containerDimensions.height = this.dimensions.desktopMaxHeight || this.clientHeight
     }
 
+    /**
+     * Returns the shadow container
+     * @returns {*}
+     */
+    getContainer() {
+        return this.useShadow ? this.d3.d3.select(this.#shadow) : this.d3.d3.select(this)
+    }
+
+    /**
+     * Return a color hex for a given node value
+     * @param d
+     */
+    getFromUbkgColorPalette(d) {
+        const columns = {
+            dataset_type: 'datasetTypes',
+            organ: 'organs',
+            group_name: 'groups'
+        }
+        const filterMap = this.flipObj(this.validFilterMap)
+        const col = columns[filterMap[d.columnName]]
+        if (col) {
+            return this.ubkgColorPalettes[col] ? this.ubkgColorPalettes[col][d.name] : null
+        }
+    }
     /**
      * Builds the visualization.
      */
@@ -486,8 +545,12 @@ class XACSankey extends HTMLElement {
         const color = d3.scaleOrdinal(d3.schemeCategory10)
 
         // Layout the svg element
-        const container = this.useShadow ? d3.select(this.#shadow) : d3.select(this.#shadow)
+        const container = this.getContainer()
         const svg = container.append('svg').attr('width', width).attr('height', height).attr('transform', `translate(${margin.left},${margin.top})`)
+
+        if (this.onSvgBuildCallback) {
+            svg.attr('class', 'xac--is-loading')
+        }
 
         // Set up the Sankey generator
         const sankey = d3sankey()
@@ -578,9 +641,16 @@ class XACSankey extends HTMLElement {
             .attr('height', (d) => Math.max(5, d.y1 - d.y0))
             .attr('width', sankey.nodeWidth())
             .attr('fill', (d) => {
-                if (this.theme?.byValues && this.theme.byValues[d.name.toLowerCase()]) {
-                    const color = this.theme.byValues[d.name.toLowerCase()].split(':')
-                    return color[0]
+                if (!this.ops.disableUbkgColorPalettes) {
+                    const c = this.getFromUbkgColorPalette(d)
+                    if (Util.isLocal()) {
+                        Util.log(d.name, {color: c, data: c})
+                    }
+                    if (c) return c
+                }
+                if (this.theme?.byValues && this.theme.byValues[d.name?.toLowerCase()]) {
+                    const c = this.theme.byValues[d.name?.toLowerCase()].split(':')
+                    return c[0]
                 }
                 if (this.theme?.byScheme && this.theme.byScheme[d.columnName]) {
                     return this.theme.byScheme[d.columnName](d.name)
@@ -622,6 +692,18 @@ class XACSankey extends HTMLElement {
                 }
             }).bind(this))
 
+
+        if (this.onSvgBuildCallback) {
+            if (Util.eq(typeof this.onSvgBuildCallback, 'function')) {
+                this.onSvgBuildCallback(this)
+            }
+        } else {
+            this.hideLoadingSpinner()
+        }
+
+    }
+
+    hideLoadingSpinner() {
         this.isLoading = false;
         this.useEffect('graph')
     }

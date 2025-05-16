@@ -35,7 +35,11 @@ class HuBMAPAdapter extends SankeyAdapter {
                 type: 'TERM',
             }
             if (this.isStatusColumn(f)) {
-                additionalFilters.mapped_status = this.buildStatusFacetQuery(properFacetName).mapped_status
+                additionalFilters.mapped_status = this.buildHierarchicalFacetQuery({fieldValues: properFacetName}).mapped_status
+            }
+            if (this.isDatasetTypeColumn(f)) {
+                delete additionalFilters.dataset_type
+                additionalFilters.raw_dataset_type = this.buildHierarchicalFacetQuery({fieldValues: properFacetName, field: 'raw_dataset_type'}).raw_dataset_type
             }
         }
         SankeyAdapter.log('getSankeyFilters', {color: 'purple', data: {facetsMap, additionalFilters}})
@@ -74,17 +78,19 @@ class HuBMAPAdapter extends SankeyAdapter {
     }
 
     /**
-     * Creates a HM Portal compatible status filter part
-     * @param status
-     * @returns {{mapped_status: {type: string, values: {}}}}
+     * Creates a HM Portal compatible hierarchical filter part
+     * @param fieldValues
+     * @param field
+     * @param subFieldValues
+     * @returns {{}}
      */
-    buildStatusFacetQuery(status) {
+    buildHierarchicalFacetQuery({fieldValues, field = 'mapped_status',  subFieldValues = []}) {
         let values = {}
-        for (let s of status) {
-            values[s] = []
+        for (let f of fieldValues) {
+            values[f] = subFieldValues
         }
         return {
-            mapped_status: {
+            [field]: {
                 type: 'HIERARCHICAL',
                 values,
             }
@@ -165,7 +171,11 @@ class HuBMAPAdapter extends SankeyAdapter {
             }
         }
         if (this.isStatusColumn(col)) {
-            filters.mapped_status = this.buildStatusFacetQuery([d.name]).mapped_status
+            filters.mapped_status = this.buildHierarchicalFacetQuery({fieldValues: [d.name]}).mapped_status
+        }
+        if (this.isDatasetTypeColumn(col)) {
+            delete filters.dataset_type
+            filters.raw_dataset_type = this.buildHierarchicalFacetQuery({fieldValues: [d.name], field: 'raw_dataset_type'}).raw_dataset_type
         }
         const urlFilters = this.urlFilters || {}
         filters = {...urlFilters, ...filters}

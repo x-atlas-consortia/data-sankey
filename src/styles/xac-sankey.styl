@@ -1,3 +1,6 @@
+.xac--is-loading
+  opacity 0
+
 .c-sankey
   min-height 100vh
 
@@ -32,6 +35,8 @@
   &__entity
     &--default
       cursor default
+      &:hover
+        stroke-opacity .2
 
   &__loader
     border 5px solid #f3f3f3

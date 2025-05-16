@@ -73,12 +73,14 @@ el.setOptions({
     onLinkBuildCssCallback[function(row)] -> str, // the callback when building the link class css, should return a string class name to append
     onNodeClickCallback[function(event, row)], // the callback when a node is clicked
     onLabelClickCallback[function(event, row)], // the callback when a label or name is clicked
-    validFilterMap[obj], // {columnName: str}
+    validFilterMap[obj], // {columnName: str} // The mapping between `filters` key to `validFilterMap` key
+    displayableFilterMap[obj], // {columnName: str} // the column names to be displayed visually, leave as an empty bject to display all from `validFilterMap`
     d3[obj], // {d3, d3sankey, sankeyLinkHorizontal } // the d3 library and related functions for building the graph
     loading[obj], // {html[str], callback[function(ctx)]} // loading html and callback
     styleSheetPath[str], // publicly accessible url to stylesheet
     groupByOrganCategoryKey[str], // the UBKG property name to use when building dictionary of organs category; default is rui_code
-    theme[obj] // {byScheme: {columnName: d3ColorFunction}, byValue: {value: colorHexStr}}
+    theme[obj], // {byScheme: {columnName: d3ColorFunction}, byValue: {value: colorHexStr}}
+    dimensions[obj] // {breakpoint[int], mobileMaxWidth[int], desktopMaxHeight[int]}  defines sizing specifications
 })
 
 ```
