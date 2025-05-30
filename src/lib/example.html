@@ -20,7 +20,7 @@
             //assigned_to_group_name: 'codcc'
             // organ: 'lung',
             // source_type: "human"
-            status: 'published'
+            status: 'Published'
         },
         api: {
             //sankey: 'https://ingest-api.dev.sennetconsortium.org/datasets/sankey_data',
@@ -44,7 +44,7 @@
 
     const i = setInterval(()=> {
         if (el.setOptions) {
-            const adapter = new SenNetAdapter(el, {isProd: true})
+            const adapter = new SenNetAdapter(el, {isProd: false})
             clearInterval(i)
             el.setOptions(
                 {

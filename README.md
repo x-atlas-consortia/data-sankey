@@ -78,7 +78,7 @@ el.setOptions({
     d3[obj], // {d3, d3sankey, sankeyLinkHorizontal } // the d3 library and related functions for building the graph
     loading[obj], // {html[str], callback[function(ctx)]} // loading html and callback
     styleSheetPath[str], // publicly accessible url to stylesheet
-    groupByOrganCategoryKey[str], // the UBKG property name to use when building dictionary of organs category; default is rui_code
+    groupByOrganCategoryKey[str], // the UBKG property name to use when building dictionary of organs category; default is organ_uberon
     theme[obj], // {byScheme: {columnName: d3ColorFunction}, byValue: {value: colorHexStr}}
     dimensions[obj] // {breakpoint[int], mobileMaxWidth[int], desktopMaxHeight[int]}  defines sizing specifications
 })
