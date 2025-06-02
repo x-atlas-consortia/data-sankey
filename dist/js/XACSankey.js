@@ -1,6 +1,6 @@
 /**
 * 
-* 5/16/2025, 2:32:29 PM | X Atlas Consortia Sankey 1.0.11 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 5/30/2025, 11:11:17 AM | X Atlas Consortia Sankey 1.0.11 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 "use strict";
 
@@ -47,7 +47,7 @@ class XACSankey extends HTMLElement {
     this.containerDimensions = {};
     this.graphData = null;
     this.isLoading = true;
-    this.groupByOrganCategoryKey = 'rui_code';
+    this.groupByOrganCategoryKey = 'organ_uberon';
     this.displayableFilterMap = {};
     this.validFilterMap = {
       group_name: 'dataset_group_name',

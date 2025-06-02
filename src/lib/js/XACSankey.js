@@ -27,7 +27,7 @@ class XACSankey extends HTMLElement {
         this.containerDimensions = {}
         this.graphData = null
         this.isLoading = true
-        this.groupByOrganCategoryKey = 'rui_code'
+        this.groupByOrganCategoryKey = 'organ_uberon'
         this.displayableFilterMap = {}
         this.validFilterMap = {
             group_name: 'dataset_group_name',
