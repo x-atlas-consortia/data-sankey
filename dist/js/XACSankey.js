@@ -1,6 +1,6 @@
 /**
 * 
-* 5/30/2025, 11:11:17 AM | X Atlas Consortia Sankey 1.0.11 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 6/18/2025, 12:53:55 PM | X Atlas Consortia Sankey 1.0.12 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 "use strict";
 
@@ -656,7 +656,7 @@ class XACSankey extends HTMLElement {
         return this.theme.byScheme[d.columnName](d.name);
       }
       return color(d.name);
-    }).attr('stroke-width', 0).append('title').text(d => `${d.name}\n${d.value} Datasets`); // Tooltip
+    }).attr('stroke-width', 0).append('title').text(d => `${d.name}\n${d.weight} Datasets`); // Tooltip
 
     node.append('text').attr('class', 'c-sankey__label').attr('x', -6).attr('y', d => (d.y1 - d.y0) / 2).attr('dy', '0.35em').attr('text-anchor', 'end').text(d => d.name).filter(d => d.x0 < width / 2).attr('x', 6 + sankey.nodeWidth()).attr('text-anchor', 'start').on('click', ((e, d) => {
       if (e.defaultPrevented) return;
