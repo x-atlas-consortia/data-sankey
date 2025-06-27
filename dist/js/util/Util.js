@@ -1,6 +1,6 @@
 /**
 * 
-* 5/30/2025, 11:11:17 AM | X Atlas Consortia Sankey 1.0.11 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 6/27/2025, 8:17:55 AM | X Atlas Consortia Sankey 1.0.14 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 "use strict";
 
@@ -33,9 +33,12 @@ class Util {
   static captureByKeysValue(keys, data) {
     let result = new Set();
     for (let d of data) {
-      if (Util.eq(d[keys.matchKey], keys.matchValue)) {
-        if (d[keys.keepKey]) {
-          result.add(d[keys.keepKey]);
+      let matchValueKeys = Array.isArray(d[keys.matchKey]) ? d[keys.matchKey] : [d[keys.matchKey]];
+      for (let m of matchValueKeys) {
+        if (Util.eq(m, keys.matchValue)) {
+          if (d[keys.keepKey]) {
+            result.add(d[keys.keepKey]);
+          }
         }
       }
     }

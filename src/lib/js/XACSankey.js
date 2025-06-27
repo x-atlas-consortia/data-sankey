@@ -659,7 +659,7 @@ class XACSankey extends HTMLElement {
             })
             .attr('stroke-width', 0)
             .append('title')
-            .text((d) => `${d.name}\n${d.value} Datasets`) // Tooltip
+            .text((d) => `${d.name}\n${d.weight} Datasets`) // Tooltip
 
         node.append('text')
             .attr('class', 'c-sankey__label')
