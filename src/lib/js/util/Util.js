@@ -23,12 +23,17 @@ class Util {
      */
     static captureByKeysValue(keys, data) {
         let result = new Set()
+
         for (let d of data) {
-            if (Util.eq(d[keys.matchKey], keys.matchValue)) {
-                if (d[keys.keepKey]) {
-                    result.add(d[keys.keepKey])
+            let matchValueKeys = Array.isArray(d[keys.matchKey]) ? d[keys.matchKey] : [d[keys.matchKey]]
+            for (let m of matchValueKeys) {
+                if (Util.eq(m, keys.matchValue)) {
+                    if (d[keys.keepKey]) {
+                        result.add(d[keys.keepKey])
+                    }
                 }
             }
+
         }
         return Array.from(result)
     }
