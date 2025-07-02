@@ -20,10 +20,10 @@
             //assigned_to_group_name: 'codcc'
             // organ: 'lung',
             // source_type: "human"
-            // status: 'Published'
+            status: 'Published'
         },
         api: {
-            sankey: 'https://ingest-api.dev.sennetconsortium.org/datasets/sankey_data',
+            sankey: 'https://ingest.api.sennetconsortium.org/datasets/sankey_data',
             token: localStorage.getItem('token') // set your token in local storage
         },
         displayableFilterMap: {
@@ -33,9 +33,9 @@
         validFilterMap: {
             group_name: 'dataset_group_name',
             dataset_type: 'dataset_type_hierarchy',
-            source_type: 'dataset_source_type',
             organ: 'organ_type',
 
+            source_type: 'dataset_source_type',
         },
         dimensions: {
             desktopMaxHeight: 700
@@ -45,7 +45,7 @@
 
     const i = setInterval(()=> {
         if (el.setOptions) {
-            const adapter = new SenNetAdapter(el, {isProd: false})
+            const adapter = new SenNetAdapter(el, {isProd: true})
             clearInterval(i)
             el.setOptions(
                 {
