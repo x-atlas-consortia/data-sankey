@@ -44,7 +44,7 @@
 
     const i = setInterval(()=> {
         if (el.setOptions) {
-            const adapter = new SenNetAdapter(el, {isProd: true})
+            const adapter = new SenNetAdapter(el, {isProd: false})
             clearInterval(i)
             el.setOptions(
                 {
