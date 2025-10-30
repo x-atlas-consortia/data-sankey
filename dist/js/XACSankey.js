@@ -1,6 +1,6 @@
 /**
 * 
-* 6/27/2025, 8:17:55 AM | X Atlas Consortia Sankey 1.0.14 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 10/30/2025, 10:28:42 AM | X Atlas Consortia Sankey 1.0.16 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 "use strict";
 
@@ -478,12 +478,10 @@ class XACSankey extends HTMLElement {
           };
           setSourcesTargets(sources, row[columnName]);
           setSourcesTargets(targets, row[columnNames[columnIndex + 1]]);
-          if (sources.length > 1) {
+          for (let s of sources) {
             for (let t of targets) {
-              buildLink(sources[0], t);
+              buildLink(s, t);
             }
-          } else {
-            buildLink(sources[0], targets[0]);
           }
         }
       });
