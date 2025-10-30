@@ -478,12 +478,10 @@ class XACSankey extends HTMLElement {
           };
           setSourcesTargets(sources, row[columnName]);
           setSourcesTargets(targets, row[columnNames[columnIndex + 1]]);
-          if (sources.length > 1) {
+          for (let s of sources) {
             for (let t of targets) {
-              buildLink(sources[0], t);
+              buildLink(s, t);
             }
-          } else {
-            buildLink(sources[0], targets[0]);
           }
         }
       });
