@@ -23,7 +23,7 @@
             status: 'Published'
         },
         api: {
-            sankey: 'https://ingest.api.sennetconsortium.org/datasets/sankey_data',
+            //sankey: 'https://ingest-api.dev.sennetconsortium.org/datasets/sankey_data',
             token: localStorage.getItem('token') // set your token in local storage
         },
         displayableFilterMap: {
@@ -32,10 +32,9 @@
         overwriteColumns: true,
         validFilterMap: {
             group_name: 'dataset_group_name',
-            dataset_type: 'dataset_type_hierarchy',
-            organ: 'organ_type',
-
             source_type: 'dataset_source_type',
+            organ: 'organ_type',
+            dataset_type: 'dataset_type_hierarchy',
         },
         dimensions: {
             desktopMaxHeight: 700
