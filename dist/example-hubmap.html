@@ -14,6 +14,7 @@
 
     const el = document.getElementById('js-sankey')
     const ops = {
+        startUpOnOptions: false,
         useShadow: true,
         styleSheetPath: './xac-sankey.css',
         groupByOrganCategoryKey: 'term',
@@ -25,7 +26,7 @@
         api: {
             sankey: 'https://entity.api.hubmapconsortium.org/datasets/sankey_data',
             context: 'hubmap',
-            token: localStorage.getItem('token') // set your token in local storage
+            //token: localStorage.getItem('token') // set your token in local storage
         }
     }
     el.setAttribute('options', btoa(JSON.stringify(ops)))
@@ -37,6 +38,7 @@
             clearInterval(i)
             el.setOptions(
                 {
+                    startUpOnOptions: true,
                     onDataBuildCallback: () => {
                         adapter.onDataBuildCallback()
                     },

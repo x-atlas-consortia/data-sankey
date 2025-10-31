@@ -1,6 +1,6 @@
 /**
 * 
-* 10/30/2025, 10:28:42 AM | X Atlas Consortia Sankey 1.0.16 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
+* 10/31/2025, 9:50:39 AM | X Atlas Consortia Sankey 1.0.16 | git+https://github.com/x-atlas-consortia/data-sankey.git | Pitt DBMI CODCC
 **/
 "use strict";
 
@@ -74,7 +74,9 @@ class XACSankey extends HTMLElement {
       this.applyStyles();
     }
     this.getUbkgColorPalettes();
-    this.fetchData();
+    if (this.startUpOnOptions === undefined) {
+      this.fetchData();
+    }
   }
   async getUbkgColorPalettes() {
     const response = await fetch(`https://x-atlas-consortia.github.io/ubkg-palettes/${this.api.context}/palettes.json`);
@@ -235,6 +237,9 @@ class XACSankey extends HTMLElement {
     if (ops.api) {
       Object.assign(this.api, ops.api);
     }
+    if (ops.startUpOnOptions !== undefined) {
+      this.startUpOnOptions = ops.startUpOnOptions;
+    }
     if (ops.useShadow) {
       this.useShadow = ops.useShadow;
     }
@@ -286,7 +291,9 @@ class XACSankey extends HTMLElement {
       _classPrivateFieldGet(_shadow, this)?.querySelector(`.${this.classes.style}`)?.remove();
       this.applyStyles();
     }
-    this.useEffect();
+    if (this.startUpOnOptions) {
+      this.useEffect();
+    }
   }
 
   /**
