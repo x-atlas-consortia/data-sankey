@@ -1,6 +1,6 @@
 {
   "name": "xac-sankey",
-  "version": "1.0.17",
+  "version": "1.0.18",
   "description": "X Atlas Consortia Sankey",
   "keywords": [
     "sankey",
@@ -23,7 +23,7 @@
     "dist": "src/lib/js/*.js"
   },
   "scripts": {
-    "dist": "rm -rf dist && NODE_ENV=production babel src/lib --out-dir dist --copy-files",
+    "dist": "rm -rf dist && NODE_ENV=production node build.js",
     "css": "stylus --include-css --compress -w ./src/styles/xac-sankey.styl -o ./src/lib/xac-sankey.css",
     "example": "serve ./dist",
     "dev": "serve ./src/lib -p 3003",
@@ -36,6 +36,7 @@
   },
   "devDependencies": {
     "esbuild": "0.27.3",
+    "glob": "^13.0.6",
     "npm-run-all": "^4.1.5",
     "npm-watch": "^0.13.0",
     "serve": "^14.2.5",
