@@ -23,7 +23,7 @@
     "dist": "src/lib/js/*.js"
   },
   "scripts": {
-    "dist": "rm -rf dist && NODE_ENV=production node build.js",
+    "dist": "rm -rf dist && NODE_ENV=production node ./node_modules/xac-esbuild/index.js -s=src/lib/ -o=dist/ -banner=package.json -log=1 -t='**/*.{js,css,html}'",
     "css": "stylus --include-css --compress -w ./src/styles/xac-sankey.styl -o ./src/lib/xac-sankey.css",
     "example": "serve ./dist",
     "dev": "serve ./src/lib -p 3003",
@@ -40,6 +40,7 @@
     "npm-run-all": "^4.1.5",
     "npm-watch": "^0.13.0",
     "serve": "^14.2.5",
-    "stylus": "^0.64.0"
+    "stylus": "^0.64.0",
+    "xac-esbuild": "github:x-atlas-consortia/xac-esbuild#1.0.0"
   }
 }
