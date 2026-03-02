@@ -13,6 +13,7 @@
 
     const el = document.getElementById('js-sankey')
     const ops = {
+        startUpOnOptions: false,
         styleSheetPath: './xac-sankey.css',
         disableUbkgColorPalettes: true,
         onSvgBuildCallback: true,
@@ -48,6 +49,7 @@
             clearInterval(i)
             el.setOptions(
                 {
+                    startUpOnOptions: true,
                     theme: {
                         palettes: {
                           dataset_group_name: el.getColorPalettes().green

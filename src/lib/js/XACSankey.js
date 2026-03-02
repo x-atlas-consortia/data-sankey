@@ -53,7 +53,9 @@ class XACSankey extends HTMLElement {
             this.applyStyles()
         }
         this.getUbkgColorPalettes()
-        this.fetchData()
+        if (this.startUpOnOptions === undefined) {
+          this.fetchData()  
+        }
     }
 
     async getUbkgColorPalettes() {
@@ -220,6 +222,9 @@ class XACSankey extends HTMLElement {
         if (ops.api) {
             Object.assign(this.api, ops.api)
         }
+        if (ops.startUpOnOptions !== undefined) {
+            this.startUpOnOptions = ops.startUpOnOptions
+        }
         if (ops.useShadow) {
             this.useShadow = ops.useShadow
         }
@@ -272,7 +277,9 @@ class XACSankey extends HTMLElement {
             this.#shadow?.querySelector(`.${this.classes.style}`)?.remove()
             this.applyStyles()
         }
-        this.useEffect()
+        if (this.startUpOnOptions) {
+           this.useEffect() 
+        }
     }
 
     /**
