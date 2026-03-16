@@ -376,7 +376,7 @@ class XACSankey extends HTMLElement {
         }
 
         // Check if actual data has data property
-        if (Array.isArray(this.rawData.data)) {
+        if (Array.isArray(this.rawData?.data)) {
             this.rawData = this.rawData.data
         }
 
