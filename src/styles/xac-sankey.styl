@@ -24,6 +24,15 @@
           &__value
             fill black
 
+    &--drag
+      cursor move
+      .c-sankey__label 
+        display none
+    &--hide
+      cursor not-allowed
+      .c-sankey__label
+        display none
+
   &__link
     fill none
     stroke #000
@@ -31,6 +40,8 @@
     cursor pointer
     &:hover
       stroke-opacity .4
+    &--drag, &--hide 
+      display none
 
   &__entity
     &--default
@@ -65,3 +76,4 @@ xac-sankey, consortia-sankey, react-consortia-sankey
   width 100%
   display block
   height 100%
+
