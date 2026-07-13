@@ -579,6 +579,13 @@ class XACSankey extends HTMLElement {
             return this.ubkgColorPalettes[col] ? this.ubkgColorPalettes[col][d.name] : null
         }
     }
+    addColumn(internalColumnName) {
+        const columnName = this.backupDisplayableFilterMap[internalColumnName]
+        this.validFilterMap[internalColumnName] = columnName
+        this.displayableFilterMap[internalColumnName] = columnName
+        delete this.hiddenColumns[internalColumnName]
+        this.fetchData(false)
+    }
 
     removeColumn(columnName) {
         if (Object.values(this.validFilterMap).length <= 2) return;
@@ -653,6 +660,7 @@ class XACSankey extends HTMLElement {
                 }
                 if (c) return c
             }
+            // TODO, respect reordering on this.backupDisplayableFilterMap
             const flipped = this.flipObj(this.backupDisplayableFilterMap)
             const column = flipped[d.columnName]
             if (_t.theme?.byValues && _t.theme.byValues[d.name?.toLowerCase()]) {
@@ -674,8 +682,8 @@ class XACSankey extends HTMLElement {
                 [width, height - margin.bottom]
             ])
 
-        const isDrag = (name) => name.indexOf('drag-') === 0
-        const isHide = (name) => name.indexOf('hide-') === 0
+        const isDrag = (name) => name?.indexOf('drag-') === 0
+        const isHide = (name) => name?.indexOf('hide-') === 0
         const isTool = (name) => isDrag(name) || isHide(name)
         const transformsX0 = {}
         const transformsY0 = {}
@@ -889,6 +897,9 @@ class XACSankey extends HTMLElement {
             const legend = svg.selectAll(".legend")
             .data(_hiddenColumns)
             .enter().append("g")
+            .on('click', (e, d) => {
+                _t.addColumn(d)
+            })
             .attr("class", "legend")
             .attr("transform", (d, i) => { 
                 return `translate(${i * 150},${posY})`; 
