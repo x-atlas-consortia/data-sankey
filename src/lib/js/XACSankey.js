@@ -770,12 +770,13 @@ class XACSankey extends HTMLElement {
             const container = d3.select(this);
 
             if (isTool(d.name)) {
-                container.append('svg')
-                    .attr('width', 32)
-                    .attr('height', 32)
-                    .attr('fill', "currentColor")
-                    .attr('viewbox', '0 0 16 16')
-                    .append('path')
+                const dragTool = container.append('svg')
+                    .attr('width', 28)
+                    .attr('height', 28)
+                    .attr('fill', "#8a8888")
+                    .attr('viewBox', '0 0 16 16')
+
+                dragTool.append('path')
                     .attr('d', 'M2 8a1 1 0 1 1 0 2 1 1 0 0 1 0-2m0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2m3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2m0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2m3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2m0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2m3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2m0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2m3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2m0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2')
             } else {
 
