@@ -26,12 +26,10 @@
 
     &--drag
       cursor move
-      .c-sankey__label 
-        display none
     &--hide
-      cursor not-allowed
-      .c-sankey__label
-        display none
+      &:hover 
+        svg 
+          fill #ccc !important
 
   &__link
     fill none

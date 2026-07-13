@@ -702,7 +702,6 @@ class XACSankey extends HTMLElement {
             .on('start', function (event, d) {
                 if (isHide(d.name)) {
                     
-                    _t.removeColumn(d.columnName)
                     return
                 }
                 d3.select(this).classed("dragging", true)
@@ -799,7 +798,7 @@ class XACSankey extends HTMLElement {
                 if (isHide(d.name)) {
                     classes += ` ${baseClassName}--hide`
                 }
-                if (this.onNodeBuildCssCallback) {
+                if (this.onNodeBuildCssCallback && !isTool(d.name)) {
                     classes = classes +' '+ this.onNodeBuildCssCallback(d)
                 }
                 transformsX0[d.columnName] = d.x0
@@ -826,11 +825,17 @@ class XACSankey extends HTMLElement {
                     .attr('fill', "#8a8888")
                     .attr('viewBox', '0 0 16 16')
 
+                    tool.append('title')
+                    .text((d)=> _t.getTooltipForTool(d.name, d.columnName))
+
                 if (isDrag(d.name)) {
                     tool.append('path')
                     .attr('d', 'M2 8a1 1 0 1 1 0 2 1 1 0 0 1 0-2m0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2m3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2m0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2m3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2m0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2m3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2m0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2m3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2m0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2')
                 }
                 if (isHide(d.name) && Object.values(_t.validFilterMap).length > 2) {
+                    container.on('click', (e, d) => {
+                        _t.removeColumn(d.columnName)
+                    })
                     tool.attr('width', 20)
                         .attr('height', 20)
                         .attr('fill', "#eee")
@@ -851,7 +856,7 @@ class XACSankey extends HTMLElement {
                     })
                     .attr('stroke-width', 0)
                     .append('title')
-                    .text((d) => isTool(d.name) ? _t.getTooltipForTool(d.name, d.columnName) : `${d.name}\n${d.weight} Datasets`) // Tooltip
+                    .text((d) =>`${d.name}\n${d.weight} Datasets`) // Tooltip
             
                 container.append('text')
                     .attr('class', 'c-sankey__label')
