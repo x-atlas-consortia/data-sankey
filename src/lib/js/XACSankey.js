@@ -665,10 +665,23 @@ class XACSankey extends HTMLElement {
                 d.y0 = Math.max(0, Math.min(height - d.y1 + dy0(d), event.y - d.dragging.offsetY))
                 d.x1 = d.x0 + sankey.nodeWidth()
                 d.y1 = dy0(d) + (d.y1 - dy0(d))
+                const dx0 = d.x0
+
+                // Move data columns along with drag tool
+                if (isDrag(d.name)) {
+                    svg.selectAll(`.c-sankey__node--${d.columnName}`).each(function(d) {
+                        const container = d3.select(this);
+                        if (!isTool(d.name)) {
+                            container.attr('transform', `translate(${dx0},${dy0(d)})`)
+                        }
+                    })
+                }
+
                 d3.select(this).attr('transform', `translate(${d.x0},${dy0(d)})`)
                 svg.selectAll('.c-sankey__link').attr('d', sankeyLinkHorizontal())
                 sankey.update({ nodes, links })
                 link.attr('d', sankeyLinkHorizontal())
+                
             })
             .on('end', function (event, d) {
                 if (isTool(d.name)) {
@@ -791,21 +804,21 @@ class XACSankey extends HTMLElement {
                     .text((d) => isTool(d.name) ? _t.getTooltipForTool(d.name, d.columnName) : `${d.name}\n${d.weight} Datasets`) // Tooltip
             
                 container.append('text')
-                .attr('class', 'c-sankey__label')
-                .attr('x', -6)
-                .attr('y', (d) => (d.y1 - d.y0) / 2)
-                .attr('dy', '0.35em')
-                .attr('text-anchor', 'end')
-                .text((d) => d.name)
-                .filter((d) => d.x0 < width / 2)
-                .attr('x', 6 + sankey.nodeWidth())
-                .attr('text-anchor', 'start')
-                .on('click', ((e, d) => {
-                    if (e.defaultPrevented) return;
-                    if (this.onLabelClickCallback) {
-                        this.onLabelClickCallback(e, d)
-                    }
-                }).bind(this));
+                    .attr('class', 'c-sankey__label')
+                    .attr('x', -6)
+                    .attr('y', (d) => (d.y1 - d.y0) / 2)
+                    .attr('dy', '0.35em')
+                    .attr('text-anchor', 'end')
+                    .text((d) => d.name)
+                    .filter((d) => d.x0 < width / 2)
+                    .attr('x', 6 + sankey.nodeWidth())
+                    .attr('text-anchor', 'start')
+                    .on('click', ((e, d) => {
+                        if (e.defaultPrevented) return;
+                        if (this.onLabelClickCallback) {
+                            this.onLabelClickCallback(e, d)
+                        }
+                    }).bind(this));
 
                  container.append('text')
                     .attr('class', 'c-sankey__value')
