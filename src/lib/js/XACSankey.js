@@ -321,6 +321,12 @@ class XACSankey extends HTMLElement {
         return Util.isLocal() && !this.ops.isProd ? url.replace('.api.', '-api.dev.') : url
     }
 
+    /**
+     * Filters the data based on the provided filter map.
+     * @param {Array} data The data to filter.
+     * @param {Object} filterMap The filter map.
+     * @returns {Array} The filtered data.
+     */
     filterData(data, filterMap) {
         // filter the data if there are valid filters
         const validFilters = this.getValidFilters(filterMap)
@@ -366,6 +372,9 @@ class XACSankey extends HTMLElement {
 
     }
 
+    /**
+     * Adds tools for reordering and hiding columns to the data.
+     */
     handleTools() {
         const hasColumnsToShow = Object.values(this.displayableFilterMap).length > 0
 
@@ -385,9 +394,13 @@ class XACSankey extends HTMLElement {
         // } 
     }
 
+    
     /**
      * Gets and handles main sankey data to be visualized.
-     * @returns {Promise<void>}
+     *
+     * @async
+     * @param {boolean} [shouldFetch=true] 
+     * @returns {*} 
      */
     async fetchData(shouldFetch = true) {
         if (this.validFilterMap.organ && !Object.keys(this.organsDict).length) {
@@ -582,6 +595,13 @@ class XACSankey extends HTMLElement {
 
         this.useEffect('options')
     }
+
+    getTooltipForTool(tool, columnName) {
+        const action = tool.split('-')[0]
+        const flipped = this.flipObj(this.validFilterMap)
+        const niceName = flipped[columnName].replace('_', ' ') + 's'
+        return action === 'drag' ? `Drag to reorder ${niceName}` : `Click to hide ${niceName}`
+    }
     /**
      * Builds the visualization.
      */
@@ -629,6 +649,7 @@ class XACSankey extends HTMLElement {
         })
 
         const _t = this
+        const dy0 = (d) => isDrag(d.name) ? 0 : d.y0
         // Define the drag behavior
         const drag = d3
             .drag()
@@ -636,15 +657,15 @@ class XACSankey extends HTMLElement {
                 d3.select(this).classed("dragging", true)
                 d.dragging = {
                     offsetX: event.x - d.x0,
-                    offsetY: event.y - d.y0
+                    offsetY: event.y - dy0(d)
                 }
             })
             .on('drag', function (event, d) {
                 d.x0 = Math.max(0, Math.min(width - d.x1 + d.x0, event.x - d.dragging.offsetX))
-                d.y0 = Math.max(0, Math.min(height - d.y1 + d.y0, event.y - d.dragging.offsetY))
+                d.y0 = Math.max(0, Math.min(height - d.y1 + dy0(d), event.y - d.dragging.offsetY))
                 d.x1 = d.x0 + sankey.nodeWidth()
-                d.y1 = d.y0 + (d.y1 - d.y0)
-                d3.select(this).attr('transform', `translate(${d.x0},${d.y0})`)
+                d.y1 = dy0(d) + (d.y1 - dy0(d))
+                d3.select(this).attr('transform', `translate(${d.x0},${dy0(d)})`)
                 svg.selectAll('.c-sankey__link').attr('d', sankeyLinkHorizontal())
                 sankey.update({ nodes, links })
                 link.attr('d', sankeyLinkHorizontal())
@@ -719,7 +740,7 @@ class XACSankey extends HTMLElement {
                 transformsX0[d.columnName] = d.x0
                 return classes
             })
-            .attr('transform', (d) => `translate(${d.x0},${d.y0})`)
+            .attr('transform', (d) => `translate(${d.x0},${isDrag(d.name) ? 0 : d.y0})`)
             .call(drag)
             .on('click', ((e, d) => {
                 if (e.defaultPrevented) return;
@@ -728,60 +749,82 @@ class XACSankey extends HTMLElement {
                 }
             }).bind(this))
 
-        node.append('rect')
-            .attr('height', (d) => Math.max(5, d.y1 - d.y0))
-            .attr('width', sankey.nodeWidth())
-            .attr('fill', (d) => {
-                if (!this.ops.disableUbkgColorPalettes) {
-                    const c = this.getFromUbkgColorPalette(d)
-                    if (Util.isLocal()) {
-                        Util.log(d.name, {color: c, data: c})
+        
+
+        
+        node.each(function(d) {
+            // 'this' is the parent container (e.g., an SVG or a parent g)
+            const container = d3.select(this);
+
+            if (isTool(d.name)) {
+                container.append('svg')
+                    .attr('width', 32)
+                    .attr('height', 32)
+                    .attr('fill', "currentColor")
+                    .attr('viewbox', '0 0 16 16')
+                    .append('path')
+                    .attr('d', 'M2 8a1 1 0 1 1 0 2 1 1 0 0 1 0-2m0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2m3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2m0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2m3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2m0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2m3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2m0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2m3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2m0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2')
+            } else {
+
+                container.append('rect')
+                    .attr('height', (d) => Math.max(5, d.y1 - d.y0))
+                    .attr('width', sankey.nodeWidth())
+                    .attr('fill', (d) => {
+                        if (!_t.ops.disableUbkgColorPalettes) {
+                            const c = _t.getFromUbkgColorPalette(d)
+                            if (Util.isLocal()) {
+                                Util.log(d.name, {color: c, data: c})
+                            }
+                            if (c) return c
+                        }
+                        if (_t.theme?.byValues && _t.theme.byValues[d.name?.toLowerCase()]) {
+                            const c = _t.theme.byValues[d.name?.toLowerCase()].split(':')
+                            return c[0]
+                        }
+                        if (_t.theme?.byScheme && _t.theme.byScheme[d.columnName]) {
+                            return _t.theme.byScheme[d.columnName](d.name)
+                        }
+                        return color(d.name)
+                    })
+                    .attr('stroke-width', 0)
+                    .append('title')
+                    .text((d) => isTool(d.name) ? _t.getTooltipForTool(d.name, d.columnName) : `${d.name}\n${d.weight} Datasets`) // Tooltip
+            
+                container.append('text')
+                .attr('class', 'c-sankey__label')
+                .attr('x', -6)
+                .attr('y', (d) => (d.y1 - d.y0) / 2)
+                .attr('dy', '0.35em')
+                .attr('text-anchor', 'end')
+                .text((d) => d.name)
+                .filter((d) => d.x0 < width / 2)
+                .attr('x', 6 + sankey.nodeWidth())
+                .attr('text-anchor', 'start')
+                .on('click', ((e, d) => {
+                    if (e.defaultPrevented) return;
+                    if (this.onLabelClickCallback) {
+                        this.onLabelClickCallback(e, d)
                     }
-                    if (c) return c
-                }
-                if (this.theme?.byValues && this.theme.byValues[d.name?.toLowerCase()]) {
-                    const c = this.theme.byValues[d.name?.toLowerCase()].split(':')
-                    return c[0]
-                }
-                if (this.theme?.byScheme && this.theme.byScheme[d.columnName]) {
-                    return this.theme.byScheme[d.columnName](d.name)
-                }
-                return color(d.name)
-            })
-            .attr('stroke-width', 0)
-            .append('title')
-            .text((d) => `${d.name}\n${d.weight} Datasets`) // Tooltip
+                }).bind(this));
 
-        node.append('text')
-            .attr('class', 'c-sankey__label')
-            .attr('x', -6)
-            .attr('y', (d) => (d.y1 - d.y0) / 2)
-            .attr('dy', '0.35em')
-            .attr('text-anchor', 'end')
-            .text((d) => d.name)
-            .filter((d) => d.x0 < width / 2)
-            .attr('x', 6 + sankey.nodeWidth())
-            .attr('text-anchor', 'start')
-            .on('click', ((e, d) => {
-                if (e.defaultPrevented) return;
-                if (this.onLabelClickCallback) {
-                    this.onLabelClickCallback(e, d)
-                }
-            }).bind(this))
+                 container.append('text')
+                    .attr('class', 'c-sankey__value')
+                    .attr('y', sankey.nodeWidth()/1.9)
+                    .attr('x', (d) => ((d.y1 - d.y0) / 2) * -1)
+                    .attr('dy', '0.35em')
+                    .attr('text-anchor', 'middle')
+                    .text((d) => Math.max(5, d.y1 - d.y0) > 15 ? d.weight : '')
+                    .on('click', ((e, d) => {
+                        if (e.defaultPrevented) return;
+                        if (_t.onNodeClickCallback) {
+                            _t.onNodeClickCallback(e, d)
+                        }
+                    }).bind(this))
+            }
+        });
+        
 
-        node.append('text')
-            .attr('class', 'c-sankey__value')
-            .attr('y', sankey.nodeWidth()/1.9)
-            .attr('x', (d) => ((d.y1 - d.y0) / 2) * -1)
-            .attr('dy', '0.35em')
-            .attr('text-anchor', 'middle')
-            .text((d) => Math.max(5, d.y1 - d.y0) > 15 ? d.weight : '')
-            .on('click', ((e, d) => {
-                if (e.defaultPrevented) return;
-                if (this.onNodeClickCallback) {
-                    this.onNodeClickCallback(e, d)
-                }
-            }).bind(this))
+       
 
 
         if (this.onSvgBuildCallback) {
