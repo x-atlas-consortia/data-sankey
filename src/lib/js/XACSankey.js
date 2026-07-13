@@ -87,8 +87,9 @@ class XACSankey extends HTMLElement {
         this.theme = {
             byScheme: {
                 dataset_group_name: d3.scaleOrdinal(Palette.blueGreyColors),
-                dataset_type_hierarchy: d3.scaleOrdinal(Palette.greenColors),
-                organ_type: d3.scaleOrdinal(Palette.pinkColors),
+                dataset_type: d3.scaleOrdinal(Palette.greenColors),
+                organ: d3.scaleOrdinal(Palette.pinkColors),
+                source_type: d3.scaleOrdinal(Palette.yellowColors),
             },
             byValues: {
                 human: Palette.yellowColors[0],
@@ -385,13 +386,13 @@ class XACSankey extends HTMLElement {
             }
             this.filteredData = [reorderableColumns, ...this.filteredData]
         }
-        // const hideableColumns = {}
-        // if (hasColumnsToShow && this.hideableColumns) {
-        //     for (const [field, dataFieldName] of Object.entries(this.displayableFilterMap)) {
-        //         hideableColumns[dataFieldName] = `hide-${field}`
-        //     }
-        //     this.filteredData.push(hideableColumns)
-        // } 
+        const hideableColumns = {}
+        if (hasColumnsToShow && this.hideableColumns) {
+            for (const [field, dataFieldName] of Object.entries(this.displayableFilterMap)) {
+                hideableColumns[dataFieldName] = `hide-${field}`
+            }
+            this.filteredData.push(hideableColumns)
+        } 
     }
 
     
@@ -442,6 +443,8 @@ class XACSankey extends HTMLElement {
                 }
                 
             }
+        } else {
+            data = [...this.rawData]
         }
         
         if (this.dataCallback) {
@@ -570,11 +573,27 @@ class XACSankey extends HTMLElement {
             organ: 'organs',
             group_name: 'groups'
         }
-        const filterMap = this.flipObj(this.validFilterMap)
+        const filterMap = this.flipObj(this.backupDisplayableFilterMap)
         const col = columns[filterMap[d.columnName]]
         if (col) {
             return this.ubkgColorPalettes[col] ? this.ubkgColorPalettes[col][d.name] : null
         }
+    }
+
+    removeColumn(columnName) {
+        if (Object.values(this.validFilterMap).length <= 2) return;
+        const filterMap = this.flipObj(this.backupDisplayableFilterMap)
+        const niceName = filterMap[columnName]
+        delete this.validFilterMap[niceName]
+        delete this.displayableFilterMap[niceName]
+        this.hiddenColumns = {}
+        for (const c in this.backupDisplayableFilterMap) {
+            if (this.validFilterMap[c] === undefined) {
+                this.hiddenColumns[c] = this.backupDisplayableFilterMap[c]
+            }
+        }
+        XACSankey.log('removeColumn', {data: this.displayableFilterMap, color: 'purple'})
+        this.fetchData(false)
     }
 
     rearrangeNodes(nodes) {
@@ -592,8 +611,6 @@ class XACSankey extends HTMLElement {
         this.validFilterMap = newArrangement
         this.displayableFilterMap = newArrangement
         this.fetchData(false)
-
-        this.useEffect('options')
     }
 
     getTooltipForTool(tool, columnName) {
@@ -614,7 +631,7 @@ class XACSankey extends HTMLElement {
 
 
         // svg dimensions
-        const margin = { top: 20, right: 20, bottom: 20, left: 20 }
+        const margin = { top: 20, right: 20, bottom: 40, left: 20 }
         const width = this.containerDimensions.width - margin.left - margin.right
         const height = this.containerDimensions.height - margin.top - margin.bottom
 
@@ -626,6 +643,26 @@ class XACSankey extends HTMLElement {
 
         if (this.onSvgBuildCallback) {
             svg.attr('class', 'xac--is-loading')
+        }
+
+        const fillColor = (d) => {
+            if (!_t.ops.disableUbkgColorPalettes) {
+                const c = _t.getFromUbkgColorPalette(d)
+                if (Util.isLocal()) {
+                    Util.log(d.name, {color: c, data: c})
+                }
+                if (c) return c
+            }
+            const flipped = this.flipObj(this.backupDisplayableFilterMap)
+            const column = flipped[d.columnName]
+            if (_t.theme?.byValues && _t.theme.byValues[d.name?.toLowerCase()]) {
+                const c = _t.theme.byValues[d.name?.toLowerCase()].split(':')
+                return c[0]
+            }
+            if (_t.theme?.byScheme && _t.theme.byScheme[column]) {
+                return _t.theme.byScheme[column](d.name)
+            }
+            return color(d.name)
         }
 
         // Set up the Sankey generator
@@ -641,6 +678,7 @@ class XACSankey extends HTMLElement {
         const isHide = (name) => name.indexOf('hide-') === 0
         const isTool = (name) => isDrag(name) || isHide(name)
         const transformsX0 = {}
+        const transformsY0 = {}
 
         // Create the Sankey layout
         const { nodes, links } = sankey({
@@ -654,6 +692,11 @@ class XACSankey extends HTMLElement {
         const drag = d3
             .drag()
             .on('start', function (event, d) {
+                if (isHide(d.name)) {
+                    
+                    _t.removeColumn(d.columnName)
+                    return
+                }
                 d3.select(this).classed("dragging", true)
                 d.dragging = {
                     offsetX: event.x - d.x0,
@@ -661,6 +704,7 @@ class XACSankey extends HTMLElement {
                 }
             })
             .on('drag', function (event, d) {
+                 if (isHide(d.name)) return;
                 d.x0 = Math.max(0, Math.min(width - d.x1 + d.x0, event.x - d.dragging.offsetX))
                 d.y0 = Math.max(0, Math.min(height - d.y1 + dy0(d), event.y - d.dragging.offsetY))
                 d.x1 = d.x0 + sankey.nodeWidth()
@@ -684,7 +728,7 @@ class XACSankey extends HTMLElement {
                 
             })
             .on('end', function (event, d) {
-                if (isTool(d.name)) {
+                if (isDrag(d.name)) {
                     const previousTransformX0 = JSON.parse(JSON.stringify(transformsX0))
                     transformsX0[d.columnName] = d.x0
                     const sortedAsc = Object.fromEntries(
@@ -751,54 +795,51 @@ class XACSankey extends HTMLElement {
                     classes = classes +' '+ this.onNodeBuildCssCallback(d)
                 }
                 transformsX0[d.columnName] = d.x0
+                transformsY0[d.columnName] = d.y0
                 return classes
             })
             .attr('transform', (d) => `translate(${d.x0},${isDrag(d.name) ? 0 : d.y0})`)
             .call(drag)
             .on('click', ((e, d) => {
-                if (e.defaultPrevented) return;
+                if (e.defaultPrevented || isTool(d.name)) return;
                 if (this.onNodeClickCallback) {
                     this.onNodeClickCallback(e, d)
                 }
             }).bind(this))
-
-        
-
         
         node.each(function(d) {
             // 'this' is the parent container (e.g., an SVG or a parent g)
             const container = d3.select(this);
 
             if (isTool(d.name)) {
-                const dragTool = container.append('svg')
+                const tool = container.append('svg')
                     .attr('width', 28)
                     .attr('height', 28)
                     .attr('fill', "#8a8888")
                     .attr('viewBox', '0 0 16 16')
 
-                dragTool.append('path')
+                if (isDrag(d.name)) {
+                    tool.append('path')
                     .attr('d', 'M2 8a1 1 0 1 1 0 2 1 1 0 0 1 0-2m0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2m3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2m0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2m3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2m0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2m3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2m0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2m3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2m0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2')
+                }
+                if (isHide(d.name) && Object.values(_t.validFilterMap).length > 2) {
+                    tool.attr('width', 20)
+                        .attr('height', 20)
+                        .attr('fill', "#eee")
+                        
+                    tool.append('path')
+                    .attr('d', 'M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z')
+                    tool.append('path')
+                    .attr('d', 'M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z')
+                }
+                
             } else {
 
                 container.append('rect')
                     .attr('height', (d) => Math.max(5, d.y1 - d.y0))
                     .attr('width', sankey.nodeWidth())
                     .attr('fill', (d) => {
-                        if (!_t.ops.disableUbkgColorPalettes) {
-                            const c = _t.getFromUbkgColorPalette(d)
-                            if (Util.isLocal()) {
-                                Util.log(d.name, {color: c, data: c})
-                            }
-                            if (c) return c
-                        }
-                        if (_t.theme?.byValues && _t.theme.byValues[d.name?.toLowerCase()]) {
-                            const c = _t.theme.byValues[d.name?.toLowerCase()].split(':')
-                            return c[0]
-                        }
-                        if (_t.theme?.byScheme && _t.theme.byScheme[d.columnName]) {
-                            return _t.theme.byScheme[d.columnName](d.name)
-                        }
-                        return color(d.name)
+                        return fillColor(d)
                     })
                     .attr('stroke-width', 0)
                     .append('title')
@@ -836,11 +877,39 @@ class XACSankey extends HTMLElement {
                     }).bind(this))
             }
         });
+
+        if (this.hiddenColumns && Object.values(this.hiddenColumns).length) {
+            const sortedAsc = Object.fromEntries(
+                Object.entries(transformsY0).sort((a, b) => a[1] - b[1])
+            )
+            const posY = Object.values(sortedAsc).pop() + 30
+     
+            const _hiddenColumns = Object.keys(this.hiddenColumns);
+
+            const legend = svg.selectAll(".legend")
+            .data(_hiddenColumns)
+            .enter().append("g")
+            .attr("class", "legend")
+            .attr("transform", (d, i) => { 
+                return `translate(${i * 150},${posY})`; 
+            });
+
+            // Add colored squares
+            legend.append("rect")
+            .attr("width", 12)
+            .attr("height", 12)
+            .style("fill", d => {
+                return fillColor({columnName: this.hiddenColumns[d], name: d})
+            });
+
+            // Add text labels
+            legend.append("text")
+            .attr("x", 18)
+            .attr("y", 10)
+            .text(function(d) { return d; })
+            .style("font-size", "12px");
+        }
         
-
-       
-
-
         if (this.onSvgBuildCallback) {
             if (Util.eq(typeof this.onSvgBuildCallback, 'function')) {
                 this.onSvgBuildCallback(this)
