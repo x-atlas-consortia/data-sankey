@@ -694,16 +694,24 @@ class XACSankey extends HTMLElement {
             links: this.graphData.links.map((d) => Object.assign({}, d))
         })
 
+        const getSortedTransform = () => {
+            return Object.fromEntries(
+                Object.entries(transformsX0).sort((a, b) => a[1] - b[1])
+            )
+        }
+
         const _t = this
         const dy0 = (d) => isDrag(d.name) ? 0 : d.y0
+        // count the user's hold on the edge of the visualization
+        let dragCounter = 0
         // Define the drag behavior
         const drag = d3
             .drag()
             .on('start', function (event, d) {
                 if (isHide(d.name)) {
-                    
                     return
                 }
+                dragCounter = 0
                 d3.select(this).classed("dragging", true)
                 d.dragging = {
                     offsetX: event.x - d.x0,
@@ -711,13 +719,13 @@ class XACSankey extends HTMLElement {
                 }
             })
             .on('drag', function (event, d) {
-                 if (isHide(d.name)) return;
+                if (isHide(d.name)) return;
                 d.x0 = Math.max(0, Math.min(width - d.x1 + d.x0, event.x - d.dragging.offsetX))
                 d.y0 = Math.max(0, Math.min(height - d.y1 + dy0(d), event.y - d.dragging.offsetY))
                 d.x1 = d.x0 + sankey.nodeWidth()
                 d.y1 = dy0(d) + (d.y1 - dy0(d))
                 const dx0 = d.x0
-
+            
                 // Move data columns along with drag tool
                 if (isDrag(d.name)) {
                     svg.selectAll(`.c-sankey__node--${d.columnName}`).each(function(d) {
@@ -728,6 +736,15 @@ class XACSankey extends HTMLElement {
                     })
                 }
 
+                // Find out if user is dragging to either edge of the visualization
+                const dx0s = Object.values(getSortedTransform())
+                if (dx0s[0] === dx0 || dx0s.pop() === dx0) {
+                    dragCounter++
+                } else {
+                    // the user changed direction so reset the counter
+                    dragCounter = 0
+                }
+
                 d3.select(this).attr('transform', `translate(${d.x0},${dy0(d)})`)
                 svg.selectAll('.c-sankey__link').attr('d', sankeyLinkHorizontal())
                 sankey.update({ nodes, links })
@@ -736,14 +753,17 @@ class XACSankey extends HTMLElement {
             })
             .on('end', function (event, d) {
                 if (isDrag(d.name)) {
+                    const dragThreshold = 5
                     const previousTransformX0 = JSON.parse(JSON.stringify(transformsX0))
-                    transformsX0[d.columnName] = d.x0
-                    const sortedAsc = Object.fromEntries(
-                        Object.entries(transformsX0).sort((a, b) => a[1] - b[1])
-                    )
+                    const direction = d.x0 === 0 ? -dragThreshold : dragThreshold
+                    // if the user has been holding the drag at the edge for more than or equal to the threshold, 
+                    // then adjust the x position of the column so it takes the space of the current column at the edge
+                    transformsX0[d.columnName] = dragCounter >= dragThreshold ? d.x0 + direction :  d.x0
+
+                    const sortedAsc = getSortedTransform()
+                    // if the keys are not in the same order, a change occured. Rearrange the nodes and rebuild
                     if (Object.keys(previousTransformX0) !== Object.keys(sortedAsc)) {
                         _t.rearrangeNodes(sortedAsc)
-                        
                     }
                 }
                 delete d.dragging
