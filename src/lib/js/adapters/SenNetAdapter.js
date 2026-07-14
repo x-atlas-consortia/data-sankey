@@ -5,7 +5,7 @@ class SenNetAdapter extends SankeyAdapter {
     constructor(context, ops = {}) {
         super(context, ops);
         this.facetsMap = {
-            organ: 'origin_samples.organ',
+            organ: 'origin_samples.organ.keyword',
             source_type: 'sources.source_type'
         }
     }
