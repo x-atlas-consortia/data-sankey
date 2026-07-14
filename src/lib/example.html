@@ -15,7 +15,7 @@
     const ops = {
         startUpOnOptions: false,
         styleSheetPath: './xac-sankey.css',
-        disableUbkgColorPalettes: true,
+        disableUbkgColorPalettes: false,
         onSvgBuildCallback: true,
         filters: {
             //assigned_to_group_name: 'codcc'
@@ -31,11 +31,20 @@
             status: null
         },
         overwriteColumns: true,
+        propertyDisplayNames: {
+            dataset_type_hierarchy: {
+                plural: 'modalities'
+            },
+            dataset_type_analyte_class: {
+                plural: 'analyte classes'
+            }
+        },
         validFilterMap: {
             group_name: 'dataset_group_name',
             source_type: 'dataset_source_type',
             organ: 'organ_type',
             dataset_type: 'dataset_type_hierarchy',
+            analyte_class: 'dataset_type_analyte_class'
         },
         dimensions: {
             desktopMaxHeight: 700

@@ -234,6 +234,9 @@ class XACSankey extends HTMLElement {
         if (ops.dataCallback) {
             this.dataCallback = ops.dataCallback
         }
+        if (ops.propertyDisplayNames) {
+            this.propertyDisplayNames = ops.propertyDisplayNames
+        }
         if (ops.reorderableColumns) {
             this.reorderableColumns = ops.reorderableColumns
         }
@@ -620,11 +623,26 @@ class XACSankey extends HTMLElement {
         this.fetchData(false)
     }
 
-    getTooltipForTool(tool, columnName) {
+    getPropertyDisplayName(columnName) {
+        const flipped = this.flipObj(this.backupDisplayableFilterMap)
+        const defaultName = flipped[columnName]?.replace('_', ' ') + 's'
+        return this.propertyDisplayNames && this.propertyDisplayNames[columnName] ? (this.propertyDisplayNames[columnName].plural || this.propertyDisplayNames[columnName]) : defaultName
+        
+    }
+    
+    /**
+     * Return a formatted tooltip text
+     *
+     * @param {string} tool 
+     * @param {string} columnName 
+     * @param {string} text Tooltip text
+     * @returns {string} 
+     */
+    getTooltipForTool(tool, columnName, text) {
         const action = tool.split('-')[0]
-        const flipped = this.flipObj(this.validFilterMap)
-        const niceName = flipped[columnName].replace('_', ' ') + 's'
-        return action === 'drag' ? `Drag to reorder ${niceName}` : `Click to hide ${niceName}`
+        const niceName = this.getPropertyDisplayName(columnName)
+        const tooltip = text ? text.replace('{name}', niceName) : null
+        return tooltip ? tooltip : (action === 'drag' ? `Drag to reorder ${niceName}` : `Click to hide ${niceName}`)
     }
     /**
      * Builds the visualization.
@@ -918,28 +936,31 @@ class XACSankey extends HTMLElement {
      
             const _hiddenColumns = Object.keys(this.hiddenColumns);
 
-            const hiddenColumnsLegend = svg.selectAll(".legend")
+            const hiddenColumnsLegend = svg.selectAll(".c-sankey__hiddenColumnsLegend")
                 .data(_hiddenColumns)
                 .enter().append("g")
                 .on('click', (e, d) => {
                     _t.addColumn(d)
                 })
-                .attr("class", "legend")
+                .attr("class", "c-sankey__hiddenColumnsLegend")
                 .attr("transform", (d, i) => { 
                     return `translate(${i * 150},${posY})`; 
-                });
+                })
+                
+            hiddenColumnsLegend.append('title')
+                    .text((d)=> _t.getTooltipForTool('add', _t.hiddenColumns[d], 'Click to add {name} to the visualization'))
 
             hiddenColumnsLegend.append("rect")
                 .attr("width", 12)
                 .attr("height", 12)
                 .style("fill", d => {
-                    return fillColor({columnName: this.hiddenColumns[d], name: d})
+                    return fillColor({columnName: _t.hiddenColumns[d], name: d})
                 });
 
             hiddenColumnsLegend.append("text")
                 .attr("x", 18)
                 .attr("y", 10)
-                .text(function(d) { return d; })
+                .text((d) => _t.getPropertyDisplayName(_t.hiddenColumns[d]))
                 .style("font-size", "12px");
         }
         
