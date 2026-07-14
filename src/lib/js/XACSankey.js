@@ -847,7 +847,6 @@ class XACSankey extends HTMLElement {
                 }
                 
             } else {
-
                 container.append('rect')
                     .attr('height', (d) => Math.max(5, d.y1 - d.y0))
                     .attr('width', sankey.nodeWidth())
@@ -899,31 +898,29 @@ class XACSankey extends HTMLElement {
      
             const _hiddenColumns = Object.keys(this.hiddenColumns);
 
-            const legend = svg.selectAll(".legend")
-            .data(_hiddenColumns)
-            .enter().append("g")
-            .on('click', (e, d) => {
-                _t.addColumn(d)
-            })
-            .attr("class", "legend")
-            .attr("transform", (d, i) => { 
-                return `translate(${i * 150},${posY})`; 
-            });
+            const hiddenColumnsLegend = svg.selectAll(".legend")
+                .data(_hiddenColumns)
+                .enter().append("g")
+                .on('click', (e, d) => {
+                    _t.addColumn(d)
+                })
+                .attr("class", "legend")
+                .attr("transform", (d, i) => { 
+                    return `translate(${i * 150},${posY})`; 
+                });
 
-            // Add colored squares
-            legend.append("rect")
-            .attr("width", 12)
-            .attr("height", 12)
-            .style("fill", d => {
-                return fillColor({columnName: this.hiddenColumns[d], name: d})
-            });
+            hiddenColumnsLegend.append("rect")
+                .attr("width", 12)
+                .attr("height", 12)
+                .style("fill", d => {
+                    return fillColor({columnName: this.hiddenColumns[d], name: d})
+                });
 
-            // Add text labels
-            legend.append("text")
-            .attr("x", 18)
-            .attr("y", 10)
-            .text(function(d) { return d; })
-            .style("font-size", "12px");
+            hiddenColumnsLegend.append("text")
+                .attr("x", 18)
+                .attr("y", 10)
+                .text(function(d) { return d; })
+                .style("font-size", "12px");
         }
         
         if (this.onSvgBuildCallback) {
