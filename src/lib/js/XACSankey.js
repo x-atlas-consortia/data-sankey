@@ -86,7 +86,7 @@ class XACSankey extends HTMLElement {
         const d3 = this.d3.d3
         this.theme = {
             byScheme: {
-                dataset_group_name: d3.scaleOrdinal(Palette.blueGreyColors),
+                group_name: d3.scaleOrdinal(Palette.blueGreyColors),
                 dataset_type: d3.scaleOrdinal(Palette.greenColors),
                 organ: d3.scaleOrdinal(Palette.pinkColors),
                 source_type: d3.scaleOrdinal(Palette.yellowColors),
@@ -678,7 +678,6 @@ class XACSankey extends HTMLElement {
                 }
                 if (c) return c
             }
-            // TODO, respect reordering on this.backupDisplayableFilterMap
             const flipped = this.flipObj(this.backupDisplayableFilterMap)
             const column = flipped[d.columnName]
             if (_t.theme?.byValues && _t.theme.byValues[d.name?.toLowerCase()]) {

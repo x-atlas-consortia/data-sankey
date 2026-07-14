@@ -1,2 +1,2 @@
-/** 7/14/2026, 11:35:29 AM | X Atlas Consortia Sankey 1.0.19 | git+https://github.com/x-atlas-consortia/data-sankey.git **/
+/** 7/14/2026, 11:49:48 AM | X Atlas Consortia Sankey 1.0.19 | git+https://github.com/x-atlas-consortia/data-sankey.git **/
 import*as d3 from"d3";import{sankey as d3sankey,sankeyLinkHorizontal}from"d3-sankey";import XACSankey from"./XACSankey.js";class ReactConsortiaSankey extends XACSankey{constructor(){super(),this.d3={d3,d3sankey,sankeyLinkHorizontal}}}customElements.define("react-consortia-sankey",ReactConsortiaSankey);var ReactConsortiaSankey_default=ReactConsortiaSankey;export{ReactConsortiaSankey_default as default};
