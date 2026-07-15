@@ -80,7 +80,8 @@ el.setOptions({
     styleSheetPath[str], // publicly accessible url to stylesheet
     groupByOrganCategoryKey[str], // the UBKG property name to use when building dictionary of organs category; default is organ_uberon
     theme[obj], // {byScheme: {columnName: d3ColorFunction}, byValue: {value: colorHexStr}}
-    dimensions[obj] // {breakpoint[int], mobileMaxWidth[int], desktopMaxHeight[int]}  defines sizing specifications
+    dimensions[obj], // {breakpoint[int], mobileMaxWidth[int], desktopMaxHeight[int]}  defines sizing specifications
+    propertyPluralizedDisplayNames[obj] // Object with data property names as keys and a string with a pretty as value
 })
 
 ```

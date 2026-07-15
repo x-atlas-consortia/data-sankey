@@ -234,8 +234,8 @@ class XACSankey extends HTMLElement {
         if (ops.dataCallback) {
             this.dataCallback = ops.dataCallback
         }
-        if (ops.propertyDisplayNames) {
-            this.propertyDisplayNames = ops.propertyDisplayNames
+        if (ops.propertyPluralizedDisplayNames) {
+            this.propertyPluralizedDisplayNames = ops.propertyPluralizedDisplayNames
         }
         if (ops.reorderableColumns) {
             this.reorderableColumns = ops.reorderableColumns
@@ -626,7 +626,7 @@ class XACSankey extends HTMLElement {
     getPropertyDisplayName(columnName) {
         const flipped = this.flipObj(this.backupDisplayableFilterMap)
         const defaultName = flipped[columnName]?.replace('_', ' ') + 's'
-        return this.propertyDisplayNames && this.propertyDisplayNames[columnName] ? (this.propertyDisplayNames[columnName].plural || this.propertyDisplayNames[columnName]) : defaultName
+        return this.propertyPluralizedDisplayNames && this.propertyPluralizedDisplayNames[columnName] ? this.propertyPluralizedDisplayNames[columnName] : defaultName
         
     }
     
