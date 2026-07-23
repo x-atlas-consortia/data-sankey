@@ -273,12 +273,12 @@ class XACSankey extends HTMLElement {
 
             this.purgeObject(this.validFilterMap)
         }
+        Object.assign(this.displayableFilterMap, this.validFilterMap)
         if (ops.displayableFilterMap) {
-            Object.assign(this.displayableFilterMap, this.validFilterMap)
             Object.assign(this.displayableFilterMap, ops.displayableFilterMap)
             this.purgeObject(this.displayableFilterMap)
-            this.backupDisplayableFilterMap = JSON.parse(JSON.stringify(this.displayableFilterMap))
         }
+        this.backupDisplayableFilterMap = JSON.parse(JSON.stringify(this.displayableFilterMap))
         if (ops.d3) {
             this.d3 = ops.d3
         }
@@ -1074,6 +1074,7 @@ class XACSankey extends HTMLElement {
      * @returns {{}}
      */
     flipObj(obj) {
+        if (!obj) return {}
         return Object.keys(obj).reduce((ret, key) => {
             ret[obj[key]] = key;
             return ret;
