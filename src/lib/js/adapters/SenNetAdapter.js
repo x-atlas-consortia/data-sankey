@@ -6,7 +6,9 @@ class SenNetAdapter extends SankeyAdapter {
         super(context, ops);
         this.facetsMap = {
             organ: 'origin_samples.organ.keyword',
-            source_type: 'sources.source_type'
+            source_type: 'sources.source_type',
+            analyte_class: 'dataset_type_hierarchy.analyte.keyword',
+            dataset_type: 'dataset_type_hierarchy.dataset_type.keyword'
         }
     }
 
@@ -87,6 +89,7 @@ class SenNetAdapter extends SankeyAdapter {
     goToFromLink(d) {
         const source= this.goTo(d.source)
         const target = this.goTo(d.target)
+        console.log('ts', source, target)
         SankeyAdapter.log('goToFromLink', {data: `${source.filter};${target.filter}${source.addFilters}`})
         const filters = encodeURIComponent(`${source.filter};${target.filter}${source.addFilters}`)
         if (source.baseUrl && target.baseUrl) {
