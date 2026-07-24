@@ -74,14 +74,16 @@ el.setOptions({
     onNodeClickCallback[function(event, row)], // the callback when a node is clicked
     onLabelClickCallback[function(event, row)], // the callback when a label or name is clicked
     validFilterMap[obj], // {columnName: str} // The mapping between `filters` key to `validFilterMap` key
-    displayableFilterMap[obj], // {columnName: str} // the column names to be displayed visually, leave as an empty bject to display all from `validFilterMap`
+    overwriteColumns[bool], // setting this to true will respect the order of validFilterMap and ignore its defaults
+    displayableFilterMap[obj], // {columnName: str} // the column names to be displayed visually, leave as an empty object to display all from `validFilterMap`
     d3[obj], // {d3, d3sankey, sankeyLinkHorizontal } // the d3 library and related functions for building the graph
     loading[obj], // {html[str], callback[function(ctx)]} // loading html and callback
     styleSheetPath[str], // publicly accessible url to stylesheet
     groupByOrganCategoryKey[str], // the UBKG property name to use when building dictionary of organs category; default is organ_uberon
     theme[obj], // {byScheme: {columnName: d3ColorFunction}, byValue: {value: colorHexStr}}
     dimensions[obj], // {breakpoint[int], mobileMaxWidth[int], desktopMaxHeight[int]}  defines sizing specifications
-    propertyPluralizedDisplayNames[obj] // Object with data property names as keys and a string with a pretty as value
+    propertyPluralizedDisplayNames[obj], // Object with data property names as keys and a string with a pretty as value
+    startUpOnOptions[bool] // leaving this as undefined will proceed to fetching the data and building the chart without having all options se via setOptions. Useful to set this to false when useShadow is set to true and setting other options via the setOptions method
 })
 
 ```

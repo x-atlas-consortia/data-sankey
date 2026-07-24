@@ -21,7 +21,7 @@
             //assigned_to_group_name: 'codcc'
             // organ: 'lung',
             // source_type: "human"
-            status: 'Published'
+            //status: 'Published'
         },
         api: {
             //sankey: 'https://ingest-api.dev.sennetconsortium.org/datasets/sankey_data',
@@ -30,16 +30,14 @@
         displayableFilterMap: {
             status: null
         },
-        overwriteColumns: true,
+        // overwriteColumns: false,
         propertyPluralizedDisplayNames: {
             dataset_type_hierarchy: 'modalities',
             dataset_type_analyte_class: 'analyte classes'
         },
         validFilterMap: {
-            group_name: 'dataset_group_name',
-            source_type: 'dataset_source_type',
-            organ: 'organ_type',
             dataset_type: 'dataset_type_hierarchy',
+            source_type: 'dataset_source_type',
             analyte_class: 'dataset_type_analyte_class'
         },
         dimensions: {

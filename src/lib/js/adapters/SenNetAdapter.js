@@ -66,7 +66,7 @@ class SenNetAdapter extends SankeyAdapter {
      * @returns {string|string}
      */
     onNodeBuildCssCallback(d, type = 'node'){
-        if (this.eq(d.columnName, this.ctx.validFilterMap.dataset_type)) {
+        if (this.eq(d.columnName, this.ctx.validFilterMap.dataset_type) || this.eq(d.columnName, this.ctx.validFilterMap.analyte_class)) {
             const assay = this.captureByKeysValue({matchKey: d.columnName, matchValue: d.name, keepKey: 'dataset_type_description'}, this.ctx.rawData)
             return assay.length <= 0 ? `c-sankey__entity--default c-sankey__${type}--default` : ''
         }
@@ -114,7 +114,7 @@ class SenNetAdapter extends SankeyAdapter {
      * @param {object} d - The current data node
      */
     goTo(d) {
-        const col = this.filterMap[d.columnName]
+        let col = this.filterMap[d.columnName]
         
         let values = [d.name]
         
@@ -122,8 +122,10 @@ class SenNetAdapter extends SankeyAdapter {
             values = this.ctx.organsDictByCategory[d.name]
         }
        
-        if (col === 'dataset_type') {
+        if (col === 'dataset_type' || col === 'analyte_class') {
             values = this.captureByKeysValue({matchKey: d.columnName, matchValue: d.name, keepKey: 'dataset_type_description'}, this.ctx.rawData)
+            // It should point to the dataset_type even if col is analyte_class
+            col = 'dataset_type'
         }
 
         const facet = this.facetsMap[col] || col

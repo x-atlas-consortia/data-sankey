@@ -1,2 +1,2 @@
-/** 7/23/2026, 4:29:31 PM | X Atlas Consortia Sankey 1.1.1 | git+https://github.com/x-atlas-consortia/data-sankey.git **/
+/** 7/24/2026, 12:08:57 PM | X Atlas Consortia Sankey 1.1.1 | git+https://github.com/x-atlas-consortia/data-sankey.git **/
 import*as d3 from"https://cdn.jsdelivr.net/npm/d3@7/+esm";import{sankey as d3sankey,sankeyLinkHorizontal}from"https://cdn.jsdelivr.net/npm/d3-sankey@0.12.3/+esm";import XACSankey from"./XACSankey.js";class ConsortiaSankey extends XACSankey{constructor(){super(),this.d3={d3,d3sankey,sankeyLinkHorizontal}}}customElements.define("consortia-sankey",ConsortiaSankey);var ConsortiaSankey_default=ConsortiaSankey;export{ConsortiaSankey_default as default};
