@@ -1,2 +1,2 @@
-/** 7/29/2026, 10:42:00 AM | X Atlas Consortia Sankey 1.1.2 | git+https://github.com/x-atlas-consortia/data-sankey.git **/
+/** 11/17/2026, 12:01:12 PM | X Atlas Consortia Sankey 1.2.0 | git+https://github.com/x-atlas-consortia/data-sankey.git **/
 import XACSankey from"./js/XACSankey";import ReactConsortiaSankey from"./js/ReactConsortiaSankey";import SenNetAdapter from"./js/adapters/SenNetAdapter";import HuBMAPAdapter from"./js/adapters/HuBMAPAdapter";import Palette from"./js/util/Palette";import Util from"./js/util/Util";export{HuBMAPAdapter,Palette,ReactConsortiaSankey,SenNetAdapter,Util,XACSankey};
