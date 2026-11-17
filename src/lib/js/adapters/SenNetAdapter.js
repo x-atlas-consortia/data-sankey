@@ -1,4 +1,5 @@
 import SankeyAdapter from './SankeyAdapter.js'
+import {compressToEncodedURIComponent} from 'lz-string';
 
 class SenNetAdapter extends SankeyAdapter {
     
@@ -91,7 +92,7 @@ class SenNetAdapter extends SankeyAdapter {
         const target = this.goTo(d.target)
         console.log('ts', source, target)
         SankeyAdapter.log('goToFromLink', {data: `${source.filter};${target.filter}${source.addFilters}`})
-        const filters = encodeURIComponent(`${source.filter};${target.filter}${source.addFilters}`)
+        const filters = this.encodeSearchQueryParam(`${source.filter};${target.filter}${source.addFilters}`)
         if (source.baseUrl && target.baseUrl) {
             this.openUrl(`${source.baseUrl}${filters}`)
         }
@@ -103,7 +104,7 @@ class SenNetAdapter extends SankeyAdapter {
      */
     goToFromNode(d) {
         const {baseUrl, filter, addFilters} = this.goTo(d)
-        const filters = encodeURIComponent(`${filter}${addFilters}`)
+        const filters = this.encodeSearchQueryParam(`${filter}${addFilters}`)
         if (baseUrl) {
             this.openUrl(`${baseUrl}${filters}`)
         }
@@ -134,10 +135,36 @@ class SenNetAdapter extends SankeyAdapter {
         if (values && (values.length || values.size)) {
             values = Array.from(values)
             const filter = `${facet}=${values.join(',')}`
-            const baseUrl = `${this.getUrls().portal}search?addFilters=`
+            const baseUrl = `${this.getUrls().portal}search?s=`
             return {baseUrl, filter, addFilters}
         }
         return {}
+    }
+
+    /**
+     * Encodes search query parameters for the URL
+     * @param {string} uriComponent - The URI component containing filters
+     * @returns {string} - The encoded search query parameter
+     */
+    encodeSearchQueryParam(uriComponent) {
+        const state = {
+            n: 20,
+            f: []
+        }
+
+        const strFilters = uriComponent.split(';').map(f => f.trim())
+        for (const f of strFilters) {
+            const [field, values] = f.split('=')
+            if (field && values) {
+                state.f.push({
+                    field: field.trim(),
+                    values: values.split(',').map(v => v.trim()),
+                    type: 'any'
+                })
+            }
+        }
+
+        return compressToEncodedURIComponent(JSON.stringify(state))
     }
 }
 
