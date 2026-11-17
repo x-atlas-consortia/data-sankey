@@ -1,6 +1,6 @@
 {
   "name": "xac-sankey",
-  "version": "1.0.19",
+  "version": "1.2.0",
   "description": "X Atlas Consortia Sankey",
   "keywords": [
     "sankey",
@@ -32,7 +32,8 @@
   },
   "dependencies": {
     "d3": "^7.9.0",
-    "d3-sankey": "^0.12.3"
+    "d3-sankey": "^0.12.3",
+    "lz-string": "^1.5.0"
   },
   "devDependencies": {
     "glob": "^13.0.6",
